@@ -53,7 +53,7 @@
         <label style="margin-left:12px">σ: <input type="number" id="sigma" value="3" min="0.01" step="0.1" style="width:60px"></label>
         <label style="margin-left:12px">α: <input type="number" id="alphaPower" value="0.05" min="0.001" max="0.2" step="0.001" style="width:60px"></label>
         <label style="margin-left:12px">Power: <input type="number" id="desiredPower" value="0.8" min="0.5" max="0.99" step="0.01" style="width:60px"></label>
-        <button id="powerBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
+        <button id="powerBtn" onclick="computeSampleSize()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
         <div id="powerOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
@@ -70,20 +70,85 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
-    import { normInv } from './biostats.js';
-    document.getElementById('powerBtn').addEventListener('click', () => {
+  <script>
+    /*
+     * Include a local implementation of the inverse standard normal
+     * cumulative distribution function (quantile function).  This
+     * routine is adapted from biostats.js so that we can compute
+     * z‑scores for given tail probabilities without importing a
+     * separate module.  It is accurate to around 1e-4 in the tails.
+     */
+    function normInv(p) {
+      const a1 = -3.969683028665376e+01;
+      const a2 =  2.209460984245205e+02;
+      const a3 = -2.759285104469687e+02;
+      const a4 =  1.383577518672690e+02;
+      const a5 = -3.066479806614716e+01;
+      const a6 =  2.506628277459239e+00;
+
+      const b1 = -5.447609879822406e+01;
+      const b2 =  1.615858368580409e+02;
+      const b3 = -1.556989798598866e+02;
+      const b4 =  6.680131188771972e+01;
+      const b5 = -1.328068155288572e+01;
+
+      const c1 = -7.784894002430293e-03;
+      const c2 = -3.223964580411365e-01;
+      const c3 = -2.400758277161838e+00;
+      const c4 = -2.549732539343734e+00;
+      const c5 =  4.374664141464968e+00;
+      const c6 =  2.938163982698783e+00;
+
+      const d1 =  7.784695709041462e-03;
+      const d2 =  3.224671290700398e-01;
+      const d3 =  2.445134137142996e+00;
+      const d4 =  3.754408661907416e+00;
+
+      const pLow  = 0.02425;
+      const pHigh = 1 - pLow;
+      if (p <= 0 || p >= 1) {
+        throw new Error('Probability must be in (0,1)');
+      }
+      let q, r;
+      if (p < pLow) {
+        q = Math.sqrt(-2 * Math.log(p));
+        return (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
+               ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+      }
+      if (p > pHigh) {
+        q = Math.sqrt(-2 * Math.log(1 - p));
+        return -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
+                ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
+      }
+      q = p - 0.5;
+      r = q * q;
+      return (((((a1 * r + a2) * r + a3) * r + a4) * r + a5) * r + a6) * q /
+             (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1);
+    }
+    // Compute sample size when the compute button is clicked.  Expose the
+    // function on the global scope so it can be called via the
+    // onclick attribute on the button.  This avoids relying on
+    // addEventListener in case module scripts are not executed
+    // correctly under the file:// protocol.
+    window.computeSampleSize = function computeSampleSize() {
       const delta = parseFloat(document.getElementById('effectSize').value);
       const sigma = parseFloat(document.getElementById('sigma').value);
       const alpha = parseFloat(document.getElementById('alphaPower').value);
       const power = parseFloat(document.getElementById('desiredPower').value);
+      if (isNaN(delta) || isNaN(sigma) || isNaN(alpha) || isNaN(power) || delta <= 0 || sigma <= 0) {
+        return;
+      }
+      // Compute critical z values for a two‑sided test at significance
+      // level alpha and for the desired power.  zAlpha uses 1‑alpha/2
+      // because of the two tails; zBeta uses the power directly (1‑β).
       const zAlpha = Math.abs(normInv(1 - alpha / 2));
       const zBeta = Math.abs(normInv(power));
+      // Formula for per‑group sample size comparing two means
       const n = 2 * Math.pow((zAlpha + zBeta) * sigma / delta, 2);
       const out = document.getElementById('powerOutput');
       out.innerHTML = `<p>${I18n.get() === 'zh' ? '每組建議樣本數' : 'Required sample size per group'}: ${Math.ceil(n).toFixed(0)}</p>` +
         `<p>z_{1-α/2}=${zAlpha.toFixed(3)}, z_{1-β}=${zBeta.toFixed(3)}</p>`;
-    });
+    };
   </script>
 </body>
 </html>

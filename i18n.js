@@ -8,7 +8,7 @@
 
 (function(){
   const STORAGE_KEY = 'biostats_lang';
-  let current = localStorage.getItem(STORAGE_KEY) || 'en';
+  let current = localStorage.getItem(STORAGE_KEY) || 'zh';
 
   function applyLanguage(l) {
     current = l;

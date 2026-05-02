@@ -48,8 +48,22 @@
       <p data-lang="zh">輸入多個存活時間與事件指示 (1=發生事件, 0=截尾)，以逗號分隔。計算並繪製存活曲線。</p>
       <p data-lang="en">Enter several survival times and event indicators (1=event occurred, 0=censored) separated by commas. The survival curve will be computed and plotted.</p>
       <div class="interactive-panel">
-        <label data-zh="時間" data-en="Times">時間: <input type="text" id="survTimes" value="5,8,12,15,20,22" style="width:200px"></label>
-        <label style="margin-left:12px" data-zh="事件" data-en="Events">事件: <input type="text" id="survEvents" value="1,0,1,1,0,1" style="width:200px"></label>
+        <!--
+          Wrap the translatable text in a separate <span> so the i18n.js
+          script only updates the text content of the span. Without
+          this, setting el.textContent would remove the <input> and
+          break the interactive fields. The span carries both
+          language attributes, leaving the rest of the label
+          untouched.
+        -->
+        <label>
+          <span data-zh="時間" data-en="Times">時間</span>: 
+          <input type="text" id="survTimes" value="5,8,12,15,20,22" style="width:200px">
+        </label>
+        <label style="margin-left:12px">
+          <span data-zh="事件" data-en="Events">事件</span>: 
+          <input type="text" id="survEvents" value="1,0,1,1,0,1" style="width:200px">
+        </label>
         <button id="survBtn" style="margin-left:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
         <div class="chart-container" style="margin-top:12px"><canvas id="survCanvas"></canvas></div>
         <div id="survOutput" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
@@ -108,14 +122,35 @@
       if (times.length !== events.length || times.length === 0) return;
       const { times: tVals, surv } = computeKaplanMeier(times, events);
       const ctx = document.getElementById('survCanvas').getContext('2d');
+      // Destroy any existing chart before drawing a new one
       if (survChart) survChart.destroy();
+      /*
+       * Use a line chart with the 'stepped' option rather than a
+       * non-existent 'step' chart type.  Chart.js v4 does not support a
+       * 'step' chart type; instead you provide a line chart and set
+       * stepped:true on the dataset.  This will produce the Kaplan–Meier
+       * stepwise survival curve.  The axes are labelled and the y‑axis
+       * is bounded between 0 and 1.
+       */
       survChart = new Chart(ctx, {
-        type: 'step',
-        data: { labels: tVals.map(x => x.toString()), datasets: [{ data: surv, borderColor:'rgba(212,160,60,1)', fill:false }] },
+        type: 'line',
+        data: {
+          labels: tVals.map(x => x.toString()),
+          datasets: [{
+            data: surv,
+            borderColor: 'rgba(41,98,255,1)',
+            backgroundColor: 'rgba(41,98,255,0.1)',
+            fill: false,
+            stepped: true
+          }]
+        },
         options: {
-          scales: { x:{ title:{ display:true, text:'Time' } }, y:{ title:{ display:true, text:'Survival Probability' }, min:0, max:1 } },
-          responsive:true,
-          plugins:{ legend:{ display:false } }
+          scales: {
+            x: { title: { display: true, text: I18n.get() === 'zh' ? '時間' : 'Time' } },
+            y: { title: { display: true, text: I18n.get() === 'zh' ? '存活機率' : 'Survival Probability' }, min: 0, max: 1 }
+          },
+          responsive: true,
+          plugins: { legend: { display: false } }
         }
       });
       const out = document.getElementById('survOutput');
