@@ -31,16 +31,16 @@
     <div style="position:relative;z-index:1;">
       <div class="step-badge">Step 9</div>
       <h1 data-zh="邏輯斯迴歸" data-en="Logistic Regression">邏輯斯迴歸</h1>
-      <p class="subtitle" data-lang="zh">適用於二元或分類反應的回歸模型，使用 logistic 函數將預測值限制在 0–1 之間【409685971072566†L12-L45】【409685971072566†L52-L71】。</p>
-      <p class="subtitle" data-lang="en">A regression model for binary or categorical responses using the logistic function to bound predictions between 0 and 1【409685971072566†L12-L45】【409685971072566†L52-L71】.</p>
+      <p class="subtitle" data-lang="zh">適用於二元或分類反應的回歸模型，利用 logistic 函數將預測機率限制在 0 到 1 之間。</p>
+      <p class="subtitle" data-lang="en">A regression model for binary or categorical responses that uses the logistic function to constrain predicted probabilities between 0 and 1.</p>
     </div>
   </header>
   <main class="content-wrap">
     <section class="section">
       <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
       <h2 data-zh="邏輯斯模型" data-en="The Logistic Model">邏輯斯模型</h2>
-      <p data-lang="zh">在邏輯斯迴歸中，對數機率 (logit) 與解釋變數線性相關：\(\log\frac{p}{1-p} = β_0 + β_1 x\)。透過轉換可得到機率 \(p=\frac{1}{1+e^{-(β_0+β_1 x)}}\)【409685971072566†L52-L71】。此模型常用於預測二元結果。</p>
-      <p data-lang="en">In logistic regression the log odds are linearly related to the predictor: \(\log\frac{p}{1-p} = β_0 + β_1 x\). Solving for p yields the logistic function \(p=\frac{1}{1+e^{-(β_0+β_1 x)}}\)【409685971072566†L52-L71】. This model is often used to predict binary outcomes.</p>
+      <p data-lang="zh">在邏輯斯迴歸中，對數機率 (logit) 與解釋變數線性相關：\(\log\frac{p}{1-p} = β_0 + β_1 x\)。將其轉換回機率形式，可得 logistic 函數：\(p=\frac{1}{1+e^{-(β_0+β_1 x)}}\)。此模型常用於預測二元結局。</p>
+      <p data-lang="en">In logistic regression the log odds are linearly related to the predictor: \(\log\frac{p}{1-p} = β_0 + β_1 x\). Converting this back to probability yields the logistic function \(p=\frac{1}{1+e^{-(β_0+β_1 x)}}\). The model is often used to predict binary outcomes.</p>
     </section>
     <section class="section">
       <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>

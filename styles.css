@@ -11,24 +11,25 @@
 
 /* colour and layout variables */
 :root {
-  --c-bg: #f8f6f1;
-  --c-bg-alt: #efeade;
-  --c-surface: #fff;
-  --c-surface-alt: #f3f0e8;
-  --c-ink: #1a1a1a;
-  --c-ink-light: #555;
-  --c-ink-muted: #888;
-  --c-accent: #1a6b5a;
-  --c-accent-light: #e6f4f0;
-  --c-accent-dark: #0e4a3e;
-  --c-highlight: #d4a03c;
-  --c-highlight-light: #fdf3dd;
-  --c-danger: #c0392b;
-  --c-danger-light: #fde8e5;
-  --c-code-bg: #1e293b;
+  /* Updated colour palette with a cool blue theme */
+  --c-bg: #f0f7ff;            /* page background: very light blue */
+  --c-bg-alt: #e6f0ff;        /* alternate backgrounds */
+  --c-surface: #ffffff;       /* card surfaces */
+  --c-surface-alt: #f3f9ff;   /* alternate card surface */
+  --c-ink: #0d1a26;           /* primary text: dark navy */
+  --c-ink-light: #335577;     /* secondary text */
+  --c-ink-muted: #5a728a;     /* muted text */
+  --c-accent: #2962ff;        /* primary accent: medium blue */
+  --c-accent-light: #e3f2fd;  /* light accent background */
+  --c-accent-dark: #0039cb;   /* dark accent */
+  --c-highlight: #ffa726;     /* highlight: warm orange */
+  --c-highlight-light: #fff3e0; /* light highlight */
+  --c-danger: #e53935;        /* danger colour */
+  --c-danger-light: #ffebee;  /* light danger background */
+  --c-code-bg: #1e293b;       /* code block background remains dark for contrast */
   --c-code-text: #e2e8f0;
-  --c-border: #d5cfc0;
-  --c-border-light: #e8e3d6;
+  --c-border: #c0d3f0;        /* border colour light blue */
+  --c-border-light: #dfe9f7;  /* very light border */
   --font-display: 'Crimson Pro', Georgia, serif;
   --font-body: 'DM Sans', -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -147,7 +148,8 @@ body {
 .hub-hero {
   padding: 100px 24px 80px;
   text-align: center;
-  background: linear-gradient(160deg, #0e4a3e 0%, #1a6b5a 30%, #2d8b6e 60%, #3a9a7c 100%);
+  /* Blue gradient for hero on the hub page */
+  background: linear-gradient(160deg, #0039cb 0%, #2962ff 40%, #5c85ff 70%, #8ea7ff 100%);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -254,7 +256,8 @@ body {
   position: relative;
   padding: 80px 24px 60px;
   text-align: center;
-  background: linear-gradient(160deg, #0e4a3e 0%, #1a6b5a 40%, #2d8b6e 100%);
+  /* Blue gradient for page headers */
+  background: linear-gradient(160deg, #0039cb 0%, #2962ff 50%, #5c85ff 100%);
   color: #fff;
   overflow: hidden;
 }

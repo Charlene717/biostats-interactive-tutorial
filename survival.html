@@ -31,16 +31,16 @@
     <div style="position:relative;z-index:1;">
       <div class="step-badge">Step 10</div>
       <h1 data-zh="存活分析" data-en="Survival Analysis">存活分析</h1>
-      <p class="subtitle" data-lang="zh">專門處理隨機事件發生時間資料，需考慮截尾現象與不同追蹤時間【989822755655977†L32-L39】。</p>
-      <p class="subtitle" data-lang="en">A field dedicated to analysing time‑to‑event data while accounting for censoring and variable follow‑up【989822755655977†L32-L39】.</p>
+      <p class="subtitle" data-lang="zh">專門處理隨機事件發生時間資料的統計方法，需考慮截尾現象與不同的追蹤時間。</p>
+      <p class="subtitle" data-lang="en">A field dedicated to analysing time‑to‑event data, taking account of censoring and varying follow‑up times.</p>
     </div>
   </header>
   <main class="content-wrap">
     <section class="section">
       <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
       <h2 data-zh="存活函數與截尾" data-en="Survival Function and Censoring">存活函數與截尾</h2>
-      <p data-lang="zh">存活分析研究事件發生的時間分布。資料常受到截尾：若在研究期結束前或失訪時尚未發生事件，僅知道存活時間超過某值【989822755655977†L73-L80】。存活函數 S(t)=P(T>t) 描述個體存活超過時間 t 的機率，常以 Kaplan–Meier 法估計【989822755655977†L99-L120】。</p>
-      <p data-lang="en">Survival analysis studies the distribution of times until an event occurs. Data are often censored: if the event has not occurred by the end of follow‑up or if the subject is lost, we only know that the survival time exceeds a certain value【989822755655977†L73-L80】. The survival function S(t)=P(T>t) gives the probability that an individual survives beyond time t; it is often estimated using the Kaplan–Meier method【989822755655977†L99-L120】.</p>
+      <p data-lang="zh">存活分析研究事件發生時間的分布。資料常受到截尾：若在研究期結束前或失訪時尚未發生事件，只能知道存活時間至少超過某值。存活函數 S(t)=P(T>t) 描述個體存活超過時間 t 的機率，通常以 Kaplan–Meier 法加以估計。</p>
+      <p data-lang="en">Survival analysis examines how long it takes for an event to occur. Data are often censored: if the event has not happened before the end of follow‑up or if the subject is lost, we only know that the survival time is at least beyond a given value. The survival function S(t)=P(T>t) gives the probability of surviving beyond time t and is commonly estimated with the Kaplan–Meier method.</p>
     </section>
     <section class="section">
       <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
@@ -79,18 +79,23 @@
       let S = 1;
       for (let i = 0; i < data.length; ) {
         const t = data[i].t;
-        let d = 0;
-        let r = atRisk;
+        let d = 0; // number of events at this time
+        let count = 0; // total individuals (events + censored) at this time
+        const r = atRisk;
+        // Count events and total individuals at this time point
         while (i < data.length && data[i].t === t) {
           if (data[i].d === 1) d++;
+          count++;
           i++;
         }
+        // Update survival only when there are events
         if (d > 0) {
           S *= (1 - d / r);
         }
         uniqueTimes.push(t);
         surv.push(S);
-        atRisk = atRisk - (d + (r - d) * 0);
+        // Remove all individuals (events and censored) at this time from risk set
+        atRisk -= count;
       }
       // Add starting point at time 0 with survival 1
       uniqueTimes.unshift(0);
