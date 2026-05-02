@@ -7,7 +7,7 @@
   <meta name="description" content="Understand the framework of hypothesis testing and try a one-sample test interactively.">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script type="module" src="biostats.js"></script>
+  <script src="biostats.js"></script>
 </head>
 <body>
   <nav class="top-nav">
@@ -49,7 +49,7 @@
       <p data-lang="zh">輸入樣本均值、假設的母體均值、樣本標準差、樣本大小與顯著水準，計算 t 值並判斷是否拒絕 H₀。此處以標準常態分布近似 t 分布。</p>
       <p data-lang="en">Enter the sample mean, hypothesised population mean, sample standard deviation, sample size and significance level to calculate the t‑statistic and decide whether to reject H₀. We use the normal approximation to the t distribution for simplicity.</p>
       <div class="interactive-panel">
-        <label>\(\bar{x}\): <input type="number" id="sampleMean" value="5" step="0.1" style="width:80px"></label>
+        <label>x̄: <input type="number" id="sampleMean" value="5" step="0.1" style="width:80px"></label>
         <label style="margin-left:12px">μ₀: <input type="number" id="nullMean" value="5" step="0.1" style="width:80px"></label>
         <label style="margin-left:12px">s: <input type="number" id="sampleSd" value="1" min="0.01" step="0.1" style="width:80px"></label>
         <label style="margin-left:12px">n: <input type="number" id="sampleN" value="30" min="2" step="1" style="width:60px"></label>
@@ -71,8 +71,8 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
-    import { normInv } from './biostats.js';
+  <script>
+    // Use global normInv defined in biostats.js
     document.getElementById('testBtn').addEventListener('click', () => {
       const xbar = parseFloat(document.getElementById('sampleMean').value);
       const mu0 = parseFloat(document.getElementById('nullMean').value);
@@ -81,7 +81,7 @@
       const alpha = parseFloat(document.getElementById('alpha').value);
       const tStat = (xbar - mu0) / (s / Math.sqrt(n));
       // two-sided critical value using normal approximation
-      const zCrit = Math.abs(normInv(1 - alpha / 2));
+      const zCrit = Math.abs(window.normInv(1 - alpha / 2));
       const reject = Math.abs(tStat) > zCrit;
       const out = document.getElementById('testOutput');
       out.innerHTML = `<p><strong>t:</strong> ${tStat.toFixed(3)}, <strong>z_crit:</strong> ${zCrit.toFixed(3)}</p>` +

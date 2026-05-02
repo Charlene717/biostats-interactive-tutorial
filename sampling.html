@@ -7,7 +7,7 @@
   <meta name="description" content="Interactive demonstration of sampling distributions and the Central Limit Theorem.">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script type="module" src="biostats.js"></script>
+  <script src="biostats.js"></script>
 </head>
 <body>
   <nav class="top-nav">
@@ -60,7 +60,7 @@
         </label>
         <label style="margin-left:12px">n: <input type="number" id="sampleSize" value="5" min="1" step="1" style="width:60px"></label>
         <label style="margin-left:12px" data-zh="次數" data-en="Samples">m: <input type="number" id="numSamples" value="1000" min="10" step="10" style="width:80px"></label>
-        <button id="simulateBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Simulate</button>
+        <button id="simulateBtn" onclick="runSimulation()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Simulate</button>
         <div id="cltOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
         <div class="chart-container"><canvas id="cltCanvas"></canvas></div>
       </div>
@@ -78,8 +78,40 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
-    import { drawHistogram } from './biostats.js';
+  <script>
+    // Define histogram drawer locally to avoid relying on external modules.
+    function drawHistogram(ctx, values, bins = 30) {
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const width = (max - min) / bins;
+      const counts = new Array(bins).fill(0);
+      values.forEach(v => {
+        const idx = Math.min(Math.floor((v - min) / width), bins - 1);
+        counts[idx]++;
+      });
+      const labels = counts.map((_, i) => (min + i * width).toFixed(2));
+      return new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Frequency',
+            data: counts,
+            backgroundColor: 'rgba(26,107,90,0.6)',
+            borderColor: 'rgba(26,107,90,1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: '' } },
+            y: { beginAtZero: true }
+          },
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
     let cltChart;
     // Simulate sampling and compute sample means
     function simulate(pop, n, m) {
@@ -100,7 +132,8 @@
       }
       return means;
     }
-    document.getElementById('simulateBtn').addEventListener('click', () => {
+    // Called when user clicks Simulate button
+    function runSimulation() {
       const pop = document.getElementById('popDist').value;
       const n = parseInt(document.getElementById('sampleSize').value);
       const m = parseInt(document.getElementById('numSamples').value);
@@ -108,11 +141,14 @@
       const output = document.getElementById('cltOutput');
       const avg = means.reduce((a,b) => a+b, 0) / means.length;
       const varMean = means.reduce((s, x) => s + Math.pow(x - avg, 2), 0) / (means.length - 1);
-      output.innerHTML = `<p><strong>${I18n.get() === 'zh' ? '樣本均值平均' : 'Mean of sample means'}:</strong> ${avg.toFixed(3)} | <strong>${I18n.get() === 'zh' ? '樣本均值標準差' : 'Std Dev of sample means'}:</strong> ${Math.sqrt(varMean).toFixed(3)}</p>`;
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      output.innerHTML = `<p><strong>${lang === 'zh' ? '樣本均值平均' : 'Mean of sample means'}:</strong> ${avg.toFixed(3)} | <strong>${lang === 'zh' ? '樣本均值標準差' : 'Std Dev of sample means'}:</strong> ${Math.sqrt(varMean).toFixed(3)}</p>`;
       const ctx = document.getElementById('cltCanvas').getContext('2d');
       if (cltChart) cltChart.destroy();
       cltChart = drawHistogram(ctx, means, 30);
-    });
+    }
+    // Expose to global scope so onclick works
+    window.runSimulation = runSimulation;
   </script>
 </body>
 </html>

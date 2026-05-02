@@ -7,7 +7,7 @@
   <meta name="description" content="Interactive exploration of common probability distributions including the normal and binomial distributions.">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script type="module" src="biostats.js"></script>
+  <script src="biostats.js"></script>
 </head>
 <body>
   <nav class="top-nav">
@@ -40,8 +40,8 @@
     <section class="section">
       <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
       <h2 data-zh="常態分布" data-en="Normal Distribution">常態分布</h2>
-      <p data-lang="zh">常態分布是連續、鐘形且對稱的分布，其位置由平均值 μ 決定，寬度由標準差 σ 決定。機率密度函數為 \(f(x)=\tfrac{1}{\sigma\sqrt{2\pi}} e^{-(x-\mu)^2/(2\sigma^2)}\)，稱為高斯曲線，滿足總面積為 1。經驗法則指出資料若近似常態分布，約 68% 落在 μ±σ，95% 落在 μ±2σ。</p>
-      <p data-lang="en">The normal distribution is a continuous, bell‑shaped and symmetric distribution whose location is determined by the mean μ and whose width is determined by the standard deviation σ. Its probability density function \(f(x)=\tfrac{1}{\sigma\sqrt{2\pi}} e^{-(x-\mu)^2/(2\sigma^2)}\) describes the well‑known Gaussian curve, with total area equal to 1. The empirical rule says that about 68% of values lie within μ±σ and 95% within μ±2σ.</p>
+      <p data-lang="zh">常態分布是連續、鐘形且對稱的分布，其位置由平均值 μ 決定，寬度由標準差 σ 決定。其機率密度函數為 f(x) = (1/(σ√(2π)))·exp(−(x−μ)²/(2σ²))，稱為高斯曲線，滿足總面積為 1。經驗法則指出資料若近似常態分布，約 68% 落在 μ±σ，95% 落在 μ±2σ。</p>
+      <p data-lang="en">The normal distribution is a continuous, bell‑shaped and symmetric distribution whose location is determined by the mean μ and whose width is determined by the standard deviation σ. Its probability density function f(x) = (1/(σ√(2π)))·exp(−(x−μ)²/(2σ²)) describes the well‑known Gaussian curve, with total area equal to 1. The empirical rule says that about 68% of values lie within μ±σ and 95% within μ±2σ.</p>
       <h2 data-zh="二項分布" data-en="Binomial Distribution">二項分布</h2>
       <p data-lang="zh">二項分布描述有限次獨立重複試驗中成功次數的機率，試驗次數為 n，每次成功機率為 p。若 X∼Bin(n,p)，其期望值為 np、變異數為 np(1−p)。當 n 較大且 p 不太接近 0 或 1 時，二項分布的形狀近似常態。</p>
       <p data-lang="en">The binomial distribution models the probability of a fixed number of successes in n independent and identical trials, each with success probability p. If X∼Bin(n,p), its expected value is np and its variance is np(1−p). When n is large and p is not near 0 or 1, the binomial distribution becomes approximately normal.</p>
@@ -79,8 +79,8 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
-    import { normalPdf, binomialPmf, drawLineChart } from './biostats.js';
+  <script>
+    // Use globally attached functions from biostats.js
     let distChart;
     // Show/hide parameter panels based on distribution selection
     document.querySelectorAll('input[name="distType"]').forEach(el => {
@@ -101,12 +101,12 @@
       if (type === 'normal') {
         const mean = parseFloat(document.getElementById('normalMean').value);
         const sd = parseFloat(document.getElementById('normalSd').value);
-        const { xs, ys } = normalPdf(mean, sd, 120);
-        distChart = drawLineChart(ctx, xs.map(x => x.toFixed(2)), ys, 'Normal PDF');
+        const { xs, ys } = window.normalPdf(mean, sd, 120);
+        distChart = window.drawLineChart(ctx, xs.map(x => x.toFixed(2)), ys, 'Normal PDF');
       } else {
         const n = parseInt(document.getElementById('binomN').value);
         const p = parseFloat(document.getElementById('binomP').value);
-        const { xs, ys } = binomialPmf(n, p);
+        const { xs, ys } = window.binomialPmf(n, p);
         distChart = new Chart(ctx, {
           type: 'bar',
           data: { labels: xs.map(x => x.toString()), datasets: [{ label: 'PMF', data: ys, backgroundColor: 'rgba(26,107,90,0.6)', borderColor:'rgba(26,107,90,1)', borderWidth:1 }] },

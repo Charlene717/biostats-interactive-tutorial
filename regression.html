@@ -49,7 +49,7 @@
       <p data-lang="en">Enter paired x,y data (one pair per line, separated by commas) to compute the regression slope, intercept and R², and plot the scatter with the fitted line.</p>
       <div class="interactive-panel">
         <textarea id="xyPairs" rows="5" placeholder="1,2\n2,3\n3,5" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
-        <button id="regBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Fit</button>
+        <button id="regBtn" onclick="fitRegression()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Fit</button>
         <div id="regOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
         <div class="chart-container"><canvas id="regCanvas"></canvas></div>
       </div>
@@ -67,9 +67,10 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
+  <script>
     let regChart;
-    document.getElementById('regBtn').addEventListener('click', () => {
+    // Called when Fit button is clicked
+    function fitRegression() {
       const lines = document.getElementById('xyPairs').value.trim().split(/\n+/);
       const xs = [];
       const ys = [];
@@ -94,7 +95,6 @@
       }
       const slope = num / den;
       const intercept = meanY - slope * meanX;
-      // Predicted values and R^2
       let ssRes = 0;
       const preds = xs.map(x => intercept + slope * x);
       for (let i = 0; i < n; i++) {
@@ -102,11 +102,10 @@
       }
       const r2 = 1 - ssRes / ssTot;
       const out = document.getElementById('regOutput');
-      out.innerHTML = `<p><strong>${I18n.get() === 'zh' ? '斜率' : 'Slope'}:</strong> ${slope.toFixed(3)}, <strong>${I18n.get() === 'zh' ? '截距' : 'Intercept'}:</strong> ${intercept.toFixed(3)}, <strong>R²:</strong> ${r2.toFixed(3)}</p>`;
-      // Chart
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      out.innerHTML = `<p><strong>${lang === 'zh' ? '斜率' : 'Slope'}:</strong> ${slope.toFixed(3)}, <strong>${lang === 'zh' ? '截距' : 'Intercept'}:</strong> ${intercept.toFixed(3)}, <strong>R²:</strong> ${r2.toFixed(3)}</p>`;
       const ctx = document.getElementById('regCanvas').getContext('2d');
       if (regChart) regChart.destroy();
-      // Determine range for line
       const minX = Math.min(...xs);
       const maxX = Math.max(...xs);
       const lineXs = [minX, maxX];
@@ -141,7 +140,8 @@
           plugins: { legend: { display: false } }
         }
       });
-    });
+    }
+    window.fitRegression = fitRegression;
   </script>
 </body>
 </html>

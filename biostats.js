@@ -8,7 +8,7 @@
  */
 
 // Compute common descriptive statistics from an array of numbers.
-export function descriptiveStats(values) {
+function descriptiveStats(values) {
   const n = values.length;
   if (n === 0) return null;
   const sorted = values.slice().sort((a, b) => a - b);
@@ -38,7 +38,7 @@ function quartile(arr, q) {
 }
 
 // Generate points for a normal distribution with given mean and sd.
-export function normalPdf(mean, sd, points = 100) {
+function normalPdf(mean, sd, points = 100) {
   const xs = [];
   const ys = [];
   const minX = mean - 4 * sd;
@@ -55,7 +55,7 @@ export function normalPdf(mean, sd, points = 100) {
 }
 
 // Generate pmf for a binomial distribution with parameters n and p.
-export function binomialPmf(n, p) {
+function binomialPmf(n, p) {
   const xs = [];
   const ys = [];
   for (let k = 0; k <= n; k++) {
@@ -83,7 +83,7 @@ function comb(n, k) {
 }
 
 // Draw a histogram given an array of values and a Chart.js context.
-export function drawHistogram(ctx, values, bins = 10) {
+function drawHistogram(ctx, values, bins = 10) {
   const min = Math.min(...values);
   const max = Math.max(...values);
   const width = (max - min) / bins;
@@ -122,7 +122,7 @@ export function drawHistogram(ctx, values, bins = 10) {
 }
 
 // Draw a line chart from x/y arrays using Chart.js.
-export function drawLineChart(ctx, xs, ys, label = '', colour = 'rgba(212,160,60,1)') {
+function drawLineChart(ctx, xs, ys, label = '', colour = 'rgba(212,160,60,1)') {
   return new Chart(ctx, {
     type: 'line',
     data: {
@@ -154,7 +154,7 @@ export function drawLineChart(ctx, xs, ys, label = '', colour = 'rgba(212,160,60
  * values for confidence intervals and power calculations.
  * See: https://web.archive.org/web/20150811010742/http://home.online.no/~pjacklam/notes/invnorm/
  */
-export function normInv(p) {
+function normInv(p) {
   // Coefficients for lower and upper regions
   const a1 = -3.969683028665376e+01;
   const a2 =  2.209460984245205e+02;
@@ -205,3 +205,13 @@ export function normInv(p) {
   return (((((a1 * r + a2) * r + a3) * r + a4) * r + a5) * r + a6) * q /
          (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1);
 }
+
+// Expose functions on the window object so they can be used from
+// pages that load this script without modules.  Attaching here
+// ensures that interactive pages can call these helpers directly.
+window.descriptiveStats = descriptiveStats;
+window.normalPdf = normalPdf;
+window.binomialPmf = binomialPmf;
+window.drawHistogram = drawHistogram;
+window.drawLineChart = drawLineChart;
+window.normInv = normInv;

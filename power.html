@@ -7,7 +7,7 @@
   <meta name="description" content="Learn about statistical power and sample size planning with an interactive calculator.">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script type="module" src="biostats.js"></script>
+  <!-- No module import is needed because this page defines its own functions locally -->
 </head>
 <body>
   <nav class="top-nav">
@@ -46,8 +46,8 @@
     <section class="section">
       <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
       <h2 data-zh="計算樣本數" data-en="Calculate Sample Size">計算樣本數</h2>
-      <p data-lang="zh">假設欲比較兩組平均，輸入預期的效果大小 Δ、標準差 σ、顯著水準 α 以及期望檢定力 (1−β)。計算公式 \(n=2((z_{1-α/2}+z_{1-β})\,σ/Δ)^2\)。結果為每組所需樣本數。</p>
-      <p data-lang="en">For comparing two means, enter the expected effect size Δ, the standard deviation σ, the significance level α and the desired power (1−β). The required sample size per group is \(n=2((z_{1-α/2}+z_{1-β})\,σ/Δ)^2\).</p>
+      <p data-lang="zh">假設欲比較兩組平均，輸入預期的效果大小 Δ、標準差 σ、顯著水準 α 以及期望檢定力 (1−β)。計算公式 n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup>。結果為每組所需樣本數。</p>
+      <p data-lang="en">For comparing two means, enter the expected effect size Δ, the standard deviation σ, the significance level α and the desired power (1−β). The required sample size per group is n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup>.</p>
       <div class="interactive-panel">
         <label>Δ: <input type="number" id="effectSize" value="2" min="0.01" step="0.1" style="width:60px"></label>
         <label style="margin-left:12px">σ: <input type="number" id="sigma" value="3" min="0.01" step="0.1" style="width:60px"></label>
@@ -146,7 +146,8 @@
       // Formula for per‑group sample size comparing two means
       const n = 2 * Math.pow((zAlpha + zBeta) * sigma / delta, 2);
       const out = document.getElementById('powerOutput');
-      out.innerHTML = `<p>${I18n.get() === 'zh' ? '每組建議樣本數' : 'Required sample size per group'}: ${Math.ceil(n).toFixed(0)}</p>` +
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      out.innerHTML = `<p>${lang === 'zh' ? '每組建議樣本數' : 'Required sample size per group'}: ${Math.ceil(n).toFixed(0)}</p>` +
         `<p>z_{1-α/2}=${zAlpha.toFixed(3)}, z_{1-β}=${zBeta.toFixed(3)}</p>`;
     };
   </script>

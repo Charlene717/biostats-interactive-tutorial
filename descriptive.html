@@ -7,7 +7,8 @@
   <meta name="description" content="Interactive exploration of descriptive statistics: mean, median, variance, standard deviation and quartiles.">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script type="module" src="biostats.js"></script>
+  <!-- Load Chart.js; descriptive functions are defined below instead of relying solely on biostats.js -->
+  <script src="biostats.js"></script>
 </head>
 <body>
   <nav class="top-nav">
@@ -53,7 +54,7 @@
       <p data-lang="en">Enter a series of numbers separated by commas or spaces below. Press the calculate button to obtain the mean, median, standard deviation and quartiles, and view the histogram.</p>
       <div class="interactive-panel">
         <textarea id="dataInput" rows="4" style="width:100%;font-family:var(--font-mono);padding:8px;border:1px solid var(--c-border-light);border-radius:6px;resize:vertical" placeholder="1, 2, 3, 4, 5"></textarea>
-        <button id="calcStats" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Calculate</button>
+        <button id="calcStats" onclick="calcAndDraw()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Calculate</button>
         <div id="statsOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
         <div class="chart-container"><canvas id="histCanvas"></canvas></div>
       </div>
@@ -68,10 +69,72 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
-    import { descriptiveStats, drawHistogram } from './biostats.js';
+  <script>
+    // Define descriptive statistics helper functions locally to avoid relying on external modules.
+    function descriptiveStats(values) {
+      const n = values.length;
+      if (n === 0) return null;
+      const sorted = values.slice().sort((a, b) => a - b);
+      const mean = values.reduce((sum, v) => sum + v, 0) / n;
+      const median = n % 2 === 1
+        ? sorted[(n - 1) / 2]
+        : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+      const deviations = values.map(v => v - mean);
+      const variance = deviations.reduce((sum, d) => sum + d * d, 0) / (n - 1);
+      const sd = Math.sqrt(variance);
+      const range = sorted[n - 1] - sorted[0];
+      const q1 = quartile(sorted, 0.25);
+      const q3 = quartile(sorted, 0.75);
+      const iqr = q3 - q1;
+      return { n, mean, median, variance, sd, range, q1, q3, iqr, sorted };
+    }
+    function quartile(arr, q) {
+      const pos = (arr.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (arr[base + 1] !== undefined) {
+        return arr[base] + rest * (arr[base + 1] - arr[base]);
+      } else {
+        return arr[base];
+      }
+    }
+    function drawHistogram(ctx, values, bins = 10) {
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const width = (max - min) / bins;
+      const counts = new Array(bins).fill(0);
+      values.forEach(v => {
+        const idx = Math.min(Math.floor((v - min) / width), bins - 1);
+        counts[idx]++;
+      });
+      const labels = counts.map((_, i) => (min + i * width).toFixed(2));
+      return new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Frequency',
+            data: counts,
+            backgroundColor: 'rgba(26,107,90,0.6)',
+            borderColor: 'rgba(26,107,90,1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: 'Value' } },
+            y: { beginAtZero: true, title: { display: true, text: 'Count' } }
+          },
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
     let histChart;
-    document.getElementById('calcStats').addEventListener('click', () => {
+    // Called when the user clicks the "Calculate" button.  Using an
+    // explicit function and onclick attribute avoids potential issues
+    // with addEventListener not executing under the file:// protocol.
+    function calcAndDraw() {
       const input = document.getElementById('dataInput').value.trim();
       if (!input) return;
       const values = input
@@ -83,15 +146,23 @@
       const out = document.getElementById('statsOutput');
       // Format numbers to two decimals
       function fmt(x) { return Number.parseFloat(x).toFixed(2); }
-      out.innerHTML = `<p><strong>${I18n.get() === 'zh' ? '樣本數' : 'Count'}:</strong> ${stats.n}</p>` +
-        `<p><strong>Mean:</strong> ${fmt(stats.mean)}, <strong>Median:</strong> ${fmt(stats.median)}</p>` +
-        `<p><strong>Std Dev:</strong> ${fmt(stats.sd)}, <strong>Variance:</strong> ${fmt(stats.variance)}</p>` +
-        `<p><strong>Range:</strong> ${fmt(stats.range)}, <strong>IQR:</strong> ${fmt(stats.iqr)}</p>`;
+      // Determine current language via html lang attribute
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      out.innerHTML =
+        `<p><strong>${lang === 'zh' ? '樣本數' : 'Count'}:</strong> ${stats.n}</p>` +
+        `<p><strong>${lang === 'zh' ? '平均數' : 'Mean'}:</strong> ${fmt(stats.mean)}, ` +
+        `<strong>${lang === 'zh' ? '中位數' : 'Median'}:</strong> ${fmt(stats.median)}</p>` +
+        `<p><strong>${lang === 'zh' ? '標準差' : 'Std Dev'}:</strong> ${fmt(stats.sd)}, ` +
+        `<strong>${lang === 'zh' ? '變異數' : 'Variance'}:</strong> ${fmt(stats.variance)}</p>` +
+        `<p><strong>${lang === 'zh' ? '範圍' : 'Range'}:</strong> ${fmt(stats.range)}, ` +
+        `<strong>${lang === 'zh' ? '四分位距' : 'IQR'}:</strong> ${fmt(stats.iqr)}</p>`;
       // Draw histogram
       const ctx = document.getElementById('histCanvas').getContext('2d');
       if (histChart) histChart.destroy();
       histChart = drawHistogram(ctx, stats.sorted, Math.min(10, Math.ceil(Math.sqrt(stats.n))));
-    });
+    }
+    // Expose to global scope so onclick handler can find it
+    window.calcAndDraw = calcAndDraw;
   </script>
 </body>
 </html>

@@ -39,8 +39,8 @@
     <section class="section">
       <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
       <h2 data-zh="邏輯斯模型" data-en="The Logistic Model">邏輯斯模型</h2>
-      <p data-lang="zh">在邏輯斯迴歸中，對數機率 (logit) 與解釋變數線性相關：\(\log\frac{p}{1-p} = β_0 + β_1 x\)。將其轉換回機率形式，可得 logistic 函數：\(p=\frac{1}{1+e^{-(β_0+β_1 x)}}\)。此模型常用於預測二元結局。</p>
-      <p data-lang="en">In logistic regression the log odds are linearly related to the predictor: \(\log\frac{p}{1-p} = β_0 + β_1 x\). Converting this back to probability yields the logistic function \(p=\frac{1}{1+e^{-(β_0+β_1 x)}}\). The model is often used to predict binary outcomes.</p>
+      <p data-lang="zh">在邏輯斯迴歸中，對數機率（logit）與解釋變數線性相關：log(p/(1−p)) = β₀ + β₁ x。將其轉換回機率形式，可得 logistic 函數：p = 1/(1 + e<sup>−(β₀ + β₁ x)</sup>)。此模型常用於預測二元結局。</p>
+      <p data-lang="en">In logistic regression the log odds are linearly related to the predictor: log(p/(1−p)) = β₀ + β₁ x. Converting this back to a probability yields the logistic function p = 1/(1 + e<sup>−(β₀ + β₁ x)</sup>). This model is often used to predict binary outcomes.</p>
     </section>
     <section class="section">
       <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
@@ -67,7 +67,7 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
+  <script>
     let logitChart;
     function logistic(x, b0, b1) {
       return 1 / (1 + Math.exp(-(b0 + b1 * x)));

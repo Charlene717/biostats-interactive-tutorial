@@ -8,7 +8,9 @@
 
 (function(){
   const STORAGE_KEY = 'biostats_lang';
-  let current = localStorage.getItem(STORAGE_KEY) || 'zh';
+  // Always start in English; ignore any previously stored preference.  The
+  // chosen language will still be saved when the user toggles languages.
+  let current = 'en';
 
   function applyLanguage(l) {
     current = l;

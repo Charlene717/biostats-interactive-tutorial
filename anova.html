@@ -51,7 +51,7 @@
         <textarea id="group1" rows="2" placeholder="Group 1: 5, 6, 7" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
         <textarea id="group2" rows="2" placeholder="Group 2: 8, 9, 10" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
         <textarea id="group3" rows="2" placeholder="Group 3 (optional): 7, 7, 8" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
-        <button id="anovaBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
+        <button id="anovaBtn" onclick="computeAnova()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
         <div id="anovaOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
@@ -68,11 +68,12 @@
   </main>
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
-  <script type="module">
+  <script>
     function parseGroup(text) {
       return text.split(/[ ,;\n]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
     }
-    document.getElementById('anovaBtn').addEventListener('click', () => {
+    // Called when Compute button is clicked
+    function computeAnova() {
       const groups = [];
       ['group1','group2','group3'].forEach(id => {
         const arr = parseGroup(document.getElementById(id).value.trim());
@@ -80,11 +81,9 @@
       });
       const k = groups.length;
       if (k < 2) return;
-      // overall mean
       const all = groups.flat();
       const N = all.length;
       const grandMean = all.reduce((a,b) => a+b, 0) / N;
-      // between-group sum of squares
       let ssb = 0;
       let ssw = 0;
       groups.forEach(g => {
@@ -100,11 +99,11 @@
       const msw = ssw / df2;
       const F = msb / msw;
       const out = document.getElementById('anovaOutput');
-      // display group means
       const meanList = groups.map((g,i) => `G${i+1} mean=${(g.reduce((a,b) => a+b,0)/g.length).toFixed(2)}`).join(', ');
       out.innerHTML = `<p>${meanList}</p>` +
         `<p><strong>F:</strong> ${F.toFixed(3)}, df1=${df1}, df2=${df2}</p>`;
-    });
+    }
+    window.computeAnova = computeAnova;
   </script>
 </body>
 </html>
