@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>抽樣與中心極限定理 | Biostatistics Tutorial</title>
+  <meta name="description" content="Interactive demonstration of sampling distributions and the Central Limit Theorem.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script type="module" src="biostats.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+      <ul class="top-nav-links">
+        <li><a href="descriptive.html">Desc.</a></li>
+        <li><a href="distributions.html">Dist.</a></li>
+        <li><a href="sampling.html" class="active">CLT</a></li>
+        <li><a href="hypothesis.html">Hypoth.</a></li>
+        <li><a href="t-tests.html">t‑tests</a></li>
+        <li><a href="chi-square.html">Chi²</a></li>
+        <li><a href="anova.html">ANOVA</a></li>
+        <li><a href="regression.html">Regress.</a></li>
+        <li><a href="logistic.html">Logistic</a></li>
+        <li><a href="survival.html">Survival</a></li>
+        <li><a href="power.html">Power</a></li>
+      </ul>
+    </div>
+  </nav>
+  <header class="page-hero">
+    <div style="position:relative;z-index:1;">
+      <div class="step-badge">Step 3</div>
+      <h1 data-zh="抽樣與中心極限定理" data-en="Sampling & Central Limit Theorem">抽樣與中心極限定理</h1>
+      <p class="subtitle" data-lang="zh">瞭解抽樣分布與中心極限定理，並透過模擬觀察樣本均值的分布趨近常態。</p>
+      <p class="subtitle" data-lang="en">Understand sampling distributions and the Central Limit Theorem, and observe through simulation how sample means approximate a normal distribution.</p>
+    </div>
+  </header>
+  <main class="content-wrap">
+    <section class="section">
+      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
+      <h2 data-zh="抽樣分布" data-en="Sampling Distribution">抽樣分布</h2>
+      <p data-lang="zh">當我們從母體抽取樣本並計算統計量（如樣本均值）時，這些統計量本身也具有分布，稱為抽樣分布。抽樣分布反映了在相同條件下無限次抽樣時統計量可能的變化情形。</p>
+      <p data-lang="en">When we draw samples from a population and compute statistics such as the sample mean, these statistics themselves have a distribution called the sampling distribution. The sampling distribution reflects how a statistic would vary if we repeatedly sample under the same conditions.</p>
+      <h2 data-zh="中心極限定理" data-en="Central Limit Theorem">中心極限定理</h2>
+      <p data-lang="zh">中心極限定理指出：無論原始分布如何，只要樣本大小足夠大（一般至少 30），樣本均值的抽樣分布將近似常態分布，平均數約為母體平均 μ，標準差約為 σ/√n【294875824016098†L22-L37】。</p>
+      <p data-lang="en">The Central Limit Theorem states that regardless of the shape of the original distribution, the sampling distribution of the sample mean will be approximately normal when the sample size is large enough (typically at least 30). The mean of this distribution is the population mean μ and its standard deviation is σ/√n【294875824016098†L22-L37】.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
+      <h2 data-zh="模擬抽樣" data-en="Simulate Sampling">模擬抽樣</h2>
+      <p data-lang="zh">選擇母體分布、樣本大小與抽樣次數，按下模擬即可觀察樣本均值的分布。</p>
+      <p data-lang="en">Choose a population distribution, sample size and number of samples. Press simulate to observe the distribution of sample means.</p>
+      <div class="interactive-panel">
+        <label><span data-zh="母體分布：" data-en="Population distribution:">母體分布：</span>
+          <select id="popDist">
+            <option value="uniform" data-zh="均勻 (0,1)" data-en="Uniform (0,1)">均勻 (0,1)</option>
+            <option value="exponential" data-zh="指數 (λ=1)" data-en="Exponential (λ=1)">指數 (λ=1)</option>
+          </select>
+        </label>
+        <label style="margin-left:12px">n: <input type="number" id="sampleSize" value="5" min="1" step="1" style="width:60px"></label>
+        <label style="margin-left:12px" data-zh="次數" data-en="Samples">m: <input type="number" id="numSamples" value="1000" min="10" step="10" style="width:80px"></label>
+        <button id="simulateBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Simulate</button>
+        <div id="cltOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
+        <div class="chart-container"><canvas id="cltCanvas"></canvas></div>
+      </div>
+    </section>
+    <div class="page-nav">
+      <a href="distributions.html">
+        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
+        <span class="nav-title" data-zh="機率分布" data-en="Distributions">機率分布</span>
+      </a>
+      <a href="hypothesis.html">
+        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
+        <span class="nav-title" data-zh="假設檢定" data-en="Hypothesis Testing">假設檢定</span>
+      </a>
+    </div>
+  </main>
+  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
+  <script src="i18n.js"></script>
+  <script type="module">
+    import { drawHistogram } from './biostats.js';
+    let cltChart;
+    // Simulate sampling and compute sample means
+    function simulate(pop, n, m) {
+      const means = [];
+      for (let i = 0; i < m; i++) {
+        let sum = 0;
+        for (let j = 0; j < n; j++) {
+          let x;
+          if (pop === 'uniform') {
+            x = Math.random();
+          } else if (pop === 'exponential') {
+            // exponential with lambda=1 using inverse transform
+            x = -Math.log(1 - Math.random());
+          }
+          sum += x;
+        }
+        means.push(sum / n);
+      }
+      return means;
+    }
+    document.getElementById('simulateBtn').addEventListener('click', () => {
+      const pop = document.getElementById('popDist').value;
+      const n = parseInt(document.getElementById('sampleSize').value);
+      const m = parseInt(document.getElementById('numSamples').value);
+      const means = simulate(pop, n, m);
+      const output = document.getElementById('cltOutput');
+      const avg = means.reduce((a,b) => a+b, 0) / means.length;
+      const varMean = means.reduce((s, x) => s + Math.pow(x - avg, 2), 0) / (means.length - 1);
+      output.innerHTML = `<p><strong>${I18n.get() === 'zh' ? '樣本均值平均' : 'Mean of sample means'}:</strong> ${avg.toFixed(3)} | <strong>${I18n.get() === 'zh' ? '樣本均值標準差' : 'Std Dev of sample means'}:</strong> ${Math.sqrt(varMean).toFixed(3)}</p>`;
+      const ctx = document.getElementById('cltCanvas').getContext('2d');
+      if (cltChart) cltChart.destroy();
+      cltChart = drawHistogram(ctx, means, 30);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>線性回歸 | Biostatistics Tutorial</title>
+  <meta name="description" content="Explore simple linear regression, fit a line to your data and visualize the result.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+      <ul class="top-nav-links">
+        <li><a href="descriptive.html">Desc.</a></li>
+        <li><a href="distributions.html">Dist.</a></li>
+        <li><a href="sampling.html">CLT</a></li>
+        <li><a href="hypothesis.html">Hypoth.</a></li>
+        <li><a href="t-tests.html">t‑tests</a></li>
+        <li><a href="chi-square.html">Chi²</a></li>
+        <li><a href="anova.html">ANOVA</a></li>
+        <li><a href="regression.html" class="active">Regress.</a></li>
+        <li><a href="logistic.html">Logistic</a></li>
+        <li><a href="survival.html">Survival</a></li>
+        <li><a href="power.html">Power</a></li>
+      </ul>
+    </div>
+  </nav>
+  <header class="page-hero">
+    <div style="position:relative;z-index:1;">
+      <div class="step-badge">Step 8</div>
+      <h1 data-zh="線性回歸" data-en="Linear Regression">線性回歸</h1>
+      <p class="subtitle" data-lang="zh">線性回歸尋求兩變數之間的最佳線性關係，計算斜率與截距並解釋決定係數【726314558986658†L64-L89】。</p>
+      <p class="subtitle" data-lang="en">Linear regression finds the best‑fitting linear relationship between two variables, computing the slope and intercept and interpreting the coefficient of determination【726314558986658†L64-L89】.</p>
+    </div>
+  </header>
+  <main class="content-wrap">
+    <section class="section">
+      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
+      <h2 data-zh="最小平方法" data-en="Least Squares">最小平方法</h2>
+      <p data-lang="zh">簡單線性回歸模型假定 y 與 x 存在線性關係 y=β₀+β₁x+ε。透過最小平方法選擇斜率 β₁ 和截距 β₀，使預測值與觀測值之偏差平方和最小【726314558986658†L64-L89】。決定係數 R² 表示模型解釋變異的比例【726314558986658†L92-L103】。</p>
+      <p data-lang="en">The simple linear regression model assumes a linear relationship y=β₀+β₁x+ε. The least squares method chooses the slope β₁ and intercept β₀ to minimise the sum of squared deviations between predicted and observed values【726314558986658†L64-L89】. The coefficient of determination R² indicates the proportion of variation explained by the model【726314558986658†L92-L103】.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
+      <h2 data-zh="輸入資料並擬合直線" data-en="Enter Data and Fit a Line">輸入資料並擬合直線</h2>
+      <p data-lang="zh">輸入 x,y 成對數據（每行一對，以逗號分隔），計算迴歸斜率、截距及 R²，並繪製散點圖與迴歸線。</p>
+      <p data-lang="en">Enter paired x,y data (one pair per line, separated by commas) to compute the regression slope, intercept and R², and plot the scatter with the fitted line.</p>
+      <div class="interactive-panel">
+        <textarea id="xyPairs" rows="5" placeholder="1,2\n2,3\n3,5" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <button id="regBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Fit</button>
+        <div id="regOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
+        <div class="chart-container"><canvas id="regCanvas"></canvas></div>
+      </div>
+    </section>
+    <div class="page-nav">
+      <a href="anova.html">
+        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
+        <span class="nav-title" data-zh="變異數分析" data-en="ANOVA">變異數分析</span>
+      </a>
+      <a href="logistic.html">
+        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
+        <span class="nav-title" data-zh="邏輯斯迴歸" data-en="Logistic Regression">邏輯斯迴歸</span>
+      </a>
+    </div>
+  </main>
+  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
+  <script src="i18n.js"></script>
+  <script type="module">
+    let regChart;
+    document.getElementById('regBtn').addEventListener('click', () => {
+      const lines = document.getElementById('xyPairs').value.trim().split(/\n+/);
+      const xs = [];
+      const ys = [];
+      lines.forEach(line => {
+        const parts = line.split(/[ ,;]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
+        if (parts.length >= 2) {
+          xs.push(parts[0]);
+          ys.push(parts[1]);
+        }
+      });
+      const n = xs.length;
+      if (n < 2) return;
+      const meanX = xs.reduce((a,b) => a+b, 0) / n;
+      const meanY = ys.reduce((a,b) => a+b, 0) / n;
+      let num = 0;
+      let den = 0;
+      let ssTot = 0;
+      for (let i = 0; i < n; i++) {
+        num += (xs[i] - meanX) * (ys[i] - meanY);
+        den += Math.pow(xs[i] - meanX, 2);
+        ssTot += Math.pow(ys[i] - meanY, 2);
+      }
+      const slope = num / den;
+      const intercept = meanY - slope * meanX;
+      // Predicted values and R^2
+      let ssRes = 0;
+      const preds = xs.map(x => intercept + slope * x);
+      for (let i = 0; i < n; i++) {
+        ssRes += Math.pow(ys[i] - preds[i], 2);
+      }
+      const r2 = 1 - ssRes / ssTot;
+      const out = document.getElementById('regOutput');
+      out.innerHTML = `<p><strong>${I18n.get() === 'zh' ? '斜率' : 'Slope'}:</strong> ${slope.toFixed(3)}, <strong>${I18n.get() === 'zh' ? '截距' : 'Intercept'}:</strong> ${intercept.toFixed(3)}, <strong>R²:</strong> ${r2.toFixed(3)}</p>`;
+      // Chart
+      const ctx = document.getElementById('regCanvas').getContext('2d');
+      if (regChart) regChart.destroy();
+      // Determine range for line
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const lineXs = [minX, maxX];
+      const lineYs = lineXs.map(x => intercept + slope * x);
+      regChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Data',
+              data: xs.map((x,i) => ({ x, y: ys[i] })),
+              backgroundColor: 'rgba(26,107,90,0.6)',
+              pointRadius: 4
+            },
+            {
+              type: 'line',
+              label: 'Fit',
+              data: lineXs.map((x,i) => ({ x, y: lineYs[i] })),
+              borderColor: 'rgba(212,160,60,1)',
+              borderWidth: 2,
+              fill: false,
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: 'x' } },
+            y: { title: { display: true, text: 'y' } }
+          },
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

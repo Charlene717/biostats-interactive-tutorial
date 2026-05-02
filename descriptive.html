@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>描述統計 | Biostatistics Tutorial</title>
+  <meta name="description" content="Interactive exploration of descriptive statistics: mean, median, variance, standard deviation and quartiles.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script type="module" src="biostats.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+      <ul class="top-nav-links">
+        <li><a href="descriptive.html" class="active">Desc.</a></li>
+        <li><a href="distributions.html">Dist.</a></li>
+        <li><a href="sampling.html">CLT</a></li>
+        <li><a href="hypothesis.html">Hypoth.</a></li>
+        <li><a href="t-tests.html">t‑tests</a></li>
+        <li><a href="chi-square.html">Chi²</a></li>
+        <li><a href="anova.html">ANOVA</a></li>
+        <li><a href="regression.html">Regress.</a></li>
+        <li><a href="logistic.html">Logistic</a></li>
+        <li><a href="survival.html">Survival</a></li>
+        <li><a href="power.html">Power</a></li>
+      </ul>
+    </div>
+  </nav>
+  <header class="page-hero">
+    <div style="position:relative;z-index:1;">
+      <div class="step-badge">Step 1</div>
+      <h1 data-zh="描述統計" data-en="Descriptive Statistics">描述統計</h1>
+      <p class="subtitle" data-lang="zh">學習如何以集中趨勢與變異數來概述資料，並透過互動示範體會不同統計量的意義。</p>
+      <p class="subtitle" data-lang="en">Learn how to summarise data using measures of central tendency and dispersion, and explore their meaning through interactive examples.</p>
+    </div>
+  </header>
+  <main class="content-wrap">
+    <section class="section">
+      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
+      <h2 data-zh="集中趨勢" data-en="Measures of Central Tendency">集中趨勢</h2>
+      <p data-lang="zh">平均數 (mean) 是所有數值的算術平均，用以描述資料的中心【789631070495856†L117-L135】。中位數 (median) 是排序後居中的數值，對極端值較不敏感【789631070495856†L35-L67】。眾數 (mode) 是出現次數最多的值，可以有多個或沒有眾數【789631070495856†L75-L89】。</p>
+      <p data-lang="en">The mean is the arithmetic average of all values and describes the centre of the data【789631070495856†L117-L135】. The median is the middle value after sorting and is less sensitive to extremes【789631070495856†L35-L67】. The mode is the value that occurs most often and may be one or more values or none at all【789631070495856†L75-L89】.</p>
+      <h2 data-zh="變異程度" data-en="Measures of Dispersion">變異程度</h2>
+      <p data-lang="zh">變異數 (variance) 衡量資料平均離均值多遠，其單位為原單位的平方【789631070495856†L117-L143】。標準差 (standard deviation) 是變異數的平方根，與原單位一致【789631070495856†L136-L148】。範圍 (range) 為最大值減最小值，四分位距 (IQR) 為第三四分位與第一四分位之差。</p>
+      <p data-lang="en">Variance measures how far the data are from the mean on average and has squared units【789631070495856†L117-L143】. The standard deviation is the square root of the variance and has the same units as the data【789631070495856†L136-L148】. The range is the difference between the maximum and minimum, and the interquartile range (IQR) is the difference between the third and first quartiles.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
+      <h2 data-zh="輸入數據並計算統計量" data-en="Enter Data and Calculate Statistics">輸入數據並計算統計量</h2>
+      <p data-lang="zh">在下方輸入一串以逗號或空格分隔的數字，按下計算按鈕即可取得平均數、中位數、標準差、四分位數等統計量，並查看直方圖。</p>
+      <p data-lang="en">Enter a series of numbers separated by commas or spaces below. Press the calculate button to obtain the mean, median, standard deviation and quartiles, and view the histogram.</p>
+      <div class="interactive-panel">
+        <textarea id="dataInput" rows="4" style="width:100%;font-family:var(--font-mono);padding:8px;border:1px solid var(--c-border-light);border-radius:6px;resize:vertical" placeholder="1, 2, 3, 4, 5"></textarea>
+        <button id="calcStats" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Calculate</button>
+        <div id="statsOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
+        <div class="chart-container"><canvas id="histCanvas"></canvas></div>
+      </div>
+    </section>
+    <div class="page-nav">
+      <a href="index.html" class="placeholder"></a>
+      <a href="distributions.html">
+        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
+        <span class="nav-title" data-zh="機率分布" data-en="Distributions">機率分布</span>
+      </a>
+    </div>
+  </main>
+  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
+  <script src="i18n.js"></script>
+  <script type="module">
+    import { descriptiveStats, drawHistogram } from './biostats.js';
+    let histChart;
+    document.getElementById('calcStats').addEventListener('click', () => {
+      const input = document.getElementById('dataInput').value.trim();
+      if (!input) return;
+      const values = input
+        .split(/[,\s]+/)
+        .map(s => parseFloat(s))
+        .filter(x => !isNaN(x));
+      const stats = descriptiveStats(values);
+      if (!stats) return;
+      const out = document.getElementById('statsOutput');
+      // Format numbers to two decimals
+      function fmt(x) { return Number.parseFloat(x).toFixed(2); }
+      out.innerHTML = `<p><strong>${I18n.get() === 'zh' ? '樣本數' : 'Count'}:</strong> ${stats.n}</p>` +
+        `<p><strong>Mean:</strong> ${fmt(stats.mean)}, <strong>Median:</strong> ${fmt(stats.median)}</p>` +
+        `<p><strong>Std Dev:</strong> ${fmt(stats.sd)}, <strong>Variance:</strong> ${fmt(stats.variance)}</p>` +
+        `<p><strong>Range:</strong> ${fmt(stats.range)}, <strong>IQR:</strong> ${fmt(stats.iqr)}</p>`;
+      // Draw histogram
+      const ctx = document.getElementById('histCanvas').getContext('2d');
+      if (histChart) histChart.destroy();
+      histChart = drawHistogram(ctx, stats.sorted, Math.min(10, Math.ceil(Math.sqrt(stats.n))));
+    });
+  </script>
+</body>
+</html>

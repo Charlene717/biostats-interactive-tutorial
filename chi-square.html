@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>卡方檢定 | Biostatistics Tutorial</title>
+  <meta name="description" content="Learn about the chi-square distribution and test of independence with an interactive contingency table.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+      <ul class="top-nav-links">
+        <li><a href="descriptive.html">Desc.</a></li>
+        <li><a href="distributions.html">Dist.</a></li>
+        <li><a href="sampling.html">CLT</a></li>
+        <li><a href="hypothesis.html">Hypoth.</a></li>
+        <li><a href="t-tests.html">t‑tests</a></li>
+        <li><a href="chi-square.html" class="active">Chi²</a></li>
+        <li><a href="anova.html">ANOVA</a></li>
+        <li><a href="regression.html">Regress.</a></li>
+        <li><a href="logistic.html">Logistic</a></li>
+        <li><a href="survival.html">Survival</a></li>
+        <li><a href="power.html">Power</a></li>
+      </ul>
+    </div>
+  </nav>
+  <header class="page-hero">
+    <div style="position:relative;z-index:1;">
+      <div class="step-badge">Step 6</div>
+      <h1 data-zh="卡方檢定" data-en="Chi‑Square Test">卡方檢定</h1>
+      <p class="subtitle" data-lang="zh">用於檢驗分類變數之間的關聯性。了解卡方分布及其檢定步驟，並透過 2×2 表格演練。</p>
+      <p class="subtitle" data-lang="en">Used to test associations between categorical variables. Learn the chi‑square distribution and testing procedure with a 2×2 table example.</p>
+    </div>
+  </header>
+  <main class="content-wrap">
+    <section class="section">
+      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
+      <h2 data-zh="卡方分布與檢定" data-en="Chi‑Square Distribution and Test">卡方分布與檢定</h2>
+      <p data-lang="zh">卡方分布是右偏且僅取正值，其形狀取決於自由度【104233104330914†L74-L102】。卡方檢定用於評估觀察次數與期望次數之差異是否足夠大以拒絕零假設，適用於類別資料之獨立性或適合度檢定【104233104330914†L119-L128】。</p>
+      <p data-lang="en">The chi‑square distribution is asymmetric and only takes positive values; its shape depends on the degrees of freedom【104233104330914†L74-L102】. Chi‑square tests assess whether the differences between observed and expected counts are large enough to reject the null hypothesis and are used for independence or goodness‑of‑fit tests for categorical data【104233104330914†L119-L128】.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
+      <h2 data-zh="2×2 卡方檢定" data-en="2×2 Chi‑Square Test">2×2 卡方檢定</h2>
+      <p data-lang="zh">輸入 2×2 交叉表格的四個觀察值，計算期望值與卡方統計量。</p>
+      <p data-lang="en">Enter the four observed values of a 2×2 contingency table to compute expected counts and the chi‑square statistic.</p>
+      <div class="interactive-panel">
+        <table style="margin-bottom:8px">
+          <tr>
+            <td></td>
+            <td><input type="number" id="obs11" value="20" min="0" style="width:60px"></td>
+            <td><input type="number" id="obs12" value="30" min="0" style="width:60px"></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><input type="number" id="obs21" value="15" min="0" style="width:60px"></td>
+            <td><input type="number" id="obs22" value="35" min="0" style="width:60px"></td>
+          </tr>
+        </table>
+        <button id="chiBtn" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Compute</button>
+        <div id="chiOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+    <div class="page-nav">
+      <a href="t-tests.html">
+        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
+        <span class="nav-title" data-zh="t 檢定與 CI" data-en="t‑Tests & CI">t 檢定與 CI</span>
+      </a>
+      <a href="anova.html">
+        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
+        <span class="nav-title" data-zh="變異數分析" data-en="ANOVA">變異數分析</span>
+      </a>
+    </div>
+  </main>
+  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
+  <script src="i18n.js"></script>
+  <script type="module">
+    document.getElementById('chiBtn').addEventListener('click', () => {
+      const a = parseFloat(document.getElementById('obs11').value);
+      const b = parseFloat(document.getElementById('obs12').value);
+      const c = parseFloat(document.getElementById('obs21').value);
+      const d = parseFloat(document.getElementById('obs22').value);
+      const row1 = a + b;
+      const row2 = c + d;
+      const col1 = a + c;
+      const col2 = b + d;
+      const total = row1 + row2;
+      // Expected counts
+      const e11 = row1 * col1 / total;
+      const e12 = row1 * col2 / total;
+      const e21 = row2 * col1 / total;
+      const e22 = row2 * col2 / total;
+      // Chi-square statistic
+      const chi = (a - e11) * (a - e11) / e11 + (b - e12) * (b - e12) / e12 + (c - e21) * (c - e21) / e21 + (d - e22) * (d - e22) / e22;
+      const out = document.getElementById('chiOutput');
+      out.innerHTML = `<p><strong>χ²:</strong> ${chi.toFixed(3)}, df=1</p>` +
+        `<p>${I18n.get() === 'zh' ? '期望值' : 'Expected counts'}: [${e11.toFixed(1)}, ${e12.toFixed(1)}; ${e21.toFixed(1)}, ${e22.toFixed(1)}]</p>`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>存活分析 | Biostatistics Tutorial</title>
+  <meta name="description" content="Explore survival data, censoring and the Kaplan–Meier estimator with an interactive tool.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+      <ul class="top-nav-links">
+        <li><a href="descriptive.html">Desc.</a></li>
+        <li><a href="distributions.html">Dist.</a></li>
+        <li><a href="sampling.html">CLT</a></li>
+        <li><a href="hypothesis.html">Hypoth.</a></li>
+        <li><a href="t-tests.html">t‑tests</a></li>
+        <li><a href="chi-square.html">Chi²</a></li>
+        <li><a href="anova.html">ANOVA</a></li>
+        <li><a href="regression.html">Regress.</a></li>
+        <li><a href="logistic.html">Logistic</a></li>
+        <li><a href="survival.html" class="active">Survival</a></li>
+        <li><a href="power.html">Power</a></li>
+      </ul>
+    </div>
+  </nav>
+  <header class="page-hero">
+    <div style="position:relative;z-index:1;">
+      <div class="step-badge">Step 10</div>
+      <h1 data-zh="存活分析" data-en="Survival Analysis">存活分析</h1>
+      <p class="subtitle" data-lang="zh">專門處理隨機事件發生時間資料，需考慮截尾現象與不同追蹤時間【989822755655977†L32-L39】。</p>
+      <p class="subtitle" data-lang="en">A field dedicated to analysing time‑to‑event data while accounting for censoring and variable follow‑up【989822755655977†L32-L39】.</p>
+    </div>
+  </header>
+  <main class="content-wrap">
+    <section class="section">
+      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
+      <h2 data-zh="存活函數與截尾" data-en="Survival Function and Censoring">存活函數與截尾</h2>
+      <p data-lang="zh">存活分析研究事件發生的時間分布。資料常受到截尾：若在研究期結束前或失訪時尚未發生事件，僅知道存活時間超過某值【989822755655977†L73-L80】。存活函數 S(t)=P(T>t) 描述個體存活超過時間 t 的機率，常以 Kaplan–Meier 法估計【989822755655977†L99-L120】。</p>
+      <p data-lang="en">Survival analysis studies the distribution of times until an event occurs. Data are often censored: if the event has not occurred by the end of follow‑up or if the subject is lost, we only know that the survival time exceeds a certain value【989822755655977†L73-L80】. The survival function S(t)=P(T>t) gives the probability that an individual survives beyond time t; it is often estimated using the Kaplan–Meier method【989822755655977†L99-L120】.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
+      <h2 data-zh="Kaplan–Meier 曲線" data-en="Kaplan–Meier Curve">Kaplan–Meier 曲線</h2>
+      <p data-lang="zh">輸入多個存活時間與事件指示 (1=發生事件, 0=截尾)，以逗號分隔。計算並繪製存活曲線。</p>
+      <p data-lang="en">Enter several survival times and event indicators (1=event occurred, 0=censored) separated by commas. The survival curve will be computed and plotted.</p>
+      <div class="interactive-panel">
+        <label data-zh="時間" data-en="Times">時間: <input type="text" id="survTimes" value="5,8,12,15,20,22" style="width:200px"></label>
+        <label style="margin-left:12px" data-zh="事件" data-en="Events">事件: <input type="text" id="survEvents" value="1,0,1,1,0,1" style="width:200px"></label>
+        <button id="survBtn" style="margin-left:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
+        <div class="chart-container" style="margin-top:12px"><canvas id="survCanvas"></canvas></div>
+        <div id="survOutput" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+    <div class="page-nav">
+      <a href="logistic.html">
+        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
+        <span class="nav-title" data-zh="邏輯斯迴歸" data-en="Logistic Regression">邏輯斯迴歸</span>
+      </a>
+      <a href="power.html">
+        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
+        <span class="nav-title" data-zh="檢定力與樣本數" data-en="Power & Sample Size">檢定力與樣本數</span>
+      </a>
+    </div>
+  </main>
+  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
+  <script src="i18n.js"></script>
+  <script type="module">
+    let survChart;
+    function computeKaplanMeier(times, events) {
+      // Sort by time ascending
+      const data = times.map((t,i) => ({ t, d: events[i] })).sort((a,b) => a.t - b.t);
+      const uniqueTimes = [];
+      const surv = [];
+      let atRisk = data.length;
+      let S = 1;
+      for (let i = 0; i < data.length; ) {
+        const t = data[i].t;
+        let d = 0;
+        let r = atRisk;
+        while (i < data.length && data[i].t === t) {
+          if (data[i].d === 1) d++;
+          i++;
+        }
+        if (d > 0) {
+          S *= (1 - d / r);
+        }
+        uniqueTimes.push(t);
+        surv.push(S);
+        atRisk = atRisk - (d + (r - d) * 0);
+      }
+      // Add starting point at time 0 with survival 1
+      uniqueTimes.unshift(0);
+      surv.unshift(1);
+      return { times: uniqueTimes, surv };
+    }
+    document.getElementById('survBtn').addEventListener('click', () => {
+      const times = document.getElementById('survTimes').value.split(/[,;\s]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
+      const events = document.getElementById('survEvents').value.split(/[,;\s]+/).map(s => parseInt(s)).filter(x => x === 0 || x === 1);
+      if (times.length !== events.length || times.length === 0) return;
+      const { times: tVals, surv } = computeKaplanMeier(times, events);
+      const ctx = document.getElementById('survCanvas').getContext('2d');
+      if (survChart) survChart.destroy();
+      survChart = new Chart(ctx, {
+        type: 'step',
+        data: { labels: tVals.map(x => x.toString()), datasets: [{ data: surv, borderColor:'rgba(212,160,60,1)', fill:false }] },
+        options: {
+          scales: { x:{ title:{ display:true, text:'Time' } }, y:{ title:{ display:true, text:'Survival Probability' }, min:0, max:1 } },
+          responsive:true,
+          plugins:{ legend:{ display:false } }
+        }
+      });
+      const out = document.getElementById('survOutput');
+      out.innerHTML = `<p>${I18n.get() === 'zh' ? '事件次數' : 'Number of events'}: ${events.filter(d => d===1).length}, ${I18n.get() === 'zh' ? '樣本數' : 'Total subjects'}: ${times.length}</p>`;
+    });
+  </script>
+</body>
+</html>

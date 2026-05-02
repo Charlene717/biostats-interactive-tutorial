@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>變異數分析 | Biostatistics Tutorial</title>
+  <meta name="description" content="Understand one-way ANOVA and compare means of multiple groups interactively.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <nav class="top-nav">
+    <div class="top-nav-inner">
+      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+      <ul class="top-nav-links">
+        <li><a href="descriptive.html">Desc.</a></li>
+        <li><a href="distributions.html">Dist.</a></li>
+        <li><a href="sampling.html">CLT</a></li>
+        <li><a href="hypothesis.html">Hypoth.</a></li>
+        <li><a href="t-tests.html">t‑tests</a></li>
+        <li><a href="chi-square.html">Chi²</a></li>
+        <li><a href="anova.html" class="active">ANOVA</a></li>
+        <li><a href="regression.html">Regress.</a></li>
+        <li><a href="logistic.html">Logistic</a></li>
+        <li><a href="survival.html">Survival</a></li>
+        <li><a href="power.html">Power</a></li>
+      </ul>
+    </div>
+  </nav>
+  <header class="page-hero">
+    <div style="position:relative;z-index:1;">
+      <div class="step-badge">Step 7</div>
+      <h1 data-zh="變異數分析" data-en="Analysis of Variance (ANOVA)">變異數分析</h1>
+      <p class="subtitle" data-lang="zh">用於比較三組以上樣本平均是否有顯著差異的統計方法，透過 F 統計量比較組間與組內變異【574036625856960†L84-L105】。</p>
+      <p class="subtitle" data-lang="en">A statistical method for testing whether three or more group means differ significantly by comparing between‑group and within‑group variation with the F statistic【574036625856960†L84-L105】.</p>
+    </div>
+  </header>
+  <main class="content-wrap">
+    <section class="section">
+      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
+      <h2 data-zh="一因子 ANOVA" data-en="One‑Way ANOVA">一因子 ANOVA</h2>
+      <p data-lang="zh">ANOVA 將總變異拆分為組間變異與組內變異。若組間變異占比大，則不同組之均值可能不同。F 統計量 = (組間變異/自由度<sub>1</sub>) / (組內變異/自由度<sub>2</sub>)，自由度與組數及總樣本數相關。</p>
+      <p data-lang="en">ANOVA partitions the total variation into between‑group and within‑group components. If the between‑group variation is large relative to within‑group variation, the group means may differ. The F statistic is computed as (between‑group variation/df<sub>1</sub>) divided by (within‑group variation/df<sub>2</sub>), where the degrees of freedom depend on the number of groups and total sample size.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
+      <h2 data-zh="比較多組均值" data-en="Compare Multiple Means">比較多組均值</h2>
+      <p data-lang="zh">輸入至多三組資料（以逗號分隔），計算各組平均與 F 統計量。</p>
+      <p data-lang="en">Enter up to three groups of data (comma‑separated) to compute group means and the F statistic.</p>
+      <div class="interactive-panel">
+        <textarea id="group1" rows="2" placeholder="Group 1: 5, 6, 7" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <textarea id="group2" rows="2" placeholder="Group 2: 8, 9, 10" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <textarea id="group3" rows="2" placeholder="Group 3 (optional): 7, 7, 8" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <button id="anovaBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
+        <div id="anovaOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+    <div class="page-nav">
+      <a href="chi-square.html">
+        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
+        <span class="nav-title" data-zh="卡方檢定" data-en="Chi‑Square">卡方檢定</span>
+      </a>
+      <a href="regression.html">
+        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
+        <span class="nav-title" data-zh="線性回歸" data-en="Linear Regression">線性回歸</span>
+      </a>
+    </div>
+  </main>
+  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
+  <script src="i18n.js"></script>
+  <script type="module">
+    function parseGroup(text) {
+      return text.split(/[ ,;\n]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
+    }
+    document.getElementById('anovaBtn').addEventListener('click', () => {
+      const groups = [];
+      ['group1','group2','group3'].forEach(id => {
+        const arr = parseGroup(document.getElementById(id).value.trim());
+        if (arr.length > 0) groups.push(arr);
+      });
+      const k = groups.length;
+      if (k < 2) return;
+      // overall mean
+      const all = groups.flat();
+      const N = all.length;
+      const grandMean = all.reduce((a,b) => a+b, 0) / N;
+      // between-group sum of squares
+      let ssb = 0;
+      let ssw = 0;
+      groups.forEach(g => {
+        const mean = g.reduce((a,b) => a+b, 0) / g.length;
+        ssb += g.length * Math.pow(mean - grandMean, 2);
+        g.forEach(x => {
+          ssw += Math.pow(x - mean, 2);
+        });
+      });
+      const df1 = k - 1;
+      const df2 = N - k;
+      const msb = ssb / df1;
+      const msw = ssw / df2;
+      const F = msb / msw;
+      const out = document.getElementById('anovaOutput');
+      // display group means
+      const meanList = groups.map((g,i) => `G${i+1} mean=${(g.reduce((a,b) => a+b,0)/g.length).toFixed(2)}`).join(', ');
+      out.innerHTML = `<p>${meanList}</p>` +
+        `<p><strong>F:</strong> ${F.toFixed(3)}, df1=${df1}, df2=${df2}</p>`;
+    });
+  </script>
+</body>
+</html>
