@@ -147,8 +147,12 @@
       const n = 2 * Math.pow((zAlpha + zBeta) * sigma / delta, 2);
       const out = document.getElementById('powerOutput');
       const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      out.innerHTML = `<p>${lang === 'zh' ? '每組建議樣本數' : 'Required sample size per group'}: ${Math.ceil(n).toFixed(0)}</p>` +
-        `<p>z_{1-α/2}=${zAlpha.toFixed(3)}, z_{1-β}=${zBeta.toFixed(3)}</p>`;
+      // Create translated labels and show critical z values with subscripts for clarity
+      const sizeLabel = lang === 'zh' ? '每組建議樣本數' : 'Required sample size per group';
+      const criticalLabel = lang === 'zh' ? '臨界 z' : 'Critical z';
+      out.innerHTML = `<p><strong>${sizeLabel}:</strong> ${Math.ceil(n).toFixed(0)}</p>` +
+        `<p><strong>${criticalLabel} (z<sub>1-α/2</sub>):</strong> ${zAlpha.toFixed(3)}, ` +
+        `<strong>z<sub>1-β</sub>:</strong> ${zBeta.toFixed(3)}</p>`;
     };
   </script>
 </body>

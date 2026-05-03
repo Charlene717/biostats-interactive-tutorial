@@ -55,7 +55,7 @@
         <label>x̄: <input type="number" id="ciMean" value="10" step="0.1" style="width:80px"></label>
         <label style="margin-left:12px">s: <input type="number" id="ciSd" value="2" min="0.01" step="0.1" style="width:80px"></label>
         <label style="margin-left:12px">n: <input type="number" id="ciN" value="25" min="2" step="1" style="width:60px"></label>
-        <label style="margin-left:12px">信心水準 CL: <input type="number" id="ciLevel" value="0.95" min="0.5" max="0.99" step="0.01" style="width:60px"></label>
+        <label style="margin-left:12px"><span data-zh="信心水準" data-en="Confidence Level">信心水準</span>: <input type="number" id="ciLevel" value="0.95" min="0.5" max="0.99" step="0.01" style="width:60px"></label>
         <!-- Use inline handler so the button works on file:// pages -->
         <button id="ciBtn" onclick="computeCI()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
         <div id="ciOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
@@ -89,9 +89,12 @@
       const upper = xbar + margin;
       const out = document.getElementById('ciOutput');
       const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      out.innerHTML = `<p><strong>${(cl*100).toFixed(0)}% CI:</strong> [${lower.toFixed(3)}, ${upper.toFixed(3)}]</p>` +
-        `<p>${lang === 'zh' ? '臨界值 z_{α/2}=' : 'Critical value z_{α/2}='}${zCrit.toFixed(3)}, ` +
-        `${lang === 'zh' ? '標準誤差' : 'Standard error'}=${se.toFixed(3)}</p>`;
+      // Display the interval and supporting statistics with clearer labels and translations
+      const ciLabel = lang === 'zh' ? `${(cl*100).toFixed(0)}% 信賴區間` : `${(cl*100).toFixed(0)}% CI`;
+      const criticalLabel = lang === 'zh' ? '臨界 z (z<sub>α/2</sub>)' : 'Critical z (z<sub>α/2</sub>)';
+      const seLabel = lang === 'zh' ? '標準誤差' : 'Standard error';
+      out.innerHTML = `<p><strong>${ciLabel}:</strong> [${lower.toFixed(3)}, ${upper.toFixed(3)}]</p>` +
+        `<p><strong>${criticalLabel}:</strong> ${zCrit.toFixed(3)}, <strong>${seLabel}:</strong> ${se.toFixed(3)}</p>`;
     }
     window.computeCI = computeCI;
   </script>

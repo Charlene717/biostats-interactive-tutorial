@@ -50,10 +50,12 @@
       <div class="interactive-panel">
         <!-- Separate fields for X and Y values to improve usability and avoid issues with multi-line input -->
         <label><span data-zh="X 值 (以逗號分隔)" data-en="X values (comma separated)">X values (comma separated)</span>:
-          <textarea id="regX" rows="2" placeholder="1,2,3,4" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <!-- Provide default X values so users can immediately fit a line -->
+        <textarea id="regX" rows="2" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical">1, 2, 3, 4</textarea>
         </label>
         <label style="margin-top:8px; display:block"><span data-zh="Y 值 (以逗號分隔)" data-en="Y values (comma separated)">Y values (comma separated)</span>:
-          <textarea id="regY" rows="2" placeholder="2,3,5,8" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <!-- Provide default Y values corresponding to the X values above -->
+        <textarea id="regY" rows="2" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical">2, 3, 5, 8</textarea>
         </label>
         <button id="regBtn" onclick="fitRegression()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Fit</button>
         <div id="regOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>

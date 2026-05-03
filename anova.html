@@ -48,9 +48,10 @@
       <p data-lang="zh">輸入至多三組資料（以逗號分隔），計算各組平均與 F 統計量。</p>
       <p data-lang="en">Enter up to three groups of data (comma‑separated) to compute group means and the F statistic.</p>
       <div class="interactive-panel">
-        <textarea id="group1" rows="2" placeholder="Group 1: 5, 6, 7" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
-        <textarea id="group2" rows="2" placeholder="Group 2: 8, 9, 10" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
-        <textarea id="group3" rows="2" placeholder="Group 3 (optional): 7, 7, 8" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <!-- Pre-fill the group textareas with example data so users can run ANOVA without typing -->
+        <textarea id="group1" rows="2" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical">5, 6, 7</textarea>
+        <textarea id="group2" rows="2" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical">8, 9, 10</textarea>
+        <textarea id="group3" rows="2" style="margin-top:8px;width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical">7, 7, 8</textarea>
         <button id="anovaBtn" onclick="computeAnova()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
         <div id="anovaOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>

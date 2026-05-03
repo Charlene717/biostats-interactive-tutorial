@@ -85,8 +85,14 @@
       const reject = Math.abs(tStat) > zCrit;
       const out = document.getElementById('testOutput');
       const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      out.innerHTML = `<p><strong>t:</strong> ${tStat.toFixed(3)}, <strong>z_{α/2}:</strong> ${zCrit.toFixed(3)}</p>` +
-        `<p>${reject ? (lang === 'zh' ? '拒絕 H₀：樣本均值與假設值差異顯著' : 'Reject H₀: the sample mean differs significantly from the hypothesised mean') : (lang === 'zh' ? '不拒絕 H₀：差異不顯著' : 'Do not reject H₀: no significant difference')}</p>`;
+      // Construct labels based on language and present statistics more clearly
+      const tLabel = lang === 'zh' ? 't 統計量' : 't‑statistic';
+      const criticalLabel = lang === 'zh' ? '臨界 z (z<sub>α/2</sub>)' : 'Critical z (z<sub>α/2</sub>)';
+      const decision = reject
+        ? (lang === 'zh' ? '拒絕 H₀：樣本均值與假設值差異顯著' : 'Reject H₀: the sample mean differs significantly from the hypothesised mean')
+        : (lang === 'zh' ? '不拒絕 H₀：差異不顯著' : 'Do not reject H₀: no significant difference');
+      out.innerHTML = `<p><strong>${tLabel}:</strong> ${tStat.toFixed(3)}, <strong>${criticalLabel}:</strong> ${zCrit.toFixed(3)}</p>` +
+        `<p>${decision}</p>`;
     }
     window.oneSampleTest = oneSampleTest;
   </script>

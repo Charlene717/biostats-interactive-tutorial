@@ -53,7 +53,8 @@
       <p data-lang="zh">在下方輸入一串以逗號或空格分隔的數字，按下計算按鈕即可取得平均數、中位數、標準差、四分位數等統計量，並查看直方圖。</p>
       <p data-lang="en">Enter a series of numbers separated by commas or spaces below. Press the calculate button to obtain the mean, median, standard deviation and quartiles, and view the histogram.</p>
       <div class="interactive-panel">
-        <textarea id="dataInput" rows="4" style="width:100%;font-family:var(--font-mono);padding:8px;border:1px solid var(--c-border-light);border-radius:6px;resize:vertical" placeholder="1, 2, 3, 4, 5"></textarea>
+        <!-- Provide default values instead of just a placeholder so users can immediately test the calculator -->
+        <textarea id="dataInput" rows="4" style="width:100%;font-family:var(--font-mono);padding:8px;border:1px solid var(--c-border-light);border-radius:6px;resize:vertical">1, 2, 3, 4, 5</textarea>
         <button id="calcStats" onclick="calcAndDraw()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Calculate</button>
         <div id="statsOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
         <div class="chart-container"><canvas id="histCanvas"></canvas></div>
