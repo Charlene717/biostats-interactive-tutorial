@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -54,7 +54,8 @@
         <label style="margin-left:12px">s: <input type="number" id="sampleSd" value="1" min="0.01" step="0.1" style="width:80px"></label>
         <label style="margin-left:12px">n: <input type="number" id="sampleN" value="30" min="2" step="1" style="width:60px"></label>
         <label style="margin-left:12px">α: <input type="number" id="alpha" value="0.05" min="0.001" max="0.2" step="0.001" style="width:60px"></label>
-        <button id="testBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Test</button>
+        <!-- Use inline handler to ensure click works locally -->
+        <button id="testBtn" onclick="oneSampleTest()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Test</button>
         <div id="testOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
@@ -73,20 +74,21 @@
   <script src="i18n.js"></script>
   <script>
     // Use global normInv defined in biostats.js
-    document.getElementById('testBtn').addEventListener('click', () => {
+    function oneSampleTest() {
       const xbar = parseFloat(document.getElementById('sampleMean').value);
       const mu0 = parseFloat(document.getElementById('nullMean').value);
       const s = parseFloat(document.getElementById('sampleSd').value);
       const n = parseInt(document.getElementById('sampleN').value);
       const alpha = parseFloat(document.getElementById('alpha').value);
       const tStat = (xbar - mu0) / (s / Math.sqrt(n));
-      // two-sided critical value using normal approximation
       const zCrit = Math.abs(window.normInv(1 - alpha / 2));
       const reject = Math.abs(tStat) > zCrit;
       const out = document.getElementById('testOutput');
-      out.innerHTML = `<p><strong>t:</strong> ${tStat.toFixed(3)}, <strong>z_crit:</strong> ${zCrit.toFixed(3)}</p>` +
-        `<p>${reject ? (I18n.get() === 'zh' ? '拒絕 H₀：樣本均值與假設值差異顯著' : 'Reject H₀: the sample mean differs significantly from the hypothesised mean') : (I18n.get() === 'zh' ? '不拒絕 H₀：差異不顯著' : 'Do not reject H₀: no significant difference')}</p>`;
-    });
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      out.innerHTML = `<p><strong>t:</strong> ${tStat.toFixed(3)}, <strong>z_{α/2}:</strong> ${zCrit.toFixed(3)}</p>` +
+        `<p>${reject ? (lang === 'zh' ? '拒絕 H₀：樣本均值與假設值差異顯著' : 'Reject H₀: the sample mean differs significantly from the hypothesised mean') : (lang === 'zh' ? '不拒絕 H₀：差異不顯著' : 'Do not reject H₀: no significant difference')}</p>`;
+    }
+    window.oneSampleTest = oneSampleTest;
   </script>
 </body>
 </html>

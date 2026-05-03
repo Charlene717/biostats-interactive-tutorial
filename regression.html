@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -48,7 +48,13 @@
       <p data-lang="zh">輸入 x,y 成對數據（每行一對，以逗號分隔），計算迴歸斜率、截距及 R²，並繪製散點圖與迴歸線。</p>
       <p data-lang="en">Enter paired x,y data (one pair per line, separated by commas) to compute the regression slope, intercept and R², and plot the scatter with the fitted line.</p>
       <div class="interactive-panel">
-        <textarea id="xyPairs" rows="5" placeholder="1,2\n2,3\n3,5" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        <!-- Separate fields for X and Y values to improve usability and avoid issues with multi-line input -->
+        <label><span data-zh="X 值 (以逗號分隔)" data-en="X values (comma separated)">X values (comma separated)</span>:
+          <textarea id="regX" rows="2" placeholder="1,2,3,4" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        </label>
+        <label style="margin-top:8px; display:block"><span data-zh="Y 值 (以逗號分隔)" data-en="Y values (comma separated)">Y values (comma separated)</span>:
+          <textarea id="regY" rows="2" placeholder="2,3,5,8" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical"></textarea>
+        </label>
         <button id="regBtn" onclick="fitRegression()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Fit</button>
         <div id="regOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
         <div class="chart-container"><canvas id="regCanvas"></canvas></div>
@@ -71,18 +77,16 @@
     let regChart;
     // Called when Fit button is clicked
     function fitRegression() {
-      const lines = document.getElementById('xyPairs').value.trim().split(/\n+/);
-      const xs = [];
-      const ys = [];
-      lines.forEach(line => {
-        const parts = line.split(/[ ,;]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
-        if (parts.length >= 2) {
-          xs.push(parts[0]);
-          ys.push(parts[1]);
-        }
-      });
+      // Parse X and Y values separately.  Users should provide the same number of
+      // comma-, space- or newline‑separated values in each field.  If counts
+      // differ or fewer than two pairs are given, alert and abort.
+      const xs = document.getElementById('regX').value.trim().split(/[ ,;\n]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
+      const ys = document.getElementById('regY').value.trim().split(/[ ,;\n]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
       const n = xs.length;
-      if (n < 2) return;
+      if (n < 2 || ys.length !== n) {
+        alert('Please enter the same number of X and Y values (at least two).');
+        return;
+      }
       const meanX = xs.reduce((a,b) => a+b, 0) / n;
       const meanY = ys.reduce((a,b) => a+b, 0) / n;
       let num = 0;

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -50,7 +50,8 @@
       <div class="interactive-panel">
         <label>β₀: <input type="number" id="logitB0" value="0" step="0.5" style="width:60px"></label>
         <label style="margin-left:12px">β₁: <input type="number" id="logitB1" value="1" step="0.5" style="width:60px"></label>
-        <button id="logitBtn" style="margin-left:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
+        <!-- Use inline handler to ensure reliable plotting on local pages -->
+        <button id="logitBtn" onclick="plotLogit()" style="margin-left:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
         <div class="chart-container" style="margin-top:12px"><canvas id="logitCanvas"></canvas></div>
       </div>
     </section>
@@ -97,9 +98,10 @@
         }
       });
     }
-    document.getElementById('logitBtn').addEventListener('click', plotLogit);
-    // initial plot
-    plotLogit();
+    // initial plot on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      plotLogit();
+    });
   </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -59,7 +59,10 @@
           </select>
         </label>
         <label style="margin-left:12px">n: <input type="number" id="sampleSize" value="5" min="1" step="1" style="width:60px"></label>
-        <label style="margin-left:12px" data-zh="次數" data-en="Samples">m: <input type="number" id="numSamples" value="1000" min="10" step="10" style="width:80px"></label>
+        <!-- Wrap translation text in a span so the input is not replaced by i18n.js -->
+        <label style="margin-left:12px">
+          <span data-zh="次數" data-en="Samples">Samples</span>: <input type="number" id="numSamples" value="1000" min="10" step="10" style="width:80px">
+        </label>
         <button id="simulateBtn" onclick="runSimulation()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Simulate</button>
         <div id="cltOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
         <div class="chart-container"><canvas id="cltCanvas"></canvas></div>

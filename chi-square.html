@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -60,7 +60,8 @@
             <td><input type="number" id="obs22" value="35" min="0" style="width:60px"></td>
           </tr>
         </table>
-        <button id="chiBtn" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Compute</button>
+        <!-- Use inline handler so click events work in local file contexts -->
+        <button id="chiBtn" onclick="computeChi()" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Compute</button>
         <div id="chiOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
@@ -78,7 +79,7 @@
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
   <script>
-    document.getElementById('chiBtn').addEventListener('click', () => {
+    function computeChi() {
       const a = parseFloat(document.getElementById('obs11').value);
       const b = parseFloat(document.getElementById('obs12').value);
       const c = parseFloat(document.getElementById('obs21').value);
@@ -88,17 +89,17 @@
       const col1 = a + c;
       const col2 = b + d;
       const total = row1 + row2;
-      // Expected counts
       const e11 = row1 * col1 / total;
       const e12 = row1 * col2 / total;
       const e21 = row2 * col1 / total;
       const e22 = row2 * col2 / total;
-      // Chi-square statistic
       const chi = (a - e11) * (a - e11) / e11 + (b - e12) * (b - e12) / e12 + (c - e21) * (c - e21) / e21 + (d - e22) * (d - e22) / e22;
       const out = document.getElementById('chiOutput');
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
       out.innerHTML = `<p><strong>χ²:</strong> ${chi.toFixed(3)}, df=1</p>` +
-        `<p>${I18n.get() === 'zh' ? '期望值' : 'Expected counts'}: [${e11.toFixed(1)}, ${e12.toFixed(1)}; ${e21.toFixed(1)}, ${e22.toFixed(1)}]</p>`;
-    });
+        `<p>${lang === 'zh' ? '期望值' : 'Expected counts'}: [${e11.toFixed(1)}, ${e12.toFixed(1)}; ${e21.toFixed(1)}, ${e22.toFixed(1)}]</p>`;
+    }
+    window.computeChi = computeChi;
   </script>
 </body>
 </html>

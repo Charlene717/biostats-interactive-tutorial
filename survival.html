@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -64,7 +64,8 @@
           <span data-zh="事件" data-en="Events">事件</span>: 
           <input type="text" id="survEvents" value="1,0,1,1,0,1" style="width:200px">
         </label>
-        <button id="survBtn" style="margin-left:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
+        <!-- Use inline handler for reliability on file:// pages -->
+        <button id="survBtn" onclick="plotSurvival()" style="margin-left:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
         <div class="chart-container" style="margin-top:12px"><canvas id="survCanvas"></canvas></div>
         <div id="survOutput" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
@@ -116,22 +117,14 @@
       surv.unshift(1);
       return { times: uniqueTimes, surv };
     }
-    document.getElementById('survBtn').addEventListener('click', () => {
+    function plotSurvival() {
       const times = document.getElementById('survTimes').value.split(/[,;\s]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
       const events = document.getElementById('survEvents').value.split(/[,;\s]+/).map(s => parseInt(s)).filter(x => x === 0 || x === 1);
       if (times.length !== events.length || times.length === 0) return;
       const { times: tVals, surv } = computeKaplanMeier(times, events);
       const ctx = document.getElementById('survCanvas').getContext('2d');
-      // Destroy any existing chart before drawing a new one
       if (survChart) survChart.destroy();
-      /*
-       * Use a line chart with the 'stepped' option rather than a
-       * non-existent 'step' chart type.  Chart.js v4 does not support a
-       * 'step' chart type; instead you provide a line chart and set
-       * stepped:true on the dataset.  This will produce the Kaplan–Meier
-       * stepwise survival curve.  The axes are labelled and the y‑axis
-       * is bounded between 0 and 1.
-       */
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
       survChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -146,16 +139,17 @@
         },
         options: {
           scales: {
-            x: { title: { display: true, text: I18n.get() === 'zh' ? '時間' : 'Time' } },
-            y: { title: { display: true, text: I18n.get() === 'zh' ? '存活機率' : 'Survival Probability' }, min: 0, max: 1 }
+            x: { title: { display: true, text: lang === 'zh' ? '時間' : 'Time' } },
+            y: { title: { display: true, text: lang === 'zh' ? '存活機率' : 'Survival Probability' }, min: 0, max: 1 }
           },
           responsive: true,
           plugins: { legend: { display: false } }
         }
       });
       const out = document.getElementById('survOutput');
-      out.innerHTML = `<p>${I18n.get() === 'zh' ? '事件次數' : 'Number of events'}: ${events.filter(d => d===1).length}, ${I18n.get() === 'zh' ? '樣本數' : 'Total subjects'}: ${times.length}</p>`;
-    });
+      out.innerHTML = `<p>${lang === 'zh' ? '事件次數' : 'Number of events'}: ${events.filter(d => d===1).length}, ${lang === 'zh' ? '樣本數' : 'Total subjects'}: ${times.length}</p>`;
+    }
+    window.plotSurvival = plotSurvival;
   </script>
 </body>
 </html>

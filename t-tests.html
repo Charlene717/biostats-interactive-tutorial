@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -56,7 +56,8 @@
         <label style="margin-left:12px">s: <input type="number" id="ciSd" value="2" min="0.01" step="0.1" style="width:80px"></label>
         <label style="margin-left:12px">n: <input type="number" id="ciN" value="25" min="2" step="1" style="width:60px"></label>
         <label style="margin-left:12px">信心水準 CL: <input type="number" id="ciLevel" value="0.95" min="0.5" max="0.99" step="0.01" style="width:60px"></label>
-        <button id="ciBtn" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
+        <!-- Use inline handler so the button works on file:// pages -->
+        <button id="ciBtn" onclick="computeCI()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
         <div id="ciOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
@@ -74,8 +75,8 @@
   <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
   <script src="i18n.js"></script>
   <script>
-    // Use global normInv function from biostats.js to compute z critical values
-    document.getElementById('ciBtn').addEventListener('click', () => {
+    // Compute confidence interval using the global normInv function
+    function computeCI() {
       const xbar = parseFloat(document.getElementById('ciMean').value);
       const s = parseFloat(document.getElementById('ciSd').value);
       const n = parseInt(document.getElementById('ciN').value);
@@ -87,9 +88,12 @@
       const lower = xbar - margin;
       const upper = xbar + margin;
       const out = document.getElementById('ciOutput');
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
       out.innerHTML = `<p><strong>${(cl*100).toFixed(0)}% CI:</strong> [${lower.toFixed(3)}, ${upper.toFixed(3)}]</p>` +
-        `<p>${I18n.get() === 'zh' ? '臨界值 zₑ/2=' : 'Critical value z_{α/2}='}${zCrit.toFixed(3)}, ${I18n.get() === 'zh' ? '標準誤差' : 'Standard error'}=${se.toFixed(3)}</p>`;
-    });
+        `<p>${lang === 'zh' ? '臨界值 z_{α/2}=' : 'Critical value z_{α/2}='}${zCrit.toFixed(3)}, ` +
+        `${lang === 'zh' ? '標準誤差' : 'Standard error'}=${se.toFixed(3)}</p>`;
+    }
+    window.computeCI = computeCI;
   </script>
 </body>
 </html>
