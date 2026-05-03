@@ -400,6 +400,62 @@ body {
   font-weight: 600;
 }
 
+/*
+ * Page navigation buttons: style the links for previous and next pages as
+ * cards with clear affordance.  Inspired by the layout in the original
+ * scRNA‑seq tutorial, these rules make the navigation look like
+ * clickable buttons.  They adapt to our colour variables and break
+ * into a column on narrow screens.
+ */
+.page-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--c-border-light);
+}
+.page-nav a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 24px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-light);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: var(--transition);
+}
+.page-nav a:hover {
+  border-color: var(--c-accent);
+  box-shadow: var(--shadow-md);
+}
+.page-nav a .nav-dir {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--c-accent);
+}
+.page-nav a .nav-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--c-ink);
+}
+.page-nav a:last-child {
+  text-align: right;
+}
+.page-nav .placeholder {
+  flex: 1;
+}
+@media (max-width: 768px) {
+  .page-nav {
+    flex-direction: column;
+  }
+}
+
 /* Slider groups */
 .slider-group {
   margin: 18px 0;
