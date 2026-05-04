@@ -109,40 +109,40 @@
         </div>
         <div class="code-tab-content active" id="dist-code-r">
           <button class="copy-btn" onclick="copyCode('dist-r-code', this)">📋</button>
-          <pre><code id="dist-r-code" class="language-r"># 計算並繪製常態密度與二項機率質量函數
-x &lt;- seq(-4, 4, length.out = 100)
-# 常態分布密度 (均值 0，標準差 1)
-y_norm &lt;- dnorm(x, mean = 0, sd = 1)
-# 二項分布機率 (n = 10, p = 0.5)
-k &lt;- 0:10
-y_binom &lt;- dbinom(k, size = 10, prob = 0.5)
-print(y_binom)
-# 繪製常態密度曲線
-plot(x, y_norm, type = 'l', main = 'Normal PDF', xlab = 'x', ylab = 'Density')
-# 繪製二項分布柱狀圖
-barplot(y_binom, names.arg = k, main = 'Binomial PMF', xlab = 'k', ylab = 'P(X = k)')</code></pre>
+          <pre><code id="dist-r-code" class="language-r"><span class="comment"># 計算並繪製常態密度與二項機率質量函數</span>
+<span class="func">x</span> &lt;- <span class="func">seq</span>(<span class="num">-4</span>, <span class="num">4</span>, length.out = <span class="num">100</span>)
+<span class="comment"># 常態分布密度 (均值 0，標準差 1)</span>
+<span class="func">y_norm</span> &lt;- <span class="func">dnorm</span>(x, mean = <span class="num">0</span>, sd = <span class="num">1</span>)
+<span class="comment"># 二項分布機率 (n = 10, p = 0.5)</span>
+<span class="func">k</span> &lt;- <span class="num">0</span>:<span class="num">10</span>
+<span class="func">y_binom</span> &lt;- <span class="func">dbinom</span>(k, size = <span class="num">10</span>, prob = <span class="num">0.5</span>)
+<span class="func">print</span>(y_binom)
+<span class="comment"># 繪製常態密度曲線</span>
+<span class="func">plot</span>(x, y_norm, type = <span class="str">'l'</span>, main = <span class="str">'Normal PDF'</span>, xlab = <span class="str">'x'</span>, ylab = <span class="str">'Density'</span>)
+<span class="comment"># 繪製二項分布柱狀圖</span>
+<span class="func">barplot</span>(y_binom, names.arg = k, main = <span class="str">'Binomial PMF'</span>, xlab = <span class="str">'k'</span>, ylab = <span class="str">'P(X = k)'</span>)</code></pre>
         </div>
         <div class="code-tab-content" id="dist-code-python">
           <button class="copy-btn" onclick="copyCode('dist-python-code', this)">📋</button>
-          <pre><code id="dist-python-code" class="language-python"># compute and plot normal density and binomial PMF
-import numpy as np
-from scipy.stats import norm, binom
-import matplotlib.pyplot as plt
-# Normal PDF (mean=0, sd=1)
-x = np.linspace(-4, 4, 100)
-y_norm = norm.pdf(x, loc=0, scale=1)
-# Binomial PMF (n=10, p=0.5)
-k = np.arange(0, 11)
-y_binom = binom.pmf(k, n=10, p=0.5)
-print(y_binom)
-# Plot normal density
-plt.plot(x, y_norm)
-plt.xlabel('x'); plt.ylabel('Density'); plt.title('Normal PDF')
-plt.show()
-# Plot binomial PMF
-plt.bar(k, y_binom)
-plt.xlabel('k'); plt.ylabel('P(X=k)'); plt.title('Binomial PMF')
-plt.show()</code></pre>
+          <pre><code id="dist-python-code" class="language-python"><span class="comment"># compute and plot normal density and binomial PMF</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> norm, binom
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="comment"># Normal PDF (mean=0, sd=1)</span>
+x = np.<span class="func">linspace</span>(<span class="num">-4</span>, <span class="num">4</span>, <span class="num">100</span>)
+<span class="func">y_norm</span> = norm.<span class="func">pdf</span>(x, loc=<span class="num">0</span>, scale=<span class="num">1</span>)
+<span class="comment"># Binomial PMF (n=10, p=0.5)</span>
+k = np.<span class="func">arange</span>(<span class="num">0</span>, <span class="num">11</span>)
+<span class="func">y_binom</span> = binom.<span class="func">pmf</span>(k, n=<span class="num">10</span>, p=<span class="num">0.5</span>)
+<span class="func">print</span>(y_binom)
+<span class="comment"># Plot normal density</span>
+plt.<span class="func">plot</span>(x, y_norm)
+plt.<span class="func">xlabel</span>(<span class="str">'x'</span>); plt.<span class="func">ylabel</span>(<span class="str">'Density'</span>); plt.<span class="func">title</span>(<span class="str">'Normal PDF'</span>)
+plt.<span class="func">show</span>()
+<span class="comment"># Plot binomial PMF</span>
+plt.<span class="func">bar</span>(k, y_binom)
+plt.<span class="func">xlabel</span>(<span class="str">'k'</span>); plt.<span class="func">ylabel</span>(<span class="str">'P(X=k)'</span>); plt.<span class="func">title</span>(<span class="str">'Binomial PMF'</span>)
+plt.<span class="func">show</span>()</code></pre>
         </div>
       </div>
     </section>
