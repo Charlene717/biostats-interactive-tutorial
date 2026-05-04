@@ -65,6 +65,80 @@
         <div id="chiOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
+    <!-- Added sections for strengths/weaknesses, decision guidance, quiz and code examples -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons & Limitations">優缺點與限制</div>
+      <h2 data-zh="卡方檢定的利弊" data-en="Strengths & Weaknesses of the Chi‑Square Test">卡方檢定的利弊</h2>
+      <p data-lang="zh">卡方檢定是一種非參數方法，優點是計算容易，適用於類別或順序資料，且不要求母體常態或方差齊性；它可處理兩組或多組分類資料，並提供各分類對差異貢獻的詳細訊息。這種檢定廣泛用於獨立性和適合度檢定，可在不符合參數假設時替代 t 或 F 檢定。缺點包括需要足夠大的樣本，通常建議每格期望值至少 5；當樣本過小或表格格數過多時檢定不可靠。資料必須是互斥的計數，每個觀察只能落在一個類別，且觀察彼此獨立。卡方檢定僅提供是否存在關聯的顯著性，無法衡量關聯強度，且對於配對樣本或比例極端失衡時不適合使用。</p>
+      <p data-lang="en">The chi‑square test is a non‑parametric method. Its advantages include ease of computation, applicability to nominal or ordinal data, and no requirement of normality or equal variances. It can handle two or more categorical groups and provides detailed information about which cells contribute to differences. It is widely used for independence and goodness‑of‑fit tests and serves as an alternative to t or F tests when parametric assumptions are violated. Limitations include the need for a sufficiently large sample; each expected count should typically be at least 5. With small samples or many categories, results may be unreliable. Data must be mutually exclusive counts with each observation falling into only one category, and observations must be independent. The chi‑square test only indicates whether an association exists and does not measure its strength, and it is not suitable for paired samples or highly unbalanced tables.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance & Example">決策指引與範例</div>
+      <h2 data-zh="何時使用卡方檢定" data-en="When to Use the Chi‑Square Test">何時使用卡方檢定</h2>
+      <p data-lang="zh">在選擇卡方檢定時，首先確認變數為類別或已分組的順序資料。若欲檢驗兩分類變數的獨立性或某變數的分布是否符合理論比例，可使用卡方檢定。應確保每一樣本單位僅屬於一個類別且樣本來自隨機抽樣；若資料是配對或重複測量則不適用，應改用 McNemar 檢定或其他方法。當任何格子期望值低於 5 或總樣本量少於 50 時，建議改用 Fisher 精確檢定或合併類別以增加期望值。此外，卡方檢定只能判斷是否有顯著關聯，若要衡量關聯強度可另計算 Cramer’s V 或 Phi 係數。範例：研究者想知道吸菸習慣與是否罹患某疾病是否有關，收集 120 名受試者後得到 2×2 表格；使用卡方檢定計算 χ² 值和 p 值，若 p &lt; 0.05，則表示吸菸與疾病有統計上的關聯。</p>
+      <p data-lang="en">To decide when to use a chi‑square test, confirm that your variables are categorical or binned ordinal. Use the test to examine whether two categorical variables are independent or whether an observed distribution matches a theoretical one. Ensure that each subject belongs to only one category and that observations are from a random sample; for paired or repeated measures data, use the McNemar test or other alternatives. If any expected count is less than 5 or the total sample size is below about 50, consider Fisher’s exact test or combining categories to increase expected counts. Remember that the chi‑square test only indicates whether an association exists; to quantify the strength of association you can compute Cramer’s V or the Phi coefficient. Example: a researcher wants to assess whether smoking status is associated with a disease. After collecting data from 120 individuals, they create a 2×2 contingency table. A chi‑square test yields a χ² statistic and p‑value; if p < 0.05, smoking and disease occurrence are considered statistically associated.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動測驗" data-en="Quiz">互動測驗</div>
+      <h2 data-zh="測驗你的理解" data-en="Check Your Understanding">測驗你的理解</h2>
+      <p data-lang="zh">請選擇下列關於卡方檢定假設的正確敘述：</p>
+      <p data-lang="en">Select the statement below that is a key assumption of the chi‑square test:</p>
+      <div class="interactive-panel">
+        <form id="chiQuizForm">
+          <label><input type="radio" name="chiQuiz" value="a"> <span data-zh="資料必須為連續且服從常態分布" data-en="Data must be continuous and normally distributed">資料必須為連續且服從常態分布</span></label><br>
+          <label><input type="radio" name="chiQuiz" value="b"> <span data-zh="每個期望次數應至少為 5" data-en="Each expected count should be at least 5">每個期望次數應至少為 5</span></label><br>
+          <label><input type="radio" name="chiQuiz" value="c"> <span data-zh="可用於配對樣本資料" data-en="Can be used for paired samples">可用於配對樣本資料</span></label><br>
+          <button type="button" onclick="checkChiQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
+        </form>
+        <div id="chiQuizFeedback" style="margin-top:8px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
+      <h2 data-zh="使用 R 與 Python 進行卡方檢定" data-en="Chi‑Square Test in R and Python">使用 R 與 Python 進行卡方檢定</h2>
+      <p data-lang="zh">以下程式碼示範如何在 R 和 Python 中建立 2×2 交叉表格、計算卡方統計量與期望值。若表格期望次數過小，R 會建議使用 <code>fisher.test()</code>，Python 可使用 <code>stats.fisher_exact()</code>。你可以切換標籤查看不同語言，並點擊複製按鈕取得程式碼。</p>
+      <p data-lang="en">The following code shows how to construct a 2×2 contingency table in R and Python, compute the chi‑square statistic and expected counts. If expected counts are too small, R suggests using <code>fisher.test()</code> and Python has <code>stats.fisher_exact()</code>. Use the tabs to switch languages and click the copy button to copy the code.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this, 'rchisq')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this, 'pychisq')">Python</button>
+        </div>
+        <div id="rchisq" class="code-tab-content active">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="comment"># 產生 2×2 交叉表格</span>
+tab &lt;- matrix(c(20, 30, 15, 35), nrow = 2, byrow = TRUE)
+colnames(tab) &lt;- c("Yes", "No")
+rownames(tab) &lt;- c("Group1", "Group2")
+
+<span class="comment"># 執行卡方檢定（不使用連續性校正）</span>
+  chisq.test(tab, correct = FALSE)
+
+<span class="comment"># 取得期望值與統計量</span>
+  chi_res &lt;- chisq.test(tab, correct = FALSE)
+  chi_res$expected
+  chi_res$statistic</pre>
+        </div>
+        <div id="pychisq" class="code-tab-content">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="comment"># Import packages</span>
+import numpy as np
+from scipy import stats
+
+<span class="comment"># Create 2×2 contingency table</span>
+obs = np.array([[20, 30], [15, 35]])
+
+<span class="comment"># Chi‑square test without Yates' correction</span>
+  chi2, p_val, dof, expected = stats.chi2_contingency(obs, correction=False)
+  expected
+  chi2
+
+<span class="comment"># If expected counts are small, use Fisher’s exact test</span>
+  oddsratio, p_exact = stats.fisher_exact(obs)
+  p_exact</pre>
+        </div>
+      </div>
+    </section>
+    <!-- Page navigation -->
     <div class="page-nav">
       <a href="t-tests.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -100,6 +174,50 @@
         `<p>${lang === 'zh' ? '期望值' : 'Expected counts'}: [${e11.toFixed(1)}, ${e12.toFixed(1)}; ${e21.toFixed(1)}, ${e22.toFixed(1)}]</p>`;
     }
     window.computeChi = computeChi;
+    // Quiz evaluation for Chi-square understanding
+    function checkChiQuiz() {
+      const form = document.getElementById('chiQuizForm');
+      const selected = form.querySelector('input[name="chiQuiz"]:checked');
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      let msg;
+      if (!selected) {
+        msg = lang === 'zh' ? '請選擇一個答案。' : 'Please select an answer.';
+      } else if (selected.value === 'b') {
+        msg = lang === 'zh' ? '答對了！卡方檢定要求每格的期望值應足夠大。' : 'Correct! The chi‑square test requires sufficiently large expected counts.';
+      } else {
+        msg = lang === 'zh' ? '不正確。正確假設是每個期望次數應至少為 5。' : 'Not quite. The correct assumption is that each expected count should be at least 5.';
+      }
+      document.getElementById('chiQuizFeedback').textContent = msg;
+    }
+    window.checkChiQuiz = checkChiQuiz;
+
+    // Code tab switching function for Chi-square page
+    function switchTab(btn, id) {
+      const container = btn.closest('.code-tabs');
+      const buttons = container.querySelectorAll('.code-tab-btn');
+      const contents = container.querySelectorAll('.code-tab-content');
+      buttons.forEach(b => b.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      container.querySelector('#' + id).classList.add('active');
+    }
+    window.switchTab = switchTab;
+
+    // Copy code to clipboard function for Chi-square page
+    function copyCode(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      const text = pre.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      }).catch(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
