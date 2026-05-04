@@ -61,6 +61,88 @@
         <div id="ciOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
+    <!-- Added sections for strengths/weaknesses, decision guidance, quiz and code examples -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons & Limitations">優缺點與限制</div>
+      <h2 data-zh="t 檢定與信賴區間的利弊" data-en="Strengths & Weaknesses of t‑Tests & CIs">t 檢定與信賴區間的利弊</h2>
+      <p data-lang="zh">t 檢定的優點包括可以在樣本數較小或母體標準差未知的情況下比較平均值，計算方式簡單且廣泛應用於科學與實務領域。適度偏離常態分布時仍具有一定的穩健性，尤其是樣本規模相同時。其缺點是必須假設資料近似常態並且兩組變異相等；當資料極度偏斜或變異不等、樣本獨立性或隨機性不足時，t 檢定可能產生偏差或功效不足。信賴區間的優點是提供參數可能值的範圍，比單一 p 值更能顯示估計的不確定性；區間越窄表示估計越精確。缺點是易被誤解為參數落在區間內的機率，並且寬度受樣本大小與變異影響，樣本數不足或假設不符時區間可能過寬或偏差。</p>
+      <p data-lang="en">Advantages of t‑tests include their ability to compare means when the sample size is small and the population standard deviation is unknown. They are easy to compute and widely used across scientific and applied fields. T‑tests are reasonably robust to moderate deviations from normality, particularly when group sizes are similar. Limitations include assumptions of approximate normality and equal variances; if the data are highly skewed, have unequal variances, or the observations are not independent, the t‑test can be biased or under‑powered. Confidence intervals offer a range of plausible values for a parameter and convey uncertainty more clearly than a single p‑value; narrower intervals imply more precise estimates. However, they are often misinterpreted as giving the probability that the parameter lies inside the interval, and their width depends on sample size and variability—small samples or violated assumptions lead to wide or biased intervals.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance & Example">決策指引與範例</div>
+      <h2 data-zh="如何選用 t 檢定與信賴區間" data-en="When to Use t‑Tests & CIs">如何選用 t 檢定與信賴區間</h2>
+      <p data-lang="zh">在實務上使用 t 檢定時，首先考慮比較的對象及假設。例如想知道某班學生的平均睡眠時數是否不同於推薦的 8 小時，可採用單樣本 t 檢定；比較兩獨立班級的平均成績則使用兩樣本 t 檢定；前後測相同受試者的分數差異可選擇配對 t 檢定。在進行檢定前應確認樣本為隨機且觀察值獨立，檢視數據是否近似常態並評估兩組變異是否相近。建議設定顯著水準（如 0.05），並根據研究問題決定單尾或雙尾檢定。計算信賴區間時，依樣本大小及是否知道母體標準差選擇 z 或 t 臨界值：小樣本且未知標準差時應使用 t 臨界值。範例：假設收集 15 名受試者每天睡眠時數的樣本均值為 7.3 小時、標準差為 0.8 小時，若計算 95% 信賴區間 [7.0, 7.6]，區間不包含 8 小時，表示其平均睡眠時間顯著少於建議值。</p>
+      <p data-lang="en">When applying t‑tests in practice, begin by identifying the comparison and hypothesis. A one‑sample t‑test checks whether the mean of a single sample differs from a reference value (e.g., are students in a class sleeping different from the recommended 8 hours?). A two‑sample t‑test compares the means of two independent groups (e.g., exam scores of two classes), while a paired t‑test compares measurements from the same subjects at two time points (e.g., before and after an intervention). Before testing, ensure your sample is random and observations are independent; examine whether the data are roughly symmetric and whether group variances are similar. Choose a significance level (commonly 0.05) and determine whether a one‑ or two‑tailed test matches your question. For confidence intervals, select a z or t critical value depending on sample size and whether the population standard deviation is known—use t critical values for small samples with unknown σ. For example, if 15 subjects have an average sleep time of 7.3 hours with a standard deviation of 0.8 hours, a 95% CI of [7.0, 7.6] does not include 8, indicating the group sleeps significantly less than the recommendation.</p>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="互動測驗" data-en="Quiz">互動測驗</div>
+      <h2 data-zh="測驗你的理解" data-en="Check Your Understanding">測驗你的理解</h2>
+      <p data-lang="zh">請回答下列問題，以測試你對 t 檢定條件的理解：</p>
+      <p data-lang="en">Answer the question below to test your understanding of the conditions for t‑tests:</p>
+      <div class="interactive-panel">
+        <form id="tQuizForm">
+          <p data-zh="當樣本量小且母體標準差未知時，哪個分布最適合用於均值檢定？" data-en="When the sample size is small and the population standard deviation is unknown, which distribution should you use for mean testing?">當樣本量小且母體標準差未知時，哪個分布最適合用於均值檢定？</p>
+          <label><input type="radio" name="tQuiz" value="normal"> <span data-zh="常態分布" data-en="Normal distribution">常態分布</span></label><br>
+          <label><input type="radio" name="tQuiz" value="t"> <span data-zh="t 分布" data-en="t distribution">t 分布</span></label><br>
+          <label><input type="radio" name="tQuiz" value="chi"> <span data-zh="卡方分布" data-en="Chi‑square distribution">卡方分布</span></label><br>
+          <button type="button" onclick="checkTTestQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
+        </form>
+        <div id="tQuizFeedback" style="margin-top:8px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+    <section class="section">
+      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
+      <h2 data-zh="使用 R 與 Python 計算 t 檢定與信賴區間" data-en="t‑Tests & CIs in R and Python">使用 R 與 Python 計算 t 檢定與信賴區間</h2>
+      <p data-lang="zh">下面的程式碼示範如何在 R 和 Python 中執行單樣本 t 檢定並計算平均值的信賴區間。你可以切換標籤查看不同語言，並點擊複製按鈕取得代碼。</p>
+      <p data-lang="en">The following examples show how to perform a one‑sample t‑test and compute a confidence interval for the mean in R and Python. Use the tabs to switch languages and click the copy button to grab the code.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this, 'rtt')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this, 'pytt')">Python</button>
+        </div>
+        <div id="rtt" class="code-tab-content active">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="comment"># 建立範例資料向量</span>
+data &lt;- c(7.1, 8.3, 6.8, 7.5, 8.0)
+
+<span class="comment"># 單樣本 t 檢定：檢驗平均值是否等於 7.5</span>
+  t.test(data, mu = 7.5, conf.level = 0.95)
+
+<span class="comment"># 手動計算信賴區間</span>
+  xbar &lt;- mean(data)
+  s &lt;- sd(data)
+  n &lt;- length(data)
+  alpha &lt;- 0.05
+  t_crit &lt;- qt(1 - alpha/2, df = n - 1)
+  margin &lt;- t_crit * s / sqrt(n)
+  ci &lt;- c(xbar - margin, xbar + margin)
+  ci</pre>
+        </div>
+        <div id="pytt" class="code-tab-content">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><span class="comment"># Import required packages</span>
+import numpy as np
+from scipy import stats
+
+<span class="comment"># Example data array</span>
+data = np.array([7.1, 8.3, 6.8, 7.5, 8.0])
+
+<span class="comment"># One‑sample t‑test against 7.5</span>
+  t_stat, p_val = stats.ttest_1samp(data, popmean = 7.5)
+
+<span class="comment"># Compute the confidence interval</span>
+  n = len(data)
+  xbar = np.mean(data)
+  s = np.std(data, ddof = 1)
+  alpha = 0.05
+  t_crit = stats.t.ppf(1 - alpha/2, df = n - 1)
+  margin = t_crit * s / np.sqrt(n)
+  ci = (xbar - margin, xbar + margin)
+  ci</pre>
+        </div>
+      </div>
+    </section>
+    <!-- Page navigation -->
     <div class="page-nav">
       <a href="hypothesis.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -97,6 +179,51 @@
         `<p><strong>${criticalLabel}:</strong> ${zCrit.toFixed(3)}, <strong>${seLabel}:</strong> ${se.toFixed(3)}</p>`;
     }
     window.computeCI = computeCI;
+    // Quiz evaluation for t-test understanding
+    function checkTTestQuiz() {
+      const form = document.getElementById('tQuizForm');
+      const selected = form.querySelector('input[name="tQuiz"]:checked');
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      let msg;
+      if (!selected) {
+        msg = lang === 'zh' ? '請選擇一個答案。' : 'Please select an answer.';
+      } else if (selected.value === 't') {
+        msg = lang === 'zh' ? '答對了！當樣本小且未知標準差時應使用 t 分布進行均值檢定。' : 'Correct! Use the t distribution when the sample is small and σ is unknown.';
+      } else {
+        msg = lang === 'zh' ? '不正確。應該使用 t 分布。' : 'Not quite. You should use the t distribution.';
+      }
+      const feedback = document.getElementById('tQuizFeedback');
+      feedback.textContent = msg;
+    }
+    window.checkTTestQuiz = checkTTestQuiz;
+
+    // Code tab switching function
+    function switchTab(btn, id) {
+      const container = btn.closest('.code-tabs');
+      const buttons = container.querySelectorAll('.code-tab-btn');
+      const contents = container.querySelectorAll('.code-tab-content');
+      buttons.forEach(b => b.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      container.querySelector('#' + id).classList.add('active');
+    }
+    window.switchTab = switchTab;
+
+    // Copy code to clipboard function
+    function copyCode(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      const text = pre.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      }).catch(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      });
+    }
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
