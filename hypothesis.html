@@ -59,6 +59,79 @@
         <div id="testOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
+    <!-- Pros, cons and limitations section -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons & Limitations">優缺點與限制</div>
+      <h2 data-zh="假設檢定的優勢與侷限" data-en="Advantages and Limitations of Hypothesis Testing">假設檢定的優勢與侷限</h2>
+      <p data-lang="zh">
+        假設檢定提供了 <strong>客觀且系統化</strong> 的流程，讓研究者能以樣本資料評估假設是否成立，避免單憑直覺做決策。它有助於<strong>資料驅動的決策</strong>與<strong>批判性思考</strong>，在商業、臨床試驗、製造及金融等領域廣泛應用，能提升營運效率並降低風險。</p>
+      <p data-lang="en">
+        Hypothesis testing provides an <strong>objective and systematic framework</strong> for assessing whether a claim about a population is supported by sample data. By grounding decisions in statistical evidence rather than intuition, it improves <strong>data‑driven decision‑making</strong> and <strong>critical thinking</strong>, and is widely used across business, clinical, manufacturing and financial contexts to enhance operational efficiency and reduce risk.</p>
+      <p data-lang="zh"><strong>限制與缺點</strong>包括：對 p 值的詮釋依賴停頓規則及多重比較設定，且不同檢定哲學混用可能產生概念混淆；聚焦於顯著性可能忽略估計與重覆驗證；出版偏差導致只報導顯著結果；若假設不合理或資料不符合獨立與隨機抽樣假設，檢定可能產生不可靠結論。</p>
+      <p data-lang="en"><strong>Limitations and drawbacks</strong> include: interpretation of p‑values depends on the stopping rule and handling of multiple comparisons; mixing Fisher’s and Neyman–Pearson philosophies can introduce conceptual confusion; focusing solely on statistical significance may distract from estimation and replication; publication bias may favour significant results; and if assumptions such as independence and random sampling are violated, the conclusions may be unreliable.</p>
+    </section>
+
+    <!-- Decision guidance and example section -->
+    <section class="section">
+      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance & Example">決策指引與範例</div>
+      <h2 data-zh="何時與如何進行假設檢定？" data-en="When and How to Perform Hypothesis Tests?">何時與如何進行假設檢定？</h2>
+      <p data-lang="zh">
+        在實施假設檢定前，首先明確定義研究問題，擬定零假設 H₀ 與對立假設 H₁，並選擇合適的檢定類型（如 t 檢定、卡方檢定或 ANOVA）。
+        接著設定顯著水準 α—通常為 0.05，代表願意承擔 5% 的第一類錯誤風險。確保樣本來自隨機且獨立的觀測，並留意檢定的適用條件，例如 t 檢定須要資料近似常態分布。
+      </p>
+      <p data-lang="en">
+        Before conducting a hypothesis test, clearly define your research question and formulate the null hypothesis H₀ and alternative hypothesis H₁. Choose an appropriate test (e.g., t‑test, chi‑square test or ANOVA) and set the significance level α—commonly 0.05, representing a 5 % risk of a Type I error. Ensure that the sample is drawn randomly and observations are independent, and check that the test’s assumptions hold (for example, the t‑test assumes approximately normal data).
+      </p>
+      <p data-lang="zh">
+        <strong>例子：</strong>某公司欲評估新行銷活動是否提升銷售額。可設定 H₀：新活動與舊活動之間的平均銷售無差異；H₁：新活動平均銷售較高。收集活動前後的銷售資料，計算檢定統計量與 p 值，若 p 值小於 α 則拒絕 H₀，認為新活動有效，否則維持原結論。另一例是臨床試驗測試新藥對血壓的影響，設定 H₀：新藥與安慰劑無差異，H₁：新藥能降低血壓，並使用 t 檢定比較兩組的平均下降值。</p>
+      <p data-lang="en">
+        <strong>Example:</strong> A company wants to evaluate whether a new marketing campaign increases sales. We can set H₀: no difference in average sales between the new and previous campaigns, and H₁: average sales are higher under the new campaign. Collect sales data before and after the campaign, compute a test statistic and p‑value, and if the p‑value is less than α, reject H₀ and conclude that the campaign is effective; otherwise retain H₀. Another example is a clinical trial testing whether a new drug lowers blood pressure: set H₀: no difference between the drug and placebo, H₁: the drug lowers blood pressure, and use a t‑test to compare the mean reduction across groups.</p>
+    </section>
+
+    <!-- Quiz section -->
+    <section class="section">
+      <div class="section-label" data-zh="練習與測驗" data-en="Quiz">練習與測驗</div>
+      <h2 data-zh="測驗：錯誤類型" data-en="Quiz: Error Types">測驗：錯誤類型</h2>
+      <p data-lang="zh">若在真實狀況下母體均值已改變，但我們的檢定未拒絕 H₀，這會是哪一種錯誤？</p>
+      <p data-lang="en">If the population mean has truly changed but our test fails to reject H₀, what kind of error has occurred?</p>
+      <div class="interactive-panel" style="margin-top:8px;">
+        <label style="margin-right:12px"><input type="radio" name="hypQuiz" value="type1"> Type I / 第一類</label>
+        <label style="margin-right:12px"><input type="radio" name="hypQuiz" value="type2"> Type II / 第二類</label>
+        <label style="margin-right:12px"><input type="radio" name="hypQuiz" value="none"> Neither</label>
+      </div>
+      <button onclick="checkHypQuiz()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
+      <div id="hypQuizFeedback" style="margin-top:8px;font-size:0.9rem;color:var(--c-ink)"></div>
+    </section>
+
+    <!-- R and Python code examples section -->
+    <section class="section">
+      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
+      <h2 data-zh="R 與 Python 範例" data-en="R & Python Examples">R 與 Python 範例</h2>
+      <p data-lang="zh">以下範例示範如何使用 R 與 Python 進行單樣本 t 檢定並取得 t 統計量與 p 值。</p>
+      <p data-lang="en">The examples below show how to perform a one‑sample t‑test in R and Python and return the t‑statistic and p‑value.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this, 'hyp-r')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this, 'hyp-python')">Python</button>
+        </div>
+        <div id="hyp-r" class="code-tab-content active">
+          <button class="copy-btn" onclick="copyCode('hyp-r', this)">Copy</button>
+          <pre><span class="comment"># R: single-sample t-test</span>
+<span class="kw">x</span> &lt;- <span class="func">c</span>(<span class="num">5.2</span>, <span class="num">4.8</span>, <span class="num">5.1</span>, <span class="num">4.9</span>, <span class="num">5.3</span>)
+<span class="kw">result</span> &lt;- <span class="func">t.test</span>(x, <span class="kw">mu</span> = <span class="num">5</span>)
+<span class="func">print</span>(result)</pre>
+        </div>
+        <div id="hyp-python" class="code-tab-content">
+          <button class="copy-btn" onclick="copyCode('hyp-python', this)">Copy</button>
+          <pre><span class="comment"># Python: single-sample t-test</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+data = np.array([<span class="num">5.2</span>, <span class="num">4.8</span>, <span class="num">5.1</span>, <span class="num">4.9</span>, <span class="num">5.3</span>])
+t_stat, p_value = stats.ttest_1samp(data, <span class="num">5</span>)
+<span class="func">print</span>(t_stat, p_value)</pre>
+        </div>
+      </div>
+    </section>
     <div class="page-nav">
       <a href="sampling.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -95,6 +168,59 @@
         `<p>${decision}</p>`;
     }
     window.oneSampleTest = oneSampleTest;
+
+    // Quiz logic for hypothesis testing error types. Determines whether the selected radio value
+    // corresponds to a Type I or Type II error and displays language‑dependent feedback.
+    function checkHypQuiz() {
+      const radios = document.getElementsByName('hypQuiz');
+      let selected = null;
+      for (const r of radios) {
+        if (r.checked) { selected = r.value; break; }
+      }
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      let msg;
+      if (!selected) {
+        msg = lang === 'zh' ? '請選擇一個答案。' : 'Please select an option.';
+      } else if (selected === 'type2') {
+        msg = lang === 'zh' ? '正確！未拒絕錯誤的 H₀ 屬於第二類錯誤 (Type II error)。' : 'Correct! Failing to reject a false H₀ is a Type II error.';
+      } else {
+        msg = lang === 'zh' ? '不正確。第一類錯誤是在 H₀ 為真時錯誤拒絕 H₀。' : 'Incorrect. A Type I error occurs when you reject a true H₀.';
+      }
+      const fb = document.getElementById('hypQuizFeedback');
+      if (fb) fb.textContent = msg;
+    }
+    window.checkHypQuiz = checkHypQuiz;
+
+    // Tab switching logic for code examples. Activates the clicked tab button and its
+    // corresponding content within the same .code-tabs container.
+    function switchTab(btn, id) {
+      const tabs = btn.closest('.code-tabs');
+      if (!tabs) return;
+      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.getElementById(id);
+      if (panel) panel.classList.add('active');
+    }
+    window.switchTab = switchTab;
+
+    // Copy code from a given code block to the clipboard. Provides temporary
+    // visual feedback by changing the button text. Errors are silently ignored
+    // since clipboard operations might not be permitted on all browsers.
+    function copyCode(codeId, btn) {
+      const el = document.getElementById(codeId);
+      if (!el) return;
+      const text = el.innerText;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      navigator.clipboard.writeText(text).catch(() => {});
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1200);
+    }
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
