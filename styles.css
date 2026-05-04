@@ -451,15 +451,26 @@ body {
   flex: 1;
 }
 
+/* Invisible placeholder navigation card used on the first page (Descriptive) to
+   maintain equal widths between the previous and next navigation cards.  The
+   element remains in the flex layout but is hidden from view and does not
+   accept pointer events. */
+.page-nav a.nav-placeholder {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 /* When there is only one navigation link (e.g. on the first page),
    shrink the card and center it so the left side is not an empty
    white space.  Using the :only-child selector allows us to target
    the single anchor without adding extra classes to every page. */
+/* When there is only one navigation link (e.g. on the first page), align it to
+   the right and give it the same width as a two‑column layout.  The card
+   occupies roughly half of the container (taking into account the gap), and
+   margin-left:auto pushes it to the right side. */
 .page-nav a:only-child {
-  flex: 0 0 auto;
-  max-width: 360px;
+  flex: 0 0 calc(50% - 8px);
   margin-left: auto;
-  margin-right: auto;
 }
 @media (max-width: 768px) {
   .page-nav {
@@ -477,6 +488,19 @@ body {
   justify-content: space-between;
   font-size: 0.88rem;
   font-weight: 600;
+  margin-bottom: 6px;
+}
+
+/* Style for section labels (e.g. Concepts, Interactive, Pros & limitations).  Use a
+   light blue accent to differentiate these small headings from the main
+   headings. */
+.section-label {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c-accent);
   margin-bottom: 6px;
 }
 
