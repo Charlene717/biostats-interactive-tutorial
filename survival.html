@@ -70,6 +70,138 @@
         <div id="survOutput" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
+
+    <!-- Pros and Cons Section -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
+      <h2 data-zh="優勢與局限" data-en="Advantages and Limitations">優勢與局限</h2>
+      <p data-lang="zh">存活分析能解析事件發生時間，尤其適用於具截尾資料的研究。以下列出此方法的主要優點與限制：</p>
+      <p data-lang="en">Survival analysis models time to an event, particularly when data include censoring. The following are key advantages and limitations:</p>
+      <div class="two-col">
+        <div>
+          <h3 data-zh="優點" data-en="Advantages">優點</h3>
+          <ul>
+            <li data-lang="zh">以事件發生的時間為核心，提供何時發生事件的洞見，有助於風險評估與策略規劃。</li>
+            <li data-lang="zh">能妥善處理截尾資料，不僅利用已觀察到的事件，也保留未發生事件的個體資訊。</li>
+            <li data-lang="zh">可選擇不同模型，如 Kaplan–Meier、Cox 比例風險、參數模型等，靈活度高。</li>
+            <li data-lang="zh">可結合多種指標或共變數進行風險預測，常用於金融、醫學等領域。</li>
+            <li data-lang="en">Focuses on the timing of events, offering insights into when events are likely to occur and aiding risk assessment and planning.</li>
+            <li data-lang="en">Handles censored data effectively, incorporating information from individuals whose event has not yet occurred.</li>
+            <li data-lang="en">Allows flexible model choice—Kaplan–Meier, Cox proportional hazards, or parametric models—depending on study needs.</li>
+            <li data-lang="en">Enables risk prediction using multiple covariates and is widely applied in finance, medicine and engineering.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 data-zh="缺點與限制" data-en="Drawbacks &amp; Limitations">缺點與限制</h3>
+          <ul>
+            <li data-lang="zh">需要蒐集高品質的時間事件資料，若資料不完整或失訪嚴重可能影響結果。</li>
+            <li data-lang="zh">許多模型建立在假設之上，例如截尾與存活時間獨立、風險比不隨時間改變等，若不符合會造成偏差。</li>
+            <li data-lang="zh">模型建構與解釋較為複雜，需專業知識，且不適用於非時間到事件的問題。</li>
+            <li data-lang="zh">在含大量共變數時容易過度擬合；Kaplan–Meier 方法為描述性，不可調整共變數。</li>
+            <li data-lang="en">Requires high‑quality time‑to‑event data; incomplete follow‑up or heavy loss to follow‑up may bias results.</li>
+            <li data-lang="en">Relies on assumptions such as non‑informative censoring and, for certain models, proportional hazards; violations can lead to biased estimates.</li>
+            <li data-lang="en">Models can be complex to implement and interpret and are not suitable for problems unrelated to time‑to‑event analysis.</li>
+            <li data-lang="en">May overfit when many covariates are included; the Kaplan–Meier estimator is descriptive and cannot adjust for covariates.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Decision Guidance & Example Section -->
+    <section class="section">
+      <div class="section-label" data-zh="決策與範例" data-en="Decision Guidance &amp; Example">決策與範例</div>
+      <h2 data-zh="何時使用存活分析" data-en="When to Use Survival Analysis">何時使用存活分析</h2>
+      <p data-lang="zh">存活分析適用於處理時間到事件資料，以下提供使用建議：</p>
+      <p data-lang="en">Survival analysis is used for time‑to‑event data. Below are some guidelines:</p>
+      <ul>
+        <li data-lang="zh">研究結局應為事件發生所需的時間，例如疾病復發、機械故障等。</li>
+        <li data-lang="zh">資料中可能存在右截尾（截至追蹤結束仍未發生事件）或其他類型截尾，模型假設截尾與存活時間獨立。</li>
+        <li data-lang="zh">若只需描述存活曲線，可使用 Kaplan–Meier 法；若需加入共變數，則使用 Cox 比例風險模型或參數模型。</li>
+        <li data-lang="zh">確認樣本數足以提供穩定估計，並檢查共變數是否有共線性與時間依賴效應。</li>
+        <li data-lang="en">The outcome should be the time until an event occurs, such as relapse or failure.</li>
+        <li data-lang="en">Data may contain right censoring or other censoring types; assumptions of independence between censoring and survival must be reasonable.</li>
+        <li data-lang="en">Use the Kaplan–Meier estimator for descriptive curves; to include covariates, use a Cox proportional hazards or parametric model.</li>
+        <li data-lang="en">Ensure sufficient sample size for stable estimation and check for multicollinearity or time‑dependent effects among covariates.</li>
+      </ul>
+      <h3 data-zh="實例" data-en="Example">實例</h3>
+      <p data-lang="zh">假設研究 100 名病人在治療後的復發時間，其中部分病人在研究期間內沒有復發（右截尾）。可使用 Kaplan–Meier 法估計存活曲線，計算中位存活時間，並用 log‑rank 檢定比較不同治療組；若考慮年齡、性別等共變數對復發的影響，可採用 Cox 比例風險模型。</p>
+      <p data-lang="en">Imagine following 100 patients after treatment to observe time to relapse, where some patients do not relapse during follow‑up (right censored). The Kaplan–Meier method can estimate the survival curve and median survival time, and the log‑rank test can compare treatment groups. If you want to adjust for age, sex or other covariates, use a Cox proportional hazards model.</p>
+    </section>
+
+    <!-- Quiz Section -->
+    <section class="section">
+      <div class="section-label" data-zh="測驗" data-en="Quiz">測驗</div>
+      <h2 data-zh="檢查你的理解" data-en="Check Your Understanding">檢查你的理解</h2>
+      <p data-lang="zh">以下哪一項是 Kaplan–Meier 方法的假設？</p>
+      <p data-lang="en">Which of the following is an assumption of the Kaplan–Meier method?</p>
+      <div class="quiz-options" style="margin-bottom:8px">
+        <label><input type="radio" name="survQuiz" value="1"> <span data-zh="截尾與存活時間獨立" data-en="Censoring is independent of survival time">截尾與存活時間獨立</span></label><br>
+        <label><input type="radio" name="survQuiz" value="2"> <span data-zh="危險比隨時間改變" data-en="Hazard ratio varies over time">危險比隨時間改變</span></label><br>
+        <label><input type="radio" name="survQuiz" value="3"> <span data-zh="可以無限延伸至非時間資料" data-en="Can be used for any non‑time data">可以無限延伸至非時間資料</span></label><br>
+        <label><input type="radio" name="survQuiz" value="4"> <span data-zh="能自動控制共變數" data-en="Automatically adjusts for covariates">能自動控制共變數</span></label>
+      </div>
+      <button onclick="checkSurvQuiz()" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer" data-zh="提交" data-en="Submit">提交</button>
+      <p id="survQuizFeedback" style="margin-top:8px;font-weight:600"></p>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section class="section">
+      <div class="section-label" data-zh="R 與 Python 範例" data-en="R &amp; Python Examples">R 與 Python 範例</div>
+      <h2 data-zh="存活分析程式碼" data-en="Survival Analysis Code">存活分析程式碼</h2>
+      <p data-lang="zh">以下範例展示如何用 R 和 Python 估計 Kaplan–Meier 曲線並擬合 Cox 比例風險模型。</p>
+      <p data-lang="en">The examples below demonstrate how to estimate a Kaplan–Meier curve and fit a Cox proportional hazards model in R and Python.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(event, 'survR')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(event, 'survPy')">Python</button>
+        </div>
+        <div class="code-tab-contents">
+          <div id="survR" class="code-tab-content active">
+            <button class="copy-btn" onclick="copyCode(this)"><span class="copy-icon">📋</span></button>
+            <pre class="code-block"><code>
+<span class="comment"># 載入 survival 套件</span>
+<span class="kw">library</span>(survival)
+<span class="comment"># 建立 Surv 物件並擬合 Kaplan–Meier 曲線</span>
+time &lt;- c(<span class="num">5</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">15</span>, <span class="num">20</span>, <span class="num">22</span>)
+event &lt;- c(<span class="num">1</span>, <span class="num">0</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="num">0</span>, <span class="num">1</span>)
+fitKM &lt;- <span class="func">survfit</span>(<span class="func">Surv</span>(time, event) ~ <span class="num">1</span>)
+<span class="func">plot</span>(fitKM, xlab=<span class="str">"Time"</span>, ylab=<span class="str">"Survival Probability"</span>, main=<span class="str">"Kaplan–Meier Curve"</span>)
+
+<span class="comment"># 建立含共變數的 Cox 模型</span>
+age &lt;- c(<span class="num">45</span>, <span class="num">50</span>, <span class="num">55</span>, <span class="num">60</span>, <span class="num">65</span>, <span class="num">70</span>)
+modelCox &lt;- <span class="func">coxph</span>(<span class="func">Surv</span>(time, event) ~ age)
+<span class="func">summary</span>(modelCox)
+            </code></pre>
+          </div>
+          <div id="survPy" class="code-tab-content">
+            <button class="copy-btn" onclick="copyCode(this)"><span class="copy-icon">📋</span></button>
+            <pre class="code-block"><code>
+<span class="comment"># simulate data and fit Kaplan–Meier and Cox models</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> lifelines <span class="kw">import</span> KaplanMeierFitter, CoxPHFitter
+
+time = np.array([<span class="num">5</span>, <span class="num">8</span>, <span class="num">12</span>, <span class="num">15</span>, <span class="num">20</span>, <span class="num">22</span>])
+event = np.array([<span class="num">1</span>, <span class="num">0</span>, <span class="num">1</span>, <span class="num">1</span>, <span class="num">0</span>, <span class="num">1</span>])
+kmf = KaplanMeierFitter()
+kmf.fit(time, event_observed=event)
+kmf.plot_survival_function()
+
+<span class="comment"># fit a Cox proportional hazards model with a covariate (e.g. age)</span>
+age = np.array([<span class="num">45</span>, <span class="num">50</span>, <span class="num">55</span>, <span class="num">60</span>, <span class="num">65</span>, <span class="num">70</span>])
+import pandas as pd
+df = pd.DataFrame({
+    <span class="str">'time'</span>: time,
+    <span class="str">'event'</span>: event,
+    <span class="str">'age'</span>: age
+})
+cf = CoxPHFitter()
+cf.fit(df, duration_col=<span class="str">'time'</span>, event_col=<span class="str">'event'</span>)
+print(cf.params_)
+            </code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
     <div class="page-nav">
       <a href="logistic.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -150,6 +282,57 @@
       out.innerHTML = `<p>${lang === 'zh' ? '事件次數' : 'Number of events'}: ${events.filter(d => d===1).length}, ${lang === 'zh' ? '樣本數' : 'Total subjects'}: ${times.length}</p>`;
     }
     window.plotSurvival = plotSurvival;
+
+    // quiz evaluation for survival analysis
+    function checkSurvQuiz() {
+      const lang = document.documentElement.lang;
+      const selected = document.querySelector('input[name="survQuiz"]:checked');
+      const feedback = document.getElementById('survQuizFeedback');
+      if (!selected) {
+        feedback.style.color = 'var(--c-accent)';
+        feedback.textContent = lang === 'zh' ? '請選擇答案。' : 'Please select an answer.';
+        return;
+      }
+      const correct = selected.value === '1';
+      if (correct) {
+        feedback.style.color = 'green';
+        feedback.textContent = lang === 'zh' ? '答對了！截尾與存活時間獨立是基本假設。' : 'Correct! Independence of censoring and survival time is a fundamental assumption.';
+      } else {
+        feedback.style.color = 'red';
+        feedback.textContent = lang === 'zh' ? '答錯了，再試一次。' : 'Incorrect. Try again.';
+      }
+    }
+
+    // code tab switching for survival page
+    function switchTab(event, panelId) {
+      const btn = event.target;
+      const btns = btn.parentElement.querySelectorAll('.code-tab-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const contents = btn.parentElement.nextElementSibling.querySelectorAll('.code-tab-content');
+      contents.forEach(c => c.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+    }
+
+    // copy code to clipboard
+    function copyCode(btn) {
+      const pre = btn.nextElementSibling;
+      const code = pre.innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="copy-icon">✔️</span>';
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      }).catch(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="copy-icon">✔️</span>';
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      });
+    }
+
+    // attach helper functions to window for inline usage
+    window.checkSurvQuiz = checkSurvQuiz;
+    window.switchTab = switchTab;
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
