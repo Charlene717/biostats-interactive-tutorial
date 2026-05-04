@@ -67,6 +67,86 @@
         <div class="chart-container"><canvas id="distCanvas"></canvas></div>
       </div>
     </section>
+    <!-- Additional educational sections -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
+      <!-- Normal distribution pros/cons -->
+      <h3 data-zh="常態分布" data-en="Normal Distribution">常態分布</h3>
+      <p data-lang="zh"><strong>優點：</strong>常態分布可以描述許多自然與人為過程，計算只需平均數與標準差，並有現成的表與函數方便查表；在樣本量足夠且資料近似連續時，它能提供良好的近似。<strong>缺點與限制：</strong>實際資料不一定完美遵循常態分布，偏態、重尾或離群值會影響平均與標準差的解釋；若資料量太小或不是連續型資料，需要先檢查常態性，必要時考慮其他分布或轉換。<strong>適用條件：</strong>樣本量足夠大、資料為連續型，且檢驗顯示近似常態時，可使用常態分布作為模型基礎。</p>
+      <p data-lang="en"><strong>Advantages:</strong> The normal distribution can describe many natural and manufactured processes, calculations rely only on the mean and standard deviation, and there are tables and built‑in functions for quick lookup; with sufficient data and nearly continuous observations it provides a good approximation. <strong>Drawbacks &amp; limitations:</strong> Real‑world data rarely follow a perfect bell curve; skewness, heavy tails or outliers can distort the mean and standard deviation. When sample sizes are small or the data are not continuous, you should test for normality and consider alternative distributions. <strong>Applicable conditions:</strong> Use the normal model when you have a sufficiently large sample, continuous data and tests indicate the distribution is approximately normal.</p>
+      <!-- Binomial distribution pros/cons -->
+      <h3 data-zh="二項分布" data-en="Binomial Distribution">二項分布</h3>
+      <p data-lang="zh"><strong>優點：</strong>二項分布適用於有固定次數且每次只有成功或失敗兩種結果的試驗，例如投擲硬幣、回答是非題或臨床試驗。它的機率計算簡單，期望值為 np、變異數為 np(1−p)，並且在 n 較大且 p 不太接近 0 或 1 時可以用常態近似。<strong>缺點與限制：</strong>僅能處理二分類結果，假設每次試驗獨立且成功機率固定；若試驗之間存在依賴或概率隨時間改變，則不適用。此外當成功機率極端時，分布會高度偏斜，難以使用常態近似。<strong>適用條件：</strong>有固定次數 n、每次只有兩種結果，且試驗獨立並在相同條件下重複時，可使用二項分布模型。</p>
+      <p data-lang="en"><strong>Advantages:</strong> The binomial distribution applies to experiments with a fixed number of trials and only two outcomes on each trial (success or failure). It is widely used for modelling counts of successes in coin flips, multiple‑choice questions and clinical studies; probabilities are easy to compute and the mean and variance are simple functions of n and p. When n is large and p is not near 0 or 1, the binomial can be approximated by a normal curve. <strong>Drawbacks &amp; limitations:</strong> It only handles binary outcomes and assumes each trial is independent and the success probability remains constant. If trials influence each other or probabilities change over time, the binomial model is invalid. When p is very low or very high the distribution is heavily skewed and the normal approximation fails. <strong>Applicable conditions:</strong> Use the binomial model when there is a fixed number of independent trials conducted under identical conditions, with the probability of success p the same on each trial.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-label" data-zh="決策引導與範例" data-en="Decision Guidance &amp; Example">決策引導與範例</div>
+      <p data-lang="zh">判斷應使用哪種分布時，可先確認資料類型和試驗設計。例如，若研究學生期末考成績，分數可取連續值且由許多小影響累積而成，常以常態分布近似；若研究投擲 10 次硬幣出現正面次數，此為固定次數的二元事件，適合用二項分布。實務上，若成功機率固定且試驗獨立，可選擇二項分布；反之，若變量為連續且受眾多隨機因素影響，則考慮常態分布。</p>
+      <p data-lang="en">When deciding which distribution to use, start by identifying the data type and experiment design. Exam scores, which take on continuous values and result from many small influences, are often approximated by a normal distribution. The number of heads in ten coin flips is a fixed number of binary trials, so the binomial distribution is appropriate. In general, choose a binomial model when you have independent trials with a constant probability of success; choose a normal model for continuous measurements shaped by many random influences.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
+      <p data-lang="zh">假設你想要模擬 20 次投擲硬幣出現正面次數的分布，應使用哪個分布？</p>
+      <p data-lang="en">Suppose you want to model the distribution of the number of heads in 20 coin tosses. Which distribution should you use?</p>
+      <form id="distQuizForm">
+        <label style="display:block;margin:4px 0"><input type="radio" name="quizDist" value="normal"> <span data-zh="常態分布" data-en="Normal Distribution">常態分布</span></label>
+        <label style="display:block;margin:4px 0"><input type="radio" name="quizDist" value="binomial"> <span data-zh="二項分布" data-en="Binomial Distribution">二項分布</span></label>
+        <button type="button" onclick="checkDistQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer"><span data-zh="提交" data-en="Submit">提交</span></button>
+        <p id="distQuizFeedback" class="quiz-feedback" style="margin-top:8px;"></p>
+      </form>
+    </section>
+
+    <section class="section">
+      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
+      <p data-lang="zh">下方提供 R 與 Python 程式碼示範，展示如何產生常態密度函數與二項分布機率質量函數，並繪製對應圖形。點擊複製按鈕即可複製程式碼。</p>
+      <p data-lang="en">Below are R and Python code examples showing how to generate the normal density and binomial probability mass functions and plot them. Click the copy icon to copy the code.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this, 'dist-code-r')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this, 'dist-code-python')">Python</button>
+        </div>
+        <div class="code-tab-content active" id="dist-code-r">
+          <button class="copy-btn" onclick="copyCode('dist-r-code', this)">📋</button>
+          <pre><code id="dist-r-code" class="language-r"># 計算並繪製常態密度與二項機率質量函數
+x &lt;- seq(-4, 4, length.out = 100)
+# 常態分布密度 (均值 0，標準差 1)
+y_norm &lt;- dnorm(x, mean = 0, sd = 1)
+# 二項分布機率 (n = 10, p = 0.5)
+k &lt;- 0:10
+y_binom &lt;- dbinom(k, size = 10, prob = 0.5)
+print(y_binom)
+# 繪製常態密度曲線
+plot(x, y_norm, type = 'l', main = 'Normal PDF', xlab = 'x', ylab = 'Density')
+# 繪製二項分布柱狀圖
+barplot(y_binom, names.arg = k, main = 'Binomial PMF', xlab = 'k', ylab = 'P(X = k)')</code></pre>
+        </div>
+        <div class="code-tab-content" id="dist-code-python">
+          <button class="copy-btn" onclick="copyCode('dist-python-code', this)">📋</button>
+          <pre><code id="dist-python-code" class="language-python"># compute and plot normal density and binomial PMF
+import numpy as np
+from scipy.stats import norm, binom
+import matplotlib.pyplot as plt
+# Normal PDF (mean=0, sd=1)
+x = np.linspace(-4, 4, 100)
+y_norm = norm.pdf(x, loc=0, scale=1)
+# Binomial PMF (n=10, p=0.5)
+k = np.arange(0, 11)
+y_binom = binom.pmf(k, n=10, p=0.5)
+print(y_binom)
+# Plot normal density
+plt.plot(x, y_norm)
+plt.xlabel('x'); plt.ylabel('Density'); plt.title('Normal PDF')
+plt.show()
+# Plot binomial PMF
+plt.bar(k, y_binom)
+plt.xlabel('k'); plt.ylabel('P(X=k)'); plt.title('Binomial PMF')
+plt.show()</code></pre>
+        </div>
+      </div>
+    </section>
+
     <div class="page-nav">
       <a href="descriptive.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -118,6 +198,66 @@
     }
     // Expose to global scope for the onclick attribute
     window.plotDistribution = plotDistribution;
+
+    // Quiz grading function for the distribution quiz.  Reads the selected
+    // radio value and displays feedback in the appropriate language.  The
+    // correct answer is the binomial distribution for modelling the number
+    // of heads in repeated coin tosses.  Attached to the global scope so
+    // it can be called from the inline onclick handler.
+    function checkDistQuiz() {
+      const opts = document.getElementsByName('quizDist');
+      let val = '';
+      for (const opt of opts) {
+        if (opt.checked) { val = opt.value; break; }
+      }
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      let msg;
+      if (!val) {
+        msg = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
+      } else if (val === 'binomial') {
+        msg = lang === 'zh'
+          ? '答對了！固定次數的硬幣正面數符合二項分布。'
+          : 'Correct! The number of heads in a fixed number of coin flips follows a binomial distribution.';
+      } else {
+        msg = lang === 'zh'
+          ? '不正確，再試試看吧。'
+          : 'Incorrect, try again.';
+      }
+      const fb = document.getElementById('distQuizFeedback');
+      if (fb) fb.textContent = msg;
+    }
+    window.checkDistQuiz = checkDistQuiz;
+
+    // Code tab switching logic shared across pages.  Activates the clicked
+    // tab and corresponding content panel.  Exposed globally so inline
+    // onclick handlers can call it.
+    function switchTab(btn, id) {
+      const tabs = btn.closest('.code-tabs');
+      if (!tabs) return;
+      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.getElementById(id);
+      if (panel) panel.classList.add('active');
+    }
+    window.switchTab = switchTab;
+
+    // Copy the contents of a code block to the clipboard.  Provides
+    // immediate visual feedback by temporarily changing the button text.
+    function copyCode(codeId, btn) {
+      const el = document.getElementById(codeId);
+      if (!el) return;
+      const text = el.innerText;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      navigator.clipboard.writeText(text).catch(() => {});
+      setTimeout(() => {
+        btn.textContent = '📋';
+        btn.classList.remove('copied');
+      }, 1200);
+    }
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
