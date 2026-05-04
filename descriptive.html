@@ -66,22 +66,22 @@
       <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
       <h2 data-zh="統計量的優點與缺點" data-en="Advantages &amp; Disadvantages of Measures">統計量的優點與缺點</h2>
       <!-- Summarise the advantages and disadvantages of common measures of central tendency and dispersion -->
-      <p data-lang="zh">平均數利用所有數據點表示中心，因此在資料符合傳統假設且無明顯離群值時能有效概括資料【131968578395616†L59-L63】。不過，平均數對極端值與偏態敏感，少數極端觀察可能大幅拉高或拉低均值【131968578395616†L59-L76】。中位數是排序後的中間值，不受離群值影響，適合偏態或有極端值的資料【131968578395616†L82-L96】。眾數為最常出現的值，可以應用於數值或類別資料，但在連續資料或有多個眾數時難以代表中心【538406263479301†L160-L178】。至於變異數和標準差能利用所有偏差來衡量變異，是推論統計的基礎，但對離群值極為敏感【480308349941383†L27-L35】【480308349941383†L93-L99】。四分位距（IQR）僅取中間 50% 的資料，能抵抗極端值，是對偏態或有重尾資料的穩健度量【480308349941383†L27-L35】【480308349941383†L69-L79】；而極差只利用最大和最小值，容易受到樣本大小與極端值影響【480308349941383†L50-L60】。</p>
-      <p data-lang="en">The mean uses every observation to summarise the centre of the data, making it an efficient estimator when the data follow classical assumptions and contain no extreme values【131968578395616†L59-L63】. However, a few extreme observations can pull the mean far away from the bulk of the data【131968578395616†L59-L76】. The median, the middle value after sorting, is unaffected by outliers and is preferred for skewed distributions or when outliers are present【131968578395616†L82-L96】. The mode is the most frequent value and can be used for both numeric and categorical data, but it may not represent the centre well when there are multiple modes or no mode at all【538406263479301†L160-L178】. Variance and the standard deviation incorporate all deviations from the mean and underpin inferential methods, yet they are extremely sensitive to outliers【480308349941383†L27-L35】【480308349941383†L93-L99】. The interquartile range (IQR), which measures the spread of the middle 50%, is robust to heavy‑tailed or skewed data【480308349941383†L27-L35】【480308349941383†L69-L79】, while the range uses only the minimum and maximum and therefore grows with sample size and is highly affected by outliers【480308349941383†L50-L60】.</p>
+      <p data-lang="zh">平均數利用所有數據點表示中心，因此在資料符合傳統假設且無明顯離群值時能有效概括資料。不過，平均數對極端值與偏態敏感，少數極端觀察可能大幅拉高或拉低均值。中位數是排序後的中間值，不受離群值影響，適合偏態或有極端值的資料。眾數為最常出現的值，可以應用於數值或類別資料，但在連續資料或有多個眾數時難以代表中心。至於變異數和標準差能利用所有偏差來衡量變異，是推論統計的基礎，但對離群值極為敏感。四分位距（IQR）僅取中間 50% 的資料，能抵抗極端值，是對偏態或有重尾資料的穩健度量；而極差只利用最大和最小值，容易受到樣本大小與極端值影響。</p>
+      <p data-lang="en">The mean uses every observation to summarise the centre of the data, making it an efficient estimator when the data follow classical assumptions and contain no extreme values. However, a few extreme observations can pull the mean far away from the bulk of the data. The median, the middle value after sorting, is unaffected by outliers and is preferred for skewed distributions or when outliers are present. The mode is the most frequent value and can be used for both numeric and categorical data, but it may not represent the centre well when there are multiple modes or no mode at all. Variance and the standard deviation incorporate all deviations from the mean and underpin inferential methods, yet they are extremely sensitive to outliers. The interquartile range (IQR), which measures the spread of the middle 50%, is robust to heavy‑tailed or skewed data, while the range uses only the minimum and maximum and therefore grows with sample size and is highly affected by outliers.</p>
       <h3 data-zh="適用條件與決策指引" data-en="Applicable Conditions &amp; Decision Guidance">適用條件與決策指引</h3>
       <ul data-lang="zh">
         <li>當資料分布近似對稱且希望保留所有觀察值的資訊時，可使用平均數。</li>
-        <li>當分布有顯著偏態或存在離群值時，中位數較能反映典型值【131968578395616†L82-L96】。</li>
-        <li>眾數適用於類別資料或需找出最常出現的數值情況，但可能存在多個或沒有眾數【538406263479301†L160-L178】。</li>
-        <li>若要描述變異程度並進行統計推論，選用變異數或標準差；但若關心的是典型範圍且資料有極端值，則選擇四分位距【480308349941383†L69-L79】。</li>
-        <li>極差適合快速檢查儀器上下限或估計量級，不宜用來比較不同樣本數之間的差異【480308349941383†L50-L60】。</li>
+        <li>當分布有顯著偏態或存在離群值時，中位數較能反映典型值。</li>
+        <li>眾數適用於類別資料或需找出最常出現的數值情況，但可能存在多個或沒有眾數。</li>
+        <li>若要描述變異程度並進行統計推論，選用變異數或標準差；但若關心的是典型範圍且資料有極端值，則選擇四分位距。</li>
+        <li>極差適合快速檢查儀器上下限或估計量級，不宜用來比較不同樣本數之間的差異。</li>
       </ul>
       <ul data-lang="en">
         <li>Use the mean when the distribution is roughly symmetric and you want to include information from every observation.</li>
-        <li>When the data are skewed or contain outliers, the median better reflects a typical value【131968578395616†L82-L96】.</li>
-        <li>The mode is useful for categorical data or when identifying the most common value, but multiple or absent modes can limit its interpretability【538406263479301†L160-L178】.</li>
-        <li>Variance and standard deviation quantify variability for inferential statistics, while the interquartile range is preferred for heavy‑tailed or skewed data【480308349941383†L69-L79】.</li>
-        <li>The range is suitable for quick sanity checks or instrument limits but should not be used to compare groups of different sizes【480308349941383†L50-L60】.</li>
+        <li>When the data are skewed or contain outliers, the median better reflects a typical value.</li>
+        <li>The mode is useful for categorical data or when identifying the most common value, but multiple or absent modes can limit its interpretability.</li>
+        <li>Variance and standard deviation quantify variability for inferential statistics, while the interquartile range is preferred for heavy‑tailed or skewed data.</li>
+        <li>The range is suitable for quick sanity checks or instrument limits but should not be used to compare groups of different sizes.</li>
       </ul>
       <h3 data-zh="實例說明" data-en="Practical Example">實例說明</h3>
       <p data-lang="zh">假設有一組工資資料：20、22、23、24、25、30、120（單位：萬元）。平均數為 37.6 萬，但這是因為 120 萬的高薪拉高了結果。中位數為 24 萬，更能代表大多數員工的收入。當我們只關心大部分人的薪資情況時，建議使用中位數與四分位距描述中心和變異。另一方面，若要計算公司總薪資支出或用於財務預測，則平均數仍具有意義。</p>

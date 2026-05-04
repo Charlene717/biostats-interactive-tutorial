@@ -450,6 +450,17 @@ body {
 .page-nav .placeholder {
   flex: 1;
 }
+
+/* When there is only one navigation link (e.g. on the first page),
+   shrink the card and center it so the left side is not an empty
+   white space.  Using the :only-child selector allows us to target
+   the single anchor without adding extra classes to every page. */
+.page-nav a:only-child {
+  flex: 0 0 auto;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
 @media (max-width: 768px) {
   .page-nav {
     flex-direction: column;
