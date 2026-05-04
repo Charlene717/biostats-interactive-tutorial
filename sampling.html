@@ -68,6 +68,78 @@
         <div class="chart-container"><canvas id="cltCanvas"></canvas></div>
       </div>
     </section>
+
+    <!-- Additional educational sections -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
+      <h3 data-zh="抽樣分布與中心極限定理" data-en="Sampling Distribution &amp; CLT">抽樣分布與中心極限定理</h3>
+      <p data-lang="zh"><strong>優點：</strong>中心極限定理指出，當樣本大小足夠大時，樣本均值的分布會趨近常態，即使母體分布不是常態【42080992128730†L126-L141】。這讓我們可以使用常態分布的計算與表格來做推論分析，簡化了統計方法，並提供可預測的樣本均值行為【8861871106705†L71-L82】。<strong>缺點與限制：</strong>此定理需要樣本隨機且彼此獨立，且樣本數充足【42080992128730†L206-L221】。當樣本過小或母體極度偏斜或含有重尾時，樣本均值可能無法良好近似常態分布，且需要更大的樣本量【42080992128730†L126-L141】。此外，CLT 假設的是樣本均值，而非其他統計量；對中位數或範圍等量的抽樣分布可能有不同性質【42080992128730†L236-L250】。</p>
+      <p data-lang="en"><strong>Advantages:</strong> The central limit theorem states that, with a sufficiently large sample size, the distribution of sample means tends toward normal regardless of the population’s shape【42080992128730†L126-L141】. This allows us to use normal‑based tables and formulas for inference, simplifying statistical procedures and making the behaviour of sample means predictable【8861871106705†L71-L82】. <strong>Drawbacks &amp; limitations:</strong> The CLT requires that observations are drawn randomly and independently and that the sample size is sufficiently large【42080992128730†L206-L221】. If the sample is too small or the population is extremely skewed or heavy‑tailed, the sampling distribution may not approximate normal well and larger samples are needed【42080992128730†L126-L141】. Also, the theorem applies specifically to sample means; other statistics like the median or range have different sampling distributions【42080992128730†L236-L250】.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-label" data-zh="決策引導與範例" data-en="Decision Guidance &amp; Example">決策引導與範例</div>
+      <p data-lang="zh">在決定是否使用中心極限定理時，請確認數據是否隨機且獨立抽樣，並評估樣本大小是否足夠大。若母體分布接近對稱且無重尾，較小的樣本（例如 n=15）即可能讓樣本均值近似常態【42080992128730†L206-L221】；若母體偏態或重尾，則需更大的樣本，例如 n≥30 或 50 才足以應用 CLT【42080992128730†L126-L141】。例如，測量身高這類接近常態的變數，抽樣 15 人其平均就接近母體平均；而對於收入這種右偏分布，需抽取至少 30 或更多樣本其平均才會趨近常態。</p>
+      <p data-lang="en">When deciding whether to apply the CLT, make sure your data come from a random, independent sample and that the sample size is large enough. If the population distribution is approximately symmetric and not heavy‑tailed, even a modest sample (say n = 15) may produce a nearly normal sampling distribution【42080992128730†L206-L221】. If the population is skewed or has heavy tails, larger samples—30 or even 50 observations—are needed for the CLT to kick in【42080992128730†L126-L141】. For example, for a variable like height, which is roughly normal, the mean of 15 sampled individuals will be close to normal; for income, which is right‑skewed, you may need to sample at least 30 or more observations for the sample mean distribution to approximate normal.</p>
+    </section>
+
+    <section class="section">
+      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
+      <p data-lang="zh">為使中心極限定理成立，下列哪一個條件是必要的？</p>
+      <p data-lang="en">Which of the following conditions is required for the Central Limit Theorem to hold?</p>
+      <form id="cltQuizForm">
+        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="random"> <span data-zh="隨機抽樣" data-en="Random sampling">隨機抽樣</span></label>
+        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="independent"> <span data-zh="獨立觀察" data-en="Independent observations">獨立觀察</span></label>
+        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="both"> <span data-zh="隨機且獨立" data-en="Random &amp; independent">隨機且獨立</span></label>
+        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="small"> <span data-zh="樣本越小越好" data-en="Smaller sample is better">樣本越小越好</span></label>
+        <button type="button" onclick="checkCltQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer"><span data-zh="提交" data-en="Submit">提交</span></button>
+        <p id="cltQuizFeedback" class="quiz-feedback" style="margin-top:8px;"></p>
+      </form>
+    </section>
+
+    <section class="section">
+      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
+      <p data-lang="zh">以下 R 與 Python 程式碼示範如何從指數分布（λ=1）隨機抽樣，計算樣本均值並繪製其分布，以觀察中心極限定理。點擊複製按鈕即可複製程式碼。</p>
+      <p data-lang="en">The R and Python snippets below demonstrate how to sample from an exponential distribution (λ=1), compute sample means and plot their distribution to illustrate the CLT. Click the copy icon to copy the code.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this, 'clt-code-r')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this, 'clt-code-python')">Python</button>
+        </div>
+        <div class="code-tab-content active" id="clt-code-r">
+          <button class="copy-btn" onclick="copyCode('clt-r-code', this)">📋</button>
+          <pre><code id="clt-r-code" class="language-r"><span class="comment"># 重複抽樣並繪製樣本均值分布</span>
+<span class="kw">set.seed</span>(<span class="num">123</span>)
+<span class="comment"># 設定樣本大小 n 與抽樣次數 m</span>
+<span class="kw">n</span> &lt;- <span class="num">30</span>; <span class="kw">m</span> &lt;- <span class="num">1000</span>
+<span class="comment"># 使用 replicate 產生 m 組樣本均值</span>
+<span class="kw">means</span> &lt;- <span class="func">replicate</span>(<span class="kw">m</span>, <span class="func">mean</span>(<span class="func">rexp</span>(<span class="kw">n</span>, rate = <span class="num">1</span>)))
+<span class="comment"># 計算均值與標準差</span>
+<span class="func">print</span>(<span class="func">mean</span>(<span class="kw">means</span>)); <span class="func">print</span>(<span class="func">sd</span>(<span class="kw">means</span>))
+<span class="comment"># 繪製直方圖</span>
+<span class="func">hist</span>(<span class="kw">means</span>, breaks = <span class="num">30</span>, main = <span class="str">'Sampling distribution of means'</span>, xlab = <span class="str">'sample mean'</span>)</code></pre>
+        </div>
+        <div class="code-tab-content" id="clt-code-python">
+          <button class="copy-btn" onclick="copyCode('clt-python-code', this)">📋</button>
+          <pre><code id="clt-python-code" class="language-python"><span class="comment"># sample means from exponential distribution and plot histogram</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="comment"># set sample size n and number of simulations m</span>
+n = <span class="num">30</span>; m = <span class="num">1000</span>
+<span class="comment"># generate m×n matrix of exponential samples</span>
+samples = np.<span class="func">random</span>.exponential(scale=<span class="num">1</span>, size=(m, n))
+<span class="comment"># compute sample means</span>
+means = samples.mean(axis=<span class="num">1</span>)
+<span class="comment"># print mean and standard deviation</span>
+print(means.mean(), means.std())
+<span class="comment"># plot histogram of sample means</span>
+plt.<span class="func">hist</span>(means, bins=<span class="num">30</span>)
+plt.<span class="func">xlabel</span>(<span class="str">'sample mean'</span>)
+plt.<span class="func">title</span>(<span class="str">'Sampling distribution of means'</span>)
+plt.<span class="func">show</span>()</code></pre>
+        </div>
+      </div>
+    </section>
     <div class="page-nav">
       <a href="distributions.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -152,6 +224,66 @@
     }
     // Expose to global scope so onclick works
     window.runSimulation = runSimulation;
+
+    // Quiz function for the CLT page. Determines which option the user selected
+    // and provides feedback. The correct answer is that the sample must be both
+    // random and independent (option value "both"). If no option is selected or
+    // the wrong option is chosen, the feedback explains why.  Messages adapt to
+    // the current language.
+    function checkCltQuiz() {
+      const opts = document.getElementsByName('quizCLT');
+      let val = '';
+      for (const opt of opts) {
+        if (opt.checked) { val = opt.value; break; }
+      }
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      let msg;
+      if (!val) {
+        msg = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
+      } else if (val === 'both') {
+        msg = lang === 'zh'
+          ? '答對了！隨機且獨立是應用中心極限定理的必要條件之一。'
+          : 'Correct! Random sampling and independence are required for the CLT.';
+      } else {
+        msg = lang === 'zh'
+          ? '不正確，中心極限定理需要樣本隨機且彼此獨立，且樣本大小足夠。'
+          : 'Incorrect. The CLT requires both random sampling and independent observations, along with a sufficiently large sample.';
+      }
+      const fb = document.getElementById('cltQuizFeedback');
+      if (fb) fb.textContent = msg;
+    }
+    window.checkCltQuiz = checkCltQuiz;
+
+    // Tab switching logic for code examples. Activates the clicked tab and its
+    // corresponding content within the same .code-tabs container.
+    function switchTab(btn, id) {
+      const tabs = btn.closest('.code-tabs');
+      if (!tabs) return;
+      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.getElementById(id);
+      if (panel) panel.classList.add('active');
+    }
+    window.switchTab = switchTab;
+
+    // Copy code from a given code block to the clipboard. Provides temporary
+    // visual feedback by changing the button text. Errors are silently ignored
+    // since clipboard operations might not be permitted on all browsers.
+    function copyCode(codeId, btn) {
+      const el = document.getElementById(codeId);
+      if (!el) return;
+      const text = el.innerText;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      navigator.clipboard.writeText(text).catch(() => {});
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove('copied');
+      }, 1200);
+    }
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
