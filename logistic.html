@@ -55,6 +55,136 @@
         <div class="chart-container" style="margin-top:12px"><canvas id="logitCanvas"></canvas></div>
       </div>
     </section>
+
+    <!-- Pros and Cons Section -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
+      <h2 data-zh="優勢與局限" data-en="Advantages and Limitations">優勢與局限</h2>
+      <p data-lang="zh">下列列出使用邏輯斯迴歸時常見的優點與缺點。邏輯斯迴歸是一種容易實作且易於解釋的模型，但仍有假設與限制需要留意。</p>
+      <p data-lang="en">Below are common advantages and drawbacks when using logistic regression. While logistic regression is straightforward to implement and interpret, there are assumptions and limitations to keep in mind.</p>
+      <div class="two-col">
+        <div>
+          <h3 data-zh="優點" data-en="Advantages">優點</h3>
+          <ul>
+            <li data-lang="zh">模型簡單且訓練效率高，參數估計容易收斂。</li>
+            <li data-lang="zh">輸出係數可直接說明自變數對對數比值 (logit) 的影響方向與大小，易於解釋。</li>
+            <li data-lang="zh">對自變數分布的假設較少，可處理連續與類別型變數。</li>
+            <li data-lang="zh">可以擴展到多分類（多元邏輯斯迴歸），應用廣泛。</li>
+            <li data-lang="en">Simple model with efficient training; parameter estimation converges quickly.</li>
+            <li data-lang="en">Coefficients directly indicate the direction and magnitude of predictors’ effects on the log odds, making results interpretable.</li>
+            <li data-lang="en">Requires few assumptions about the distribution of predictors and handles both continuous and categorical variables.</li>
+            <li data-lang="en">Extends to multiclass problems (multinomial logistic regression) and is widely used across fields.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 data-zh="缺點與限制" data-en="Drawbacks &amp; Limitations">缺點與限制</h3>
+          <ul>
+            <li data-lang="zh">樣本量需多於自變數數量，否則容易過度擬合。</li>
+            <li data-lang="zh">假設解釋變數與 logit 之間呈線性關係，只能建立線性決策邊界，不適合複雜非線性模式。</li>
+            <li data-lang="zh">對多重共線性敏感，若自變數高度相關會影響估計結果。</li>
+            <li data-lang="zh">當資料在特徵空間上線性不可分時，模型表現較差，且高維特徵容易過度擬合。</li>
+            <li data-lang="en">Requires that the number of observations exceed the number of predictors; otherwise, it may overfit.</li>
+            <li data-lang="en">Assumes a linear relationship between predictors and the log odds, so it creates only linear decision boundaries and does not capture complex nonlinear patterns.</li>
+            <li data-lang="en">Sensitive to multicollinearity—highly correlated predictors can distort coefficient estimates.</li>
+            <li data-lang="en">Performs poorly when classes are not linearly separable and can overfit high‑dimensional data.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Decision Guidance & Example Section -->
+    <section class="section">
+      <div class="section-label" data-zh="決策與範例" data-en="Decision Guidance &amp; Example">決策與範例</div>
+      <h2 data-zh="何時使用邏輯斯迴歸" data-en="When to Use Logistic Regression">何時使用邏輯斯迴歸</h2>
+      <p data-lang="zh">邏輯斯迴歸適合建模二元或分類結果，以下為一些應用建議：</p>
+      <p data-lang="en">Logistic regression is appropriate for modeling binary or categorical outcomes. Consider the following guidance:</p>
+      <ul>
+        <li data-lang="zh">確保觀察值相互獨立，自變數彼此獨立且樣本數量足夠。</li>
+        <li data-lang="zh">連續型自變數與 logit 之間應近似線性；若顯著非線性可考慮特徵轉換或使用其他模型。</li>
+        <li data-lang="zh">避免高度相關的自變數，必要時可採用降維或刪除共線性變數。</li>
+        <li data-lang="zh">依據資料類型選擇模型：二元結果用二元邏輯斯迴歸，多分類結果可用多元邏輯斯迴歸。</li>
+        <li data-lang="en">Ensure observations are independent and the sample size is sufficiently larger than the number of predictors.</li>
+        <li data-lang="en">Continuous predictors should relate approximately linearly to the log odds; use transformations or alternative models if relationships are highly nonlinear.</li>
+        <li data-lang="en">Avoid strong multicollinearity among predictors; consider dimensionality reduction or removing correlated variables.</li>
+        <li data-lang="en">Choose the appropriate form: binary logistic regression for two categories and multinomial logistic regression for multiple categories.</li>
+      </ul>
+      <h3 data-zh="實例" data-en="Example">實例</h3>
+      <p data-lang="zh">假設我們想預測某人是否會罹患心血管疾病 (1=有, 0=無)，自變數為年齡與是否吸菸。邏輯斯迴歸模型為 log(p/(1−p)) = β₀ + β₁·年齡 + β₂·吸菸，經估計後可得到各變數對罹病機率的影響。輸出機率 p=1/(1+e^{-(β₀+β₁·年齡+β₂·吸菸)})，若 p>0.5 可預測為罹患。</p>
+      <p data-lang="en">Suppose we want to predict whether someone has cardiovascular disease (1=yes, 0=no) based on their age and smoking status. A logistic model can be written as log(p/(1−p)) = β₀ + β₁ × age + β₂ × smoking. After fitting, the coefficients show how age and smoking influence the odds of disease. Converting to probability p = 1/(1 + e^{-(β₀ + β₁ × age + β₂ × smoking)}), we may classify someone as high risk if p > 0.5.</p>
+    </section>
+
+    <!-- Quiz Section -->
+    <section class="section">
+      <div class="section-label" data-zh="測驗" data-en="Quiz">測驗</div>
+      <h2 data-zh="檢查你的理解" data-en="Check Your Understanding">檢查你的理解</h2>
+      <p data-lang="zh">以下哪一項是邏輯斯迴歸的重要假設？</p>
+      <p data-lang="en">Which of the following is a key assumption of logistic regression?</p>
+      <div class="quiz-options" style="margin-bottom:8px">
+        <label><input type="radio" name="logitQuiz" value="1"> <span data-zh="觀察值獨立" data-en="Independent observations">觀察值獨立</span></label><br>
+        <label><input type="radio" name="logitQuiz" value="2"> <span data-zh="依變數必須連續" data-en="Dependent variable must be continuous">依變數必須連續</span></label><br>
+        <label><input type="radio" name="logitQuiz" value="3"> <span data-zh="殘差方差必須固定" data-en="Residuals must have constant variance">殘差方差必須固定</span></label><br>
+        <label><input type="radio" name="logitQuiz" value="4"> <span data-zh="允許完美多重共線性" data-en="Perfect multicollinearity is allowed">允許完美多重共線性</span></label>
+      </div>
+      <button onclick="checkLogitQuiz()" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer" data-zh="提交" data-en="Submit">提交</button>
+      <p id="logitQuizFeedback" style="margin-top:8px;font-weight:600"></p>
+    </section>
+
+    <!-- Code Examples Section -->
+    <section class="section">
+      <div class="section-label" data-zh="R 與 Python 範例" data-en="R &amp; Python Examples">R 與 Python 範例</div>
+      <h2 data-zh="邏輯斯迴歸程式碼" data-en="Logistic Regression Code">邏輯斯迴歸程式碼</h2>
+      <p data-lang="zh">下列程式示範如何在 R 和 Python 中產生邏輯斯曲線並擬合邏輯斯迴歸模型。</p>
+      <p data-lang="en">The following examples show how to generate a logistic curve and fit a logistic regression model in R and Python.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(event, 'logitR')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(event, 'logitPy')">Python</button>
+        </div>
+        <div class="code-tab-contents">
+          <div id="logitR" class="code-tab-content active">
+            <button class="copy-btn" onclick="copyCode(this)"><span class="copy-icon">📋</span></button>
+            <pre class="code-block"><code>
+<span class="comment"># 模擬數據並繪製 logistic 曲線</span>
+x &lt;- seq(-5, 5, length.out = 100)
+eta &lt;- -1 + 0.8 * x
+p &lt;- 1 / (1 + exp(-eta))
+<span class="func">plot</span>(x, p, type=<span class="str">"l"</span>, main=<span class="str">"Logistic Function"</span>, xlab=<span class="str">"x"</span>, ylab=<span class="str">"p"</span>)
+
+<span class="comment"># 擬合邏輯斯迴歸模型</span>
+df &lt;- data.frame(y = <span class="func">rbinom</span>(100, <span class="num">1</span>, p), x = x)
+model &lt;- <span class="func">glm</span>(y ~ x, data = df, family = binomial())
+<span class="func">summary</span>(model)
+            </code></pre>
+          </div>
+          <div id="logitPy" class="code-tab-content">
+            <button class="copy-btn" onclick="copyCode(this)"><span class="copy-icon">📋</span></button>
+            <pre class="code-block"><code>
+<span class="comment"># simulate data and plot logistic curve</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+
+x = np.linspace(-5, 5, <span class="num">100</span>)
+eta = -<span class="num">1</span> + <span class="num">0.8</span> * x
+p = <span class="num">1</span> / (<span class="num">1</span> + np.exp(-eta))
+plt.plot(x, p)
+plt.xlabel(<span class="str">"x"</span>)
+plt.ylabel(<span class="str">"p"</span>)
+plt.title(<span class="str">"Logistic Function"</span>)
+plt.show()
+
+<span class="comment"># fit logistic regression model</span>
+rng = np.random.default_rng(<span class="num">0</span>)
+y = rng.binomial(<span class="num">1</span>, p)
+X = x.reshape(-<span class="num">1</span>, <span class="num">1</span>)
+model = LogisticRegression()
+model.fit(X, y)
+print(model.intercept_, model.coef_)
+            </code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
     <div class="page-nav">
       <a href="regression.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -102,6 +232,54 @@
     window.addEventListener('DOMContentLoaded', () => {
       plotLogit();
     });
+
+    // quiz evaluation for logistic regression
+    function checkLogitQuiz() {
+      const lang = document.documentElement.lang;
+      const selected = document.querySelector('input[name="logitQuiz"]:checked');
+      const feedback = document.getElementById('logitQuizFeedback');
+      if (!selected) {
+        feedback.style.color = 'var(--c-accent)';
+        feedback.textContent = lang === 'zh' ? '請選擇答案。' : 'Please select an answer.';
+        return;
+      }
+      const correct = selected.value === '1';
+      if (correct) {
+        feedback.style.color = 'green';
+        feedback.textContent = lang === 'zh' ? '答對了！觀察值獨立是邏輯斯迴歸的重要假設之一。' : 'Correct! Independent observations are a key assumption in logistic regression.';
+      } else {
+        feedback.style.color = 'red';
+        feedback.textContent = lang === 'zh' ? '答錯了，再試一次。' : 'Incorrect. Try again.';
+      }
+    }
+
+    // code tab switching
+    function switchTab(event, panelId) {
+      const btn = event.target;
+      // activate clicked tab
+      const btns = btn.parentElement.querySelectorAll('.code-tab-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // show corresponding panel
+      const contents = btn.parentElement.nextElementSibling.querySelectorAll('.code-tab-content');
+      contents.forEach(p => p.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+    }
+
+    // copy code to clipboard
+    function copyCode(btn) {
+      const pre = btn.nextElementSibling;
+      const code = pre.innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="copy-icon">✔️</span>';
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      }).catch(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="copy-icon">✔️</span>';
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      });
+    }
   </script>
 </body>
 </html>
