@@ -62,6 +62,105 @@
         <div class="chart-container"><canvas id="regCanvas"></canvas></div>
       </div>
     </section>
+
+    <!-- Pros, Cons & Limitations section -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
+      <h2 data-zh="線性迴歸的優勢與侷限" data-en="Advantages &amp; Limitations of Linear Regression">線性迴歸的優勢與侷限</h2>
+      <p data-lang="zh">線性迴歸是最常見的統計模型之一，適合用來探索與預測連續變數之間的線性關係。其最大優點是易於計算與解釋，能提供斜率與截距幫助理解自變項與因變項之間的關係，也因為計算速度快而廣泛應用於各領域。</p>
+      <p data-lang="en">Linear regression is one of the most widely used statistical models for exploring and predicting relationships between continuous variables. Its main advantages are that it is simple to compute and interpret: the slope and intercept quantify how the predictor relates to the response, and the method runs quickly on both small and large datasets.</p>
+      <h3 data-zh="限制與注意事項" data-en="Limitations &amp; Considerations">限制與注意事項</h3>
+      <ul data-lang="zh">
+        <li>模型假定自變項與因變項之間呈線性關係；對於彎曲或非線性關係，可能需要轉換變數或採用非線性模型。</li>
+        <li>假設觀察值獨立且殘差具有相同變異（同質性）並呈常態分布；違反這些假設會影響斜率估計和 p 值的有效性。</li>
+        <li>對離群值敏感，極端觀察可能對斜率造成不成比例的影響，需檢查並處理離群值。</li>
+        <li>容易出現過度簡化或過度擬合；若使用多個解釋變量要注意共線性問題，並考慮正則化或交叉驗證。</li>
+        <li>不應在資料範圍之外進行推論；線性迴歸只能在原有資料的範圍內進行預測，否則可能導致誤解。</li>
+      </ul>
+      <ul data-lang="en">
+        <li>Assumes a linear relationship between predictor and response; curved or non‑linear patterns require transforming variables or using non‑linear models.</li>
+        <li>Assumes independent observations with homoscedastic and normally distributed residuals; violating these assumptions affects slope estimates and p‑values.</li>
+        <li>Sensitive to outliers, which can disproportionately influence the estimated slope; examine and handle extreme observations carefully.</li>
+        <li>Can underfit complex relationships or overfit when including many predictors; be mindful of multicollinearity and consider regularisation or cross‑validation.</li>
+        <li>Do not extrapolate beyond the observed data range; linear regression is only valid within the range of the original data.</li>
+      </ul>
+    </section>
+
+    <!-- Decision guidance and example section -->
+    <section class="section">
+      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance &amp; Example">決策指引與範例</div>
+      <h2 data-zh="何時使用線性迴歸？" data-en="When to Use Linear Regression?">何時使用線性迴歸？</h2>
+      <p data-lang="zh">如果你的資料呈現近似直線關係，且每次觀測皆獨立且變異數穩定，線性迴歸是適合的工具。應避免在時間序列資料或非線性關係中直接套用；在這些情況下可先檢查散點圖與殘差圖，必要時採用變數轉換或其他模型。</p>
+      <p data-lang="en">Use linear regression when your data show an approximately straight‑line relationship and observations are independent with constant variance. Avoid applying it to time‑series data or strongly non‑linear relationships without transformations; instead inspect scatterplots and residual plots, and consider using variable transformations or alternative models if needed.</p>
+      <h3 data-zh="實例說明" data-en="Practical Example">實例說明</h3>
+      <p data-lang="zh">例如我們想根據房屋面積預測房價。假設有以下數據：面積 <em>50、60、80、100</em>（平方公尺），對應的房價（百萬元）為 <em>3、4、5、6.5</em>。將這些數據套入線性迴歸，得到斜率約為 0.043，每增加一平方公尺，房價平均上升約 0.043 百萬元。決定係數 R² 約 0.98，表示面積可以解釋 98% 的價格變異。</p>
+      <p data-lang="en">For example, suppose we want to predict house price from floor area. Consider the following data: areas of <em>50, 60, 80, 100</em> square meters with corresponding prices (in millions) of <em>3, 4, 5, 6.5</em>. Fitting a linear regression yields a slope of about 0.043, meaning each additional square meter adds roughly 0.043 million to the price. The coefficient of determination R² is approximately 0.98, indicating that area explains 98% of the variation in price.</p>
+    </section>
+
+    <!-- Interactive quiz section -->
+    <section class="section">
+      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
+      <h2 data-zh="檢測您的了解" data-en="Check Your Understanding">檢測您的了解</h2>
+      <p data-lang="zh">下列哪一項<strong>不是</strong>線性迴歸的假設？</p>
+      <p data-lang="en">Which of the following is <strong>not</strong> an assumption of linear regression?</p>
+      <div class="interactive-panel">
+        <form id="regQuizForm">
+          <label><input type="radio" name="regQuiz" value="linearity"> <span data-zh="線性關係" data-en="Linearity">線性關係</span></label><br>
+          <label><input type="radio" name="regQuiz" value="homoscedasticity"> <span data-zh="同質性殘差" data-en="Homoscedasticity">同質性殘差</span></label><br>
+          <label><input type="radio" name="regQuiz" value="independence"> <span data-zh="觀測值獨立" data-en="Independent observations">觀測值獨立</span></label><br>
+          <label><input type="radio" name="regQuiz" value="categorical"> <span data-zh="因變項為類別資料" data-en="Categorical dependent variable">因變項為類別資料</span></label><br>
+          <button type="button" onclick="checkRegQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
+        </form>
+        <div id="regQuizFeedback" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+
+    <!-- Code examples section -->
+    <section class="section">
+      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
+      <h2 data-zh="R 與 Python 範例" data-en="R and Python Examples">R 與 Python 範例</h2>
+      <p data-lang="zh">以下程式示範如何在 R 與 Python 中進行簡單線性迴歸，計算斜率、截距與 R²。您可以直接複製程式碼到 RStudio 或 Python 環境中運行。</p>
+      <p data-lang="en">The following examples show how to perform a simple linear regression in R and Python, computing the slope, intercept and R². You can copy these snippets into RStudio or a Python interpreter.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this,'reg-code-r')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'reg-code-py')">Python</button>
+        </div>
+        <div class="code-tab-content active" id="reg-code-r">
+          <button class="copy-btn" onclick="copyCode('reg-r-content', this)">📋</button>
+          <pre id="reg-r-content"><span class="comment"># 建立資料向量</span>
+<span class="func">x</span> &lt;- <span class="func">c</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>)
+<span class="func">y</span> &lt;- <span class="func">c</span>(<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">8</span>)
+
+<span class="comment"># 擬合線性迴歸模型</span>
+<span class="func">model</span> &lt;- <span class="func">lm</span>(y ~ x)
+
+<span class="comment"># 查看參數估計</span>
+<span class="func">summary</span>(model)
+
+<span class="comment"># 取得斜率、截距與 R²</span>
+<span class="func">coef</span>(model)[<span class="num">2</span>]  <span class="comment"># 斜率</span>
+<span class="func">coef</span>(model)[<span class="num">1</span>]  <span class="comment"># 截距</span>
+<span class="func">summary</span>(model)$r.squared  <span class="comment"># R²</span></pre>
+        </div>
+        <div class="code-tab-content" id="reg-code-py">
+          <button class="copy-btn" onclick="copyCode('reg-py-content', this)">📋</button>
+          <pre id="reg-py-content"><span class="comment"># -*- coding: utf-8 -*-</span>
+<span class="kw">import</span> <span class="func">numpy</span> <span class="kw">as</span> <span class="func">np</span>
+<span class="kw">from</span> <span class="func">scipy</span> <span class="kw">import</span> <span class="func">stats</span>
+
+<span class="comment"># 定義自變項與因變項</span>
+x = <span class="func">np.array</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>])
+y = <span class="func">np.array</span>([<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">8</span>])
+
+<span class="comment"># 使用 linregress 擬合迴歸線</span>
+slope, intercept, r, p, std_err = <span class="func">stats.linregress</span>(x, y)
+
+<span class="comment"># 輸出斜率、截距與 R²</span>
+<span class="func">print</span>(slope, intercept, r**<span class="num">2</span>)</pre>
+        </div>
+      </div>
+    </section>
     <div class="page-nav">
       <a href="anova.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -148,6 +247,70 @@
       });
     }
     window.fitRegression = fitRegression;
+
+    // Evaluate the regression quiz answer and provide feedback based on the current language.
+    function checkRegQuiz() {
+      const form = document.getElementById('regQuizForm');
+      let ans = '';
+      if (form && form.regQuiz) {
+        const opts = form.regQuiz;
+        if (opts.length) {
+          for (let i = 0; i < opts.length; i++) {
+            if (opts[i].checked) {
+              ans = opts[i].value;
+              break;
+            }
+          }
+        } else if (opts.checked) {
+          ans = opts.value;
+        }
+      }
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      let feedback;
+      if (!ans) {
+        feedback = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
+      } else if (ans === 'categorical') {
+        feedback = lang === 'zh'
+          ? '答對了！線性迴歸假設因變項為連續變量，而非類別。'
+          : 'Correct! Linear regression assumes a continuous dependent variable, not categorical.';
+      } else {
+        feedback = lang === 'zh'
+          ? '不正確，再試一次。'
+          : 'Incorrect, please try again.';
+      }
+      const fb = document.getElementById('regQuizFeedback');
+      if (fb) fb.textContent = feedback;
+    }
+    window.checkRegQuiz = checkRegQuiz;
+
+    // Tab switching for R/Python code examples.  Activates the selected tab
+    // button and shows the corresponding code block within the same parent.
+    function switchTab(btn, id) {
+      const tabs = btn.closest('.code-tabs');
+      if (!tabs) return;
+      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.getElementById(id);
+      if (panel) panel.classList.add('active');
+    }
+    // Copy the contents of a code block to the clipboard.  Shows a temporary
+    // feedback message by changing the button text to "Copied!".
+    function copyCode(codeId, btn) {
+      const el = document.getElementById(codeId);
+      if (!el) return;
+      const text = el.innerText;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      navigator.clipboard.writeText(text).catch(() => {});
+      setTimeout(() => {
+        btn.textContent = '📋';
+        btn.classList.remove('copied');
+      }, 1200);
+    }
+    window.switchTab = switchTab;
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
