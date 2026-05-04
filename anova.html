@@ -56,6 +56,102 @@
         <div id="anovaOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
+
+    <!-- Pros, Cons & Limitations section -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
+      <h2 data-zh="ANOVA 優勢與侷限" data-en="Advantages &amp; Limitations">ANOVA 優勢與侷限</h2>
+      <p data-lang="zh">ANOVA 可以同時比較多個組別的平均數，避免逐一進行 t 檢定所造成的第一類錯誤累積效應；它還可以檢測因子之間的交互作用，具有較高的統計能力和靈活性。即使資料稍微偏離常態，ANOVA 通常仍能提供可靠結果。</p>
+      <p data-lang="en">ANOVA allows comparison of the means of three or more groups in one test, avoiding the Type I error inflation that occurs when performing multiple t‑tests. It can also test for interactions among factors, offers greater statistical power, and is flexible across different types of data. ANOVA is usually robust to moderate deviations from normality.</p>
+      <h3 data-zh="限制與注意事項" data-en="Limitations &amp; Considerations">限制與注意事項</h3>
+      <ul data-lang="zh">
+        <li>假設資料來自常態分布且各組變異數相等；違反這些假設會導致結果不可靠。</li>
+        <li>各觀察值須相互獨立，且樣本應隨機抽取，樣本數過小時 F 檢定可能不穩定。</li>
+        <li>ANOVA 只能告訴你是否存在顯著差異，無法指出哪些組別不同，也無法說明方向，必須搭配事後檢定。</li>
+        <li>分析重點是平均數，對於分布偏態、變異數不等或極端值多的資料，可能需要改用 Welch’s ANOVA 或非參數檢定。</li>
+        <li>進行多次比較會增加第一類錯誤風險，需採用適當的事後方法控制。</li>
+      </ul>
+      <ul data-lang="en">
+        <li>Assumes the data in each group are normally distributed with equal variances; violations can lead to inaccurate results.</li>
+        <li>Observations must be independent and drawn randomly. Small samples may make the F test unstable.</li>
+        <li>ANOVA only tells you whether a significant difference exists; it does not identify which groups differ or the direction of differences, so post‑hoc tests are required.</li>
+        <li>The test focuses on comparing means; when distributions are skewed, variances differ or there are outliers, consider using Welch’s ANOVA or a non‑parametric alternative.</li>
+        <li>Multiple comparisons increase the risk of Type I errors; appropriate post‑hoc procedures are needed to control error rates.</li>
+      </ul>
+    </section>
+
+    <!-- Decision guidance section -->
+    <section class="section">
+      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance &amp; Example">決策指引與範例</div>
+      <h2 data-zh="何時使用 ANOVA？" data-en="When to Use ANOVA?">何時使用 ANOVA？</h2>
+      <p data-lang="zh">當你想比較三個或更多群組的平均數是否有差異時，應考慮使用 ANOVA。一因子 ANOVA 用於一個分類自變量，若有兩個以上因子則可採用二因子或多因子 ANOVA。使用前應檢查常態性與變異數同質性；若違反假設，考慮 Welch’s ANOVA 或非參數檢定（例如 Kruskal‑Wallis 檢定）。</p>
+      <p data-lang="en">Use one‑way ANOVA when you need to compare means across three or more groups defined by a single categorical factor. Two‑way or factorial ANOVA can evaluate multiple factors and their interactions. Before running ANOVA, verify that the data are roughly normal with similar variances; if assumptions are violated, consider Welch’s ANOVA or non‑parametric tests such as the Kruskal–Wallis test.</p>
+      <h3 data-zh="實例說明" data-en="Practical Example">實例說明</h3>
+      <p data-lang="zh">假設我們想比較三種教學法對學生考試成績的影響：方法 A、B 與 C。隨機抽取各方法的學生，得到以下成績：<em>5,6,7</em>（方法 A），<em>8,9,10</em>（方法 B），<em>7,7,8</em>（方法 C）。ANOVA 的 F 檢定顯示組間變異大於組內變異，代表至少有一種教學法的平均成績不同。我們可以使用 post‑hoc 測試（如 Tukey HSD）找出差異在哪些組別。</p>
+      <p data-lang="en">Suppose we compare exam scores under three teaching methods (A, B and C) with samples: <em>5,6,7</em> for A, <em>8,9,10</em> for B and <em>7,7,8</em> for C. A one‑way ANOVA yields an F statistic where the between‑group variability exceeds the within‑group variability, indicating at least one mean differs. Post‑hoc tests (e.g. Tukey’s HSD) can then identify which methods differ.</p>
+    </section>
+
+    <!-- Interactive quiz section -->
+    <section class="section">
+      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
+      <h2 data-zh="檢測您的了解" data-en="Check Your Understanding">檢測您的了解</h2>
+      <p data-lang="zh">以下哪一項<strong>不是</strong>單因子 ANOVA 的假設？</p>
+      <p data-lang="en">Which of the following is <strong>not</strong> an assumption of one‑way ANOVA?</p>
+      <div class="interactive-panel">
+        <form id="anovaQuizForm">
+          <label><input type="radio" name="anovaQuiz" value="variance"> <span data-zh="各組變異數相等" data-en="Equal variances across groups">各組變異數相等</span></label><br>
+          <label><input type="radio" name="anovaQuiz" value="independent"> <span data-zh="觀察值獨立" data-en="Independent observations">觀察值獨立</span></label><br>
+          <label><input type="radio" name="anovaQuiz" value="categorical"> <span data-zh="因變數為類別資料" data-en="Categorical dependent variable">因變數為類別資料</span></label><br>
+          <label><input type="radio" name="anovaQuiz" value="normality"> <span data-zh="各組呈常態分布" data-en="Normal distribution within groups">各組呈常態分布</span></label><br>
+          <button type="button" onclick="checkAnovaQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
+        </form>
+        <div id="anovaQuizFeedback" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+
+    <!-- Code examples section -->
+    <section class="section">
+      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
+      <h2 data-zh="R 與 Python 範例" data-en="R and Python Examples">R 與 Python 範例</h2>
+      <p data-lang="zh">以下程式示範如何在 R 與 Python 中進行單因子 ANOVA。您可以直接複製程式碼到 RStudio 或 Python 環境中運行，得到 F 統計量與 p 值。</p>
+      <p data-lang="en">The following examples demonstrate how to perform a one‑way ANOVA in R and Python. You can paste these snippets into RStudio or a Python interpreter to obtain the F statistic and p‑value.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this,'anova-code-r')">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this,'anova-code-py')">Python</button>
+        </div>
+        <div class="code-tab-content active" id="anova-code-r">
+          <button class="copy-btn" onclick="copyCode('anova-r-content', this)">📋</button>
+          <pre id="anova-r-content"><span class="comment"># 建立三組數據</span>
+<span class="func">g1</span> &lt;- <span class="func">c</span>(<span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>)
+<span class="func">g2</span> &lt;- <span class="func">c</span>(<span class="num">8</span>, <span class="num">9</span>, <span class="num">10</span>)
+<span class="func">g3</span> &lt;- <span class="func">c</span>(<span class="num">7</span>, <span class="num">7</span>, <span class="num">8</span>)
+
+<span class="comment"># 形成因子與值向量</span>
+<span class="func">groups</span> &lt;- <span class="func">factor</span>(<span class="func">rep</span>(<span class="func">c</span>(<span class="str">\"G1\"</span>, <span class="str">\"G2\"</span>, <span class="str">\"G3\"</span>), <span class="func">c</span>(<span class="num">3</span>, <span class="num">3</span>, <span class="num">3</span>)))
+<span class="func">values</span> &lt;- <span class="func">c</span>(g1, g2, g3)
+
+<span class="comment"># 執行單因子 ANOVA 並列印摘要</span>
+<span class="func">model</span> &lt;- <span class="func">aov</span>(values ~ groups)
+<span class="func">summary</span>(model)</pre>
+        </div>
+        <div class="code-tab-content" id="anova-code-py">
+          <button class="copy-btn" onclick="copyCode('anova-py-content', this)">📋</button>
+          <pre id="anova-py-content"><span class="comment"># -*- coding: utf-8 -*-</span>
+<span class="kw">import</span> <span class="func">scipy.stats</span> <span class="kw">as</span> <span class="func">stats</span>
+
+<span class="comment"># 三個樣本群組</span>
+g1 = [<span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>]
+g2 = [<span class="num">8</span>, <span class="num">9</span>, <span class="num">10</span>]
+g3 = [<span class="num">7</span>, <span class="num">7</span>, <span class="num">8</span>]
+
+<span class="comment"># 執行單因子 ANOVA</span>
+f_stat, p_val = <span class="func">stats.f_oneway</span>(g1, g2, g3)
+<span class="func">print</span>(f_stat, p_val)</pre>
+        </div>
+      </div>
+    </section>
+
     <div class="page-nav">
       <a href="chi-square.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -105,6 +201,71 @@
         `<p><strong>F:</strong> ${F.toFixed(3)}, df1=${df1}, df2=${df2}</p>`;
     }
     window.computeAnova = computeAnova;
+
+    // Evaluate the ANOVA quiz answer and provide feedback in the current language.
+    function checkAnovaQuiz() {
+      const form = document.getElementById('anovaQuizForm');
+      let ans = '';
+      if (form && form.anovaQuiz) {
+        const opts = form.anovaQuiz;
+        if (opts.length) {
+          for (let i = 0; i < opts.length; i++) {
+            if (opts[i].checked) {
+              ans = opts[i].value;
+              break;
+            }
+          }
+        } else if (opts.checked) {
+          ans = opts.value;
+        }
+      }
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      let feedback;
+      if (!ans) {
+        feedback = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
+      } else if (ans === 'categorical') {
+        feedback = lang === 'zh'
+          ? '答對了！ANOVA 假設因變數為連續變量，而非類別。'
+          : 'Correct! ANOVA assumes the dependent variable is continuous, not categorical.';
+      } else {
+        feedback = lang === 'zh'
+          ? '不正確，再試一次。'
+          : 'Incorrect, please try again.';
+      }
+      const fb = document.getElementById('anovaQuizFeedback');
+      if (fb) fb.textContent = feedback;
+    }
+    window.checkAnovaQuiz = checkAnovaQuiz;
+
+    // Tab switching for R/Python code examples.  Activates the selected tab
+    // button and shows the corresponding code block.
+    function switchTab(btn, id) {
+      const tabs = btn.closest('.code-tabs');
+      if (!tabs) return;
+      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.getElementById(id);
+      if (panel) panel.classList.add('active');
+    }
+
+    // Copy code from a code block to the clipboard.  Shows temporary feedback
+    // by changing the button text to "Copied!" even if clipboard access fails.
+    function copyCode(codeId, btn) {
+      const el = document.getElementById(codeId);
+      if (!el) return;
+      const text = el.innerText;
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      navigator.clipboard.writeText(text).catch(() => {});
+      setTimeout(() => {
+        btn.textContent = '📋';
+        btn.classList.remove('copied');
+      }, 1200);
+    }
+    window.switchTab = switchTab;
+    window.copyCode = copyCode;
   </script>
 </body>
 </html>
