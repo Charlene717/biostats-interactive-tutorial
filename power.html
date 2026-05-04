@@ -57,6 +57,99 @@
         <div id="powerOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
       </div>
     </section>
+
+    <!-- Pros, Cons & Limitations section -->
+    <section class="section">
+      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons & Limitations">優缺點與限制</div>
+      <h2 data-zh="檢定力與樣本數的優點" data-en="Advantages of Power Analysis">檢定力與樣本數的優點</h2>
+      <p data-lang="zh">在研究設計階段進行檢定力分析能夠估算所需樣本數，避免樣本過少而偵測不到真實效應，或樣本過多造成資源浪費與倫理問題。計畫合理的樣本數有助於提升研究效率、確保結論具說服力，並常被要求於研究計畫書中。</p>
+      <p data-lang="en">Performing a power analysis during study planning helps you determine how many participants you need so your study is neither under‑powered (risking missed effects) nor excessively large (wasting resources or raising ethical concerns). Determining an appropriate sample size improves study efficiency, ensures convincing results and is often required in grant proposals.</p>
+      <h3 data-zh="缺點與限制" data-en="Limitations">缺點與限制</h3>
+      <p data-lang="zh">檢定力分析依賴於事先假設，例如預期效果大小與標準差，因此計算結果通常只是最佳情況估計。當研究方法或統計模型改變時需重新計算樣本數，而且複雜模型可能需要比計算結果更大的樣本。此外，檢定力並非唯一考量，研究者還需顧及研究設計、估計精準度及統計假設是否適用。</p>
+      <p data-lang="en">Power analyses rely on assumptions such as anticipated effect size and variability, so the results are only “best‑case” estimates. Changing the study design or statistical model often requires recalculating the sample size, and some complex analyses demand larger samples than standard formulas suggest. Power is not the only consideration: researchers must also consider precision, model assumptions and overall study design.</p>
+    </section>
+
+    <!-- Decision guidance & example section -->
+    <section class="section">
+      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance & Example">決策指引與範例</div>
+      <h2 data-zh="如何使用檢定力分析" data-en="How to Use Power Analysis">如何使用檢定力分析</h2>
+      <p data-lang="zh">決定樣本數時，需同時考量預期效果大小、標準差、顯著水準 α 及期望的檢定力 (1−β)。若研究較重視偵測差異，可以選擇較高的檢定力，例如 0.9；若資源有限，可透過提高預期效果大小或降低顯著水準來減少樣本需求，但需考慮型 I/II 錯誤平衡。</p>
+      <p data-lang="en">To determine an appropriate sample size, specify the expected effect size, standard deviation, significance level α and desired power (1−β). If detecting a difference is critical, you might choose higher power (e.g., 0.9). If resources are limited you could assume a larger effect or use a less stringent α to reduce the sample size, but this changes the balance between type I and type II errors.</p>
+      <h3 data-zh="實際範例" data-en="Practical Example">實際範例</h3>
+      <p data-lang="zh">假設想比較兩種治療的平均差異 Δ = 2，標準差 σ = 3，希望以 α = 0.05、檢定力 0.8 進行雙尾 t‑檢定。將這些數值代入公式 n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup> 可得每組所需樣本數。以這些設定為例，大約需要 36 名受試者。本頁的互動工具可協助您試算不同參數下的樣本數。</p>
+      <p data-lang="en">Suppose you wish to compare two treatments with an expected mean difference Δ = 2 and standard deviation σ = 3 using a two‑sided test with α = 0.05 and desired power 0.8. Plugging these values into the formula n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup> gives the required sample size per group. For these numbers the result is about 36 participants per group. You can use the interactive calculator on this page to explore different scenarios.</p>
+    </section>
+
+    <!-- Quiz section -->
+    <section class="section">
+      <div class="section-label" data-zh="互動測驗" data-en="Quiz">互動測驗</div>
+      <h2 data-zh="檢定力小測驗" data-en="Power Quiz">檢定力小測驗</h2>
+      <p data-lang="zh">若想提高檢定力，下列哪一項做法通常有效？</p>
+      <p data-lang="en">Which of the following actions generally increases statistical power?</p>
+      <div class="interactive-panel">
+        <label><input type="radio" name="powerQuiz" value="sample"> <span data-zh="增加樣本數" data-en="Increase the sample size">增加樣本數</span></label><br>
+        <label><input type="radio" name="powerQuiz" value="effect"> <span data-zh="減少效果大小" data-en="Decrease the effect size">減少效果大小</span></label><br>
+        <label><input type="radio" name="powerQuiz" value="alpha"> <span data-zh="降低顯著水準" data-en="Lower the significance level">降低顯著水準</span></label><br>
+        <label><input type="radio" name="powerQuiz" value="none"> <span data-zh="以上皆非" data-en="None of the above">以上皆非</span></label><br>
+        <button onclick="checkPowerQuiz()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Submit</button>
+        <div id="powerQuizFeedback" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
+      </div>
+    </section>
+
+    <!-- Code examples section -->
+    <section class="section">
+      <div class="section-label" data-zh="R 與 Python 範例" data-en="R & Python Examples">R 與 Python 範例</div>
+      <h2 data-zh="檢定力計算示範" data-en="Power Calculation Examples">檢定力計算示範</h2>
+      <div class="code-tabs">
+        <div class="code-tab-btns">
+          <button class="code-tab-btn active" onclick="switchTab(this)">R</button>
+          <button class="code-tab-btn" onclick="switchTab(this)">Python</button>
+        </div>
+        <div class="code-tab-content active">
+<pre><code>
+<span class="comment"># 使用 pwr 套件進行雙樣本 t 檢定檢定力分析</span>
+<span class="kw">library</span>(<span class="func">pwr</span>)
+<span class="comment"># 預期差異與標準差</span>
+<span class="kw">delta &lt;-</span> <span class="num">2</span>
+<span class="kw">sigma &lt;-</span> <span class="num">3</span>
+<span class="comment"># 轉換為效應大小 d</span>
+<span class="kw">effect_size &lt;-</span> delta / sigma
+<span class="comment"># 進行功效分析（雙尾）</span>
+<span class="kw">pwr_result &lt;-</span> <span class="func">pwr.t.test</span>(d = effect_size,
+                     power = <span class="num">0.8</span>,
+                     sig.level = <span class="num">0.05</span>,
+                     type = <span class="str">"two.sample"</span>,
+                     alternative = <span class="str">"two.sided"</span>)
+<span class="comment"># 所需每組樣本數</span>
+<span class="kw">required_n &lt;-</span> <span class="func">ceiling</span>(pwr_result$<span class="kw">n</span>)
+<span class="func">print</span>(pwr_result)
+</code></pre>
+          <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy R code"><span class="fa fa-copy"></span> Copy</button>
+        </div>
+        <div class="code-tab-content">
+<pre><code>
+<span class="comment"># Power analysis for two-sample t test using statsmodels</span>
+<span class="kw">import</span> <span class="func">numpy</span> <span class="kw">as</span> <span class="kw">np</span>
+<span class="kw">from</span> <span class="func">statsmodels.stats.power</span> <span class="kw">import</span> <span class="func">TTestIndPower</span>
+
+<span class="comment"># expected difference and standard deviation</span>
+delta = <span class="num">2</span>
+sigma = <span class="num">3</span>
+effect_size = delta / sigma
+
+<span class="comment"># solve for required sample size per group</span>
+analysis = <span class="func">TTestIndPower</span>()
+result = analysis.<span class="func">solve_power</span>(effect_size=effect_size,
+                               power=<span class="num">0.8</span>,
+                               alpha=<span class="num">0.05</span>,
+                               alternative=<span class="str">'two-sided'</span>)
+required_n = <span class="func">int</span>(<span class="func">np.ceil</span>(result))
+<span class="func">print</span>(required_n)
+</code></pre>
+          <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy Python code"><span class="fa fa-copy"></span> Copy</button>
+        </div>
+      </div>
+    </section>
     <div class="page-nav">
       <a href="survival.html">
         <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
@@ -153,6 +246,57 @@
       out.innerHTML = `<p><strong>${sizeLabel}:</strong> ${Math.ceil(n).toFixed(0)}</p>` +
         `<p><strong>${criticalLabel} (z<sub>1-α/2</sub>):</strong> ${zAlpha.toFixed(3)}, ` +
         `<strong>z<sub>1-β</sub>:</strong> ${zBeta.toFixed(3)}</p>`;
+    };
+
+    // Quiz evaluation for power analysis.  Determines whether the user selected
+    // the correct option and displays feedback in the current language.
+    window.checkPowerQuiz = function checkPowerQuiz() {
+      const radios = document.getElementsByName('powerQuiz');
+      let selected = null;
+      for (const r of radios) {
+        if (r.checked) selected = r.value;
+      }
+      const feedback = document.getElementById('powerQuizFeedback');
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      if (!selected) {
+        feedback.textContent = lang === 'zh' ? '請先選擇一個選項。' : 'Please select an option first.';
+        return;
+      }
+      const correct = selected === 'sample';
+      if (correct) {
+        feedback.textContent = lang === 'zh' ? '答對了！增加樣本數或效果大小能提升檢定力。' : 'Correct! Increasing the sample size or effect size increases power.';
+      } else {
+        feedback.textContent = lang === 'zh' ? '答錯了。真正能增加檢定力的是增加樣本數或效果大小。' : 'Incorrect. The way to increase power is to increase the sample size or effect size.';
+      }
+    };
+
+    // Switch between R and Python tabs.  Called when the code tab buttons are
+    // clicked.  The button clicked becomes active, and the corresponding
+    // code block is shown.
+    window.switchTab = function switchTab(btn) {
+      const btns = btn.parentElement.querySelectorAll('.code-tab-btn');
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const contents = btn.parentElement.parentElement.querySelectorAll('.code-tab-content');
+      contents.forEach(c => c.classList.remove('active'));
+      contents[Array.from(btns).indexOf(btn)].classList.add('active');
+    };
+
+    // Copy code text to clipboard.  When the copy button is clicked, the
+    // function finds the preceding <pre> element and copies its text content.
+    window.copyCode = function copyCode(btn) {
+      const code = btn.previousElementSibling.textContent;
+      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+      navigator.clipboard.writeText(code).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = lang === 'zh' ? '已複製!' : 'Copied!';
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      }).catch(() => {
+        // Even if copy fails, show feedback.
+        const original = btn.innerHTML;
+        btn.innerHTML = lang === 'zh' ? '已複製!' : 'Copied!';
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      });
     };
   </script>
 </body>
