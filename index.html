@@ -1,121 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Biostatistics Interactive Tutorial</title>
-  <meta name="description" content="An interactive, bilingual tutorial covering the fundamentals of biostatistics including descriptive statistics, probability distributions, hypothesis testing, regression, ANOVA and survival analysis.">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="hub-hero">
-    <div style="position:relative;z-index:1;">
-      <h1 data-zh="生物統計互動式教學" data-en="Biostatistics Interactive Tutorial">生物統計互動式教學</h1>
-      <p data-lang="zh">從基礎概念到進階分析——本教程涵蓋描述統計、機率分布、抽樣與中央極限定理、假設檢定、回歸、ANOVA、存活分析及樣本數設計，並配有互動模擬。</p>
-      <p data-lang="en">From foundational concepts to advanced analyses — this tutorial covers descriptive statistics, probability distributions, sampling and the central limit theorem, hypothesis testing, regression, ANOVA, survival analysis and study design, with interactive simulations.</p>
-    </div>
-  </header>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Biostatistics Interactive Tutorial</title>
+<meta name="description" content="Complete bilingual Biostatistics interactive tutorial — descriptive stats, distributions, CLT, hypothesis testing, regression, survival, power analysis, FDR, mixed-effects.">
+<link rel="stylesheet" href="styles.css"></head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li>
+    <li><a href="distributions.html">Dist.</a></li>
+    <li><a href="sampling.html">CLT</a></li>
+    <li><a href="hypothesis.html">Hypoth.</a></li>
+    <li><a href="t-tests.html">t-tests</a></li>
+    <li><a href="chi-square.html">Chi²</a></li>
+    <li><a href="anova.html">ANOVA</a></li>
+    <li><a href="regression.html">Regress.</a></li>
+    <li><a href="logistic.html">Logistic</a></li>
+    <li><a href="survival.html">Survival</a></li>
+    <li><a href="power.html">Power</a></li>
+    <li><a href="fdr.html">FDR</a></li>
+    <li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<header class="hub-hero"><div style="position:relative;z-index:1;">
+<h1 data-zh="生物統計互動式教學" data-en="Biostatistics Interactive Tutorial">生物統計互動式教學</h1>
+<p data-lang="zh">從第一條盒鬚圖到 Cox 模型——13 章貫穿生物統計的核心思想、現代爭議與實作範例。每章皆有 Chart.js 互動模擬、R + Python 程式碼、決策樹、比較表與自我檢測題；內容對應 Rosner / Altman / Kleinbaum 教科書與 ASA 2016/2019、CONSORT、TRIPOD 等官方規範。</p>
+<p data-lang="en">From your first boxplot to Cox models — 13 chapters traversing the core ideas, current controversies, and working code of biostatistics. Each chapter includes Chart.js simulations, paired R + Python code, decision trees, comparison tables, and self-checks; cross-referenced with Rosner / Altman / Kleinbaum textbooks and ASA 2016/2019, CONSORT, TRIPOD guidelines.</p>
+<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px;font-size:.82rem;">
+  <span style="background:rgba(255,255,255,.18);padding:4px 12px;border-radius:14px;">13 <span data-zh="章" data-en="chapters">章</span></span>
+  <span style="background:rgba(255,255,255,.18);padding:4px 12px;border-radius:14px;">28 <span data-zh="互動模擬" data-en="interactive sims">互動模擬</span></span>
+  <span style="background:rgba(255,255,255,.18);padding:4px 12px;border-radius:14px;">200+ <span data-zh="考題" data-en="quiz Qs">考題</span></span>
+  <span style="background:rgba(255,255,255,.18);padding:4px 12px;border-radius:14px;">90+ <span data-zh="文獻 DOI" data-en="DOIs">文獻 DOI</span></span>
+</div>
+</div></header>
 
-  <h2 class="hub-section-title"><span>01</span> <span data-zh="核心主題" data-en="Core Topics">核心主題</span></h2>
-  <div class="hub-steps-grid">
-    <a href="descriptive.html" class="hub-card">
-      <div class="hub-emoji">📊</div>
-      <span class="step-num">Step 1</span>
-      <h3 data-zh="描述統計" data-en="Descriptive Statistics">描述統計</h3>
-      <p data-lang="zh">探索平均數、中位數、變異數、標準差與箱型圖，瞭解如何總結數據。</p>
-      <p data-lang="en">Explore mean, median, variance, standard deviation and box plots to summarise data.</p>
-    </a>
-    <a href="distributions.html" class="hub-card">
-      <div class="hub-emoji">🎲</div>
-      <span class="step-num">Step 2</span>
-      <h3 data-zh="機率分布" data-en="Probability Distributions">機率分布</h3>
-      <p data-lang="zh">認識常見的常態與二項分布，調整參數並觀察型態變化。</p>
-      <p data-lang="en">Learn about normal and binomial distributions, adjust parameters and see how the shapes change.</p>
-    </a>
-    <a href="sampling.html" class="hub-card">
-      <div class="hub-emoji">🔁</div>
-      <span class="step-num">Step 3</span>
-      <h3 data-zh="抽樣與中央極限定理" data-en="Sampling & CLT">抽樣與中央極限定理</h3>
-      <p data-lang="zh">模擬抽樣分佈，體驗隨樣本數增加而趨近常態的過程。</p>
-      <p data-lang="en">Simulate sampling distributions and experience how they approach normality as sample size grows.</p>
-    </a>
-    <a href="hypothesis.html" class="hub-card">
-      <div class="hub-emoji">⚖️</div>
-      <span class="step-num">Step 4</span>
-      <h3 data-zh="假設檢定" data-en="Hypothesis Testing">假設檢定</h3>
-      <p data-lang="zh">瞭解零假設、對立假設、p 值、型一與型二錯誤的意義。</p>
-      <p data-lang="en">Understand null and alternative hypotheses, p‑values and type I/II errors.</p>
-    </a>
-    <a href="t-tests.html" class="hub-card">
-      <div class="hub-emoji">📏</div>
-      <span class="step-num">Step 5</span>
-      <h3 data-zh="t 檢定與信賴區間" data-en="t‑Tests & CIs">t 檢定與信賴區間</h3>
-      <p data-lang="zh">比較平均值並建立信賴區間，學習如何做出推論。</p>
-      <p data-lang="en">Compare means and build confidence intervals to make inferences.</p>
-    </a>
-    <a href="chi-square.html" class="hub-card">
-      <div class="hub-emoji">📊</div>
-      <span class="step-num">Step 6</span>
-      <h3 data-zh="卡方檢定" data-en="Chi‑Square Test">卡方檢定</h3>
-      <p data-lang="zh">檢驗類別變項之間的關聯，判斷兩變量是否獨立。</p>
-      <p data-lang="en">Test associations between categorical variables and determine independence.</p>
-    </a>
-    <a href="anova.html" class="hub-card">
-      <div class="hub-emoji">🧪</div>
-      <span class="step-num">Step 7</span>
-      <h3 data-zh="變異數分析" data-en="ANOVA">變異數分析</h3>
-      <p data-lang="zh">比較三組以上的平均值，了解 F 統計量與事後檢定。</p>
-      <p data-lang="en">Compare means of three or more groups using the F statistic and post‑hoc tests.</p>
-    </a>
-    <a href="regression.html" class="hub-card">
-      <div class="hub-emoji">📈</div>
-      <span class="step-num">Step 8</span>
-      <h3 data-zh="線性回歸" data-en="Linear Regression">線性回歸</h3>
-      <p data-lang="zh">建立最佳擬合線，解釋截距、斜率與決定係數。</p>
-      <p data-lang="en">Fit the best line and interpret the intercept, slope and R².</p>
-    </a>
-    <a href="logistic.html" class="hub-card">
-      <div class="hub-emoji">⚙️</div>
-      <span class="step-num">Step 9</span>
-      <h3 data-zh="邏輯斯迴歸" data-en="Logistic Regression">邏輯斯迴歸</h3>
-      <p data-lang="zh">預測二元或多元類別結果，理解 S 型連續機率模型。</p>
-      <p data-lang="en">Predict binary or multi‑category outcomes with S‑shaped probability models.</p>
-    </a>
-    <a href="survival.html" class="hub-card">
-      <div class="hub-emoji">⏳</div>
-      <span class="step-num">Step 10</span>
-      <h3 data-zh="存活分析" data-en="Survival Analysis">存活分析</h3>
-      <p data-lang="zh">了解時間到事件資料、Kaplan‑Meier 曲線與截尾觀察。</p>
-      <p data-lang="en">Learn time‑to‑event data, Kaplan–Meier curves and censoring.</p>
-    </a>
-    <a href="power.html" class="hub-card">
-      <div class="hub-emoji">🔋</div>
-      <span class="step-num">Step 11</span>
-      <h3 data-zh="樣本數與檢定力" data-en="Power & Sample Size">樣本數與檢定力</h3>
-      <p data-lang="zh">評估型一、型二錯誤，計算所需樣本數以獲得足夠檢定力。</p>
-      <p data-lang="en">Balance type I/II errors and compute required sample sizes for adequate power.</p>
-    </a>
-  </div>
-  <div style="height:60px"></div>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-</body>
-</html>
+<h2 class="hub-section-title"><span>01</span> <span data-zh="描述與分布（資料的形狀）" data-en="Description & Distributions">描述與分布</span></h2>
+<div class="hub-steps-grid">
+  <a href="descriptive.html" class="hub-card"><div class="hub-emoji">📊</div><span class="step-num">Step 1</span><h3 data-zh="描述統計" data-en="Descriptive Statistics">描述統計</h3><p data-lang="zh">三條腿（位置 / 離散 / 形狀）+ 偏態下 mean vs median + 箱型/小提琴/dot plot 的選擇 + Anscombe 四重奏的故事 + Tukey 1977 EDA 哲學。</p><p data-lang="en">Location / spread / shape, mean vs median under skew, boxplot vs violin vs dotplot, Anscombe's quartet, and Tukey's 1977 EDA philosophy.</p></a>
+  <a href="distributions.html" class="hub-card"><div class="hub-emoji">🎲</div><span class="step-num">Step 2</span><h3 data-zh="機率分布家族" data-en="Probability Distributions">機率分布家族</h3><p data-lang="zh">Normal / Binomial / Poisson / Negative Binomial / t / F / chi-square / log-normal——每個都有對應的生物學情境（突變數 / 細胞計數 / RNA-seq counts / 血液濃度）。</p><p data-lang="en">Normal / Binomial / Poisson / Negative Binomial / t / F / chi-square / log-normal — each tied to a biological scenario (mutations / counts / RNA-seq / biomarker concentrations).</p></a>
+  <a href="sampling.html" class="hub-card"><div class="hub-emoji">🔁</div><span class="step-num">Step 3</span><h3 data-zh="抽樣與中央極限定理" data-en="Sampling & CLT">抽樣與中央極限定理</h3><p data-lang="zh">SE vs SD 的混淆陷阱、CLT 的真實前提（獨立 + 有限變異數）、bootstrap 重抽樣與信賴區間建構。</p><p data-lang="en">The classic SE vs SD confusion, CLT's real assumptions (independence + finite variance), bootstrap resampling, and CI construction.</p></a>
+</div>
+
+<h2 class="hub-section-title"><span>02</span> <span data-zh="推論統計（從樣本回到母體）" data-en="Statistical Inference">推論統計</span></h2>
+<div class="hub-steps-grid">
+  <a href="hypothesis.html" class="hub-card"><div class="hub-emoji">⚖️</div><span class="step-num">Step 4</span><h3 data-zh="假設檢定" data-en="Hypothesis Testing">假設檢定</h3><p data-lang="zh">H₀ vs H₁ 的真正意涵、p-value 的 6 大誤解（ASA 2016）、p-hacking 與 garden of forking paths（Gelman 2014）、equivalence/non-inferiority 檢定、S-value 替代直覺。</p><p data-lang="en">H₀ vs H₁ properly explained, the 6 misuses of p-values (ASA 2016), p-hacking and the garden of forking paths (Gelman 2014), equivalence / non-inferiority tests, and the S-value intuition.</p></a>
+  <a href="t-tests.html" class="hub-card"><div class="hub-emoji">📏</div><span class="step-num">Step 5</span><h3 data-zh="t 檢定與信賴區間" data-en="t-tests & CIs">t 檢定與信賴區間</h3><p data-lang="zh">One/two-sample/paired t 完整流程，<strong>Welch 為預設</strong>（Delacre 2017）、Wilcoxon 非常態替代、CI 的 5 大誤讀、報告 effect size + CI 的正確姿勢。</p><p data-lang="en">One-/two-sample/paired t in full, <strong>Welch as default</strong> (Delacre 2017), Wilcoxon for non-normal data, the five common CI misreadings, and effect-size + CI reporting done right.</p></a>
+  <a href="chi-square.html" class="hub-card"><div class="hub-emoji">🧩</div><span class="step-num">Step 6</span><h3 data-zh="卡方檢定與類別資料" data-en="Chi-Square & Categorical Data">卡方檢定</h3><p data-lang="zh">獨立性 / 適合度 / McNemar、Fisher's exact 何時用、Yates 連續性修正的爭議、2×2 表的 OR / RR / RD 三種效應量。</p><p data-lang="en">Independence / goodness-of-fit / McNemar; when to use Fisher's exact; the Yates correction debate; OR / RR / RD as three effect-size choices on a 2×2 table.</p></a>
+  <a href="anova.html" class="hub-card"><div class="hub-emoji">🧪</div><span class="step-num">Step 7</span><h3 data-zh="變異數分析 (ANOVA)" data-en="ANOVA">變異數分析</h3><p data-lang="zh">F 統計量幾何直覺、one-way / two-way / repeated-measures、post-hoc（Tukey HSD / Bonferroni / Dunnett）、Welch ANOVA、非常態 Kruskal-Wallis。</p><p data-lang="en">Geometric intuition for F, one-way / two-way / repeated-measures, post-hoc (Tukey HSD / Bonferroni / Dunnett), Welch ANOVA, and Kruskal-Wallis for non-normal data.</p></a>
+</div>
+
+<h2 class="hub-section-title"><span>03</span> <span data-zh="模型與設計（用方程式說故事）" data-en="Models & Study Design">模型與設計</span></h2>
+<div class="hub-steps-grid">
+  <a href="regression.html" class="hub-card"><div class="hub-emoji">📈</div><span class="step-num">Step 8</span><h3 data-zh="線性迴歸" data-en="Linear Regression">線性迴歸</h3><p data-lang="zh">OLS 幾何意義、四圖殘差診斷、VIF / influence / Cook's distance、interaction 與 dummy variables、Table 2 fallacy（Westreich 2013）與 confounder 校正。</p><p data-lang="en">OLS as geometry, the four diagnostic plots, VIF / influence / Cook's distance, interactions and dummy variables, the Table 2 fallacy (Westreich 2013), and confounder adjustment done right.</p></a>
+  <a href="logistic.html" class="hub-card"><div class="hub-emoji">⚙️</div><span class="step-num">Step 9</span><h3 data-zh="邏輯斯迴歸" data-en="Logistic Regression">邏輯斯迴歸</h3><p data-lang="zh">Logit link、odds ratio 解讀、Wald vs LRT vs score、EPV ≥ 10 規則（Peduzzi 1996 / Riley 2020）、ROC + AUC + calibration + decision curve。</p><p data-lang="en">Logit link, OR interpretation, Wald vs LRT vs score, the EPV ≥ 10 rule (Peduzzi 1996 / Riley 2020), and ROC + AUC + calibration + decision-curve analysis.</p></a>
+  <a href="survival.html" class="hub-card"><div class="hub-emoji">⏳</div><span class="step-num">Step 10</span><h3 data-zh="存活分析" data-en="Survival Analysis">存活分析</h3><p data-lang="zh">Kaplan-Meier、log-rank、Cox PH 模型、Schoenfeld 殘差檢驗（Grambsch-Therneau 1994）、competing risks（Fine-Gray）、RMST 與時間相依變數。</p><p data-lang="en">Kaplan-Meier, log-rank, Cox PH, Schoenfeld residuals (Grambsch-Therneau 1994), competing risks (Fine-Gray), RMST, and time-varying covariates.</p></a>
+  <a href="power.html" class="hub-card"><div class="hub-emoji">🔋</div><span class="step-num">Step 11</span><h3 data-zh="樣本數與檢定力" data-en="Power & Sample Size">樣本數與檢定力</h3><p data-lang="zh">α / β / effect size / n 的四要素互動關係；G*Power、pwr (R)、statsmodels (Python)；<strong>絕不算 post-hoc power</strong>（Hoenig 2001）；SESOI、cluster RCT、survival sample size。</p><p data-lang="en">The four-way α / β / effect-size / n relationship; G*Power, pwr (R), statsmodels (Python); <strong>never compute post-hoc power</strong> (Hoenig 2001); SESOI, cluster RCT, and survival sample size.</p></a>
+  <a href="fdr.html" class="hub-card"><div class="hub-emoji">🎯</div><span class="step-num">Step 12</span><h3 data-zh="多重檢定與 FDR" data-en="Multiple Testing & FDR">多重檢定與 FDR</h3><p data-lang="zh">FWER（Bonferroni / Holm / Hochberg） vs FDR（BH 1995 / BY 2001 / Storey q-value / 2dGBH 2024）、local FDR、scRNA-seq / GWAS / proteomics 場景應用。</p><p data-lang="en">FWER (Bonferroni / Holm / Hochberg) vs FDR (BH 1995 / BY 2001 / Storey q / 2dGBH 2024), local FDR, and applications in scRNA-seq, GWAS, and proteomics.</p></a>
+  <a href="mixed-models.html" class="hub-card"><div class="hub-emoji">🔄</div><span class="step-num">Step 13</span><h3 data-zh="混合效應與縱貫資料" data-en="Mixed-Effects & Longitudinal">混合效應模型</h3><p data-lang="zh">Fixed vs random effects、random intercept / slope、ICC、lme4 / nlme / statsmodels、GEE、避免 pseudo-replication（Hurlbert 1984）、Bayesian 混合模型導論。</p><p data-lang="en">Fixed vs random effects, random intercept / slope, ICC, lme4 / nlme / statsmodels, GEE, avoiding pseudo-replication (Hurlbert 1984), and a Bayesian mixed-model primer.</p></a>
+</div>
+
+<h2 class="hub-section-title"><span>04</span> <span data-zh="延伸學習" data-en="Further Learning">延伸學習</span></h2>
+<div class="hub-steps-grid">
+  <a href="references/index.html" class="hub-card"><div class="hub-emoji">📚</div><span class="step-num" data-zh="參考資料" data-en="References">參考資料</span><h3 data-zh="論文、教科書與官方文件" data-en="Papers, Textbooks & Official Docs">論文、教科書與官方文件</h3><p data-lang="zh">~90 個 DOI 連結：經典教科書（Rosner / Altman / Kleinbaum / Hosmer-Lemeshow / Pinheiro-Bates / Vittinghoff）、ASA p-value 聲明、CONSORT / STROBE / TRIPOD / ARRIVE 規範、Welch 預設、BH-FDR、Cox PH、Hoenig 等延伸討論。</p><p data-lang="en">~90 DOI links: classic textbooks (Rosner / Altman / Kleinbaum / Hosmer-Lemeshow / Pinheiro-Bates / Vittinghoff), ASA p-value statements, CONSORT / STROBE / TRIPOD / ARRIVE guidelines, the Welch-default debate, BH-FDR, Cox PH, Hoenig, and more.</p></a>
+  <a href="biostats-quiz/index.html" class="hub-card" target="_blank" rel="noopener"><div class="hub-emoji">📝</div><span class="step-num" data-zh="互動考題" data-en="Interactive Quiz">互動考題</span><h3 data-zh="200+ 題互動式考題" data-en="200+ Interactive Questions">200+ 題互動式考題</h3><p data-lang="zh">涵蓋 13 章主題的單選、多選、是非題（每章 15+ 題），內建錯題複習、隨機練習、考試模式與進度紀錄。雙語對照。</p><p data-lang="en">Single-choice / multi-select / true-false questions across all 13 chapters (~15+ per chapter), with wrong-answer review, random practice, exam mode, and progress tracking. Fully bilingual.</p></a>
+</div>
+
+<div style="height:60px"></div>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+</body></html>

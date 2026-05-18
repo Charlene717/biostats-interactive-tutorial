@@ -1,329 +1,420 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>描述統計 | Biostatistics Tutorial</title>
-  <meta name="description" content="Interactive exploration of descriptive statistics: mean, median, variance, standard deviation and quartiles.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- Load Chart.js; descriptive functions are defined below instead of relying solely on biostats.js -->
-  <script src="biostats.js"></script>
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html" class="active">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 1</div>
-      <h1 data-zh="描述統計" data-en="Descriptive Statistics">描述統計</h1>
-      <p class="subtitle" data-lang="zh">學習如何以集中趨勢與變異數來概述資料，並透過互動示範體會不同統計量的意義。</p>
-      <p class="subtitle" data-lang="en">Learn how to summarise data using measures of central tendency and dispersion, and explore their meaning through interactive examples.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="集中趨勢" data-en="Measures of Central Tendency">集中趨勢</h2>
-      <p data-lang="zh">平均數 (mean) 是所有數值的算術平均，用以描述資料的中心。中位數 (median) 是排序後居中的數值，對極端值較不敏感。眾數 (mode) 是出現次數最多的值，可以有多個或沒有眾數。</p>
-      <p data-lang="en">The mean is the arithmetic average of all values and describes the centre of the data. The median is the middle value after sorting and is less sensitive to extremes. The mode is the value that occurs most often and may be one or more values or none at all.</p>
-      <h2 data-zh="變異程度" data-en="Measures of Dispersion">變異程度</h2>
-      <p data-lang="zh">變異數 (variance) 衡量資料平均離均值多遠，其單位為原單位的平方。標準差 (standard deviation) 是變異數的平方根，與原單位一致。範圍 (range) 為最大值減最小值，四分位距 (IQR) 為第三四分位與第一四分位之差。</p>
-      <p data-lang="en">Variance measures how far the data are from the mean on average and has squared units. The standard deviation is the square root of the variance and has the same units as the data. The range is the difference between the maximum and minimum, and the interquartile range (IQR) is the difference between the third and first quartiles.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="輸入數據並計算統計量" data-en="Enter Data and Calculate Statistics">輸入數據並計算統計量</h2>
-      <p data-lang="zh">在下方輸入一串以逗號或空格分隔的數字，按下計算按鈕即可取得平均數、中位數、標準差、四分位數等統計量，並查看直方圖。</p>
-      <p data-lang="en">Enter a series of numbers separated by commas or spaces below. Press the calculate button to obtain the mean, median, standard deviation and quartiles, and view the histogram.</p>
-      <div class="interactive-panel">
-        <!-- Provide default values instead of just a placeholder so users can immediately test the calculator -->
-        <textarea id="dataInput" rows="4" style="width:100%;font-family:var(--font-mono);padding:8px;border:1px solid var(--c-border-light);border-radius:6px;resize:vertical">1, 2, 3, 4, 5</textarea>
-        <button id="calcStats" onclick="calcAndDraw()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Calculate</button>
-        <div id="statsOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
-        <div class="chart-container"><canvas id="histCanvas"></canvas></div>
-      </div>
-    </section>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 1: Descriptive Statistics — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html" class="active">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 1 / 13</div>
+<h1 data-zh="描述統計 (Descriptive Statistics)" data-en="Descriptive Statistics">描述統計 (Descriptive Statistics)</h1>
+<p class="subtitle" data-lang="zh">位置、離散、形狀——三條腿撐起任何資料的初步描述，也是所有推論統計的起點。</p>
+<p class="subtitle" data-lang="en">Location, spread, shape — the three legs that hold up every data summary and the launchpad for all inferential statistics.</p>
+</header>
+<main class="content-wrap">
 
-    <!-- Additional educational content to make the Descriptive Statistics page more engaging -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
-      <h2 data-zh="統計量的優點與缺點" data-en="Advantages &amp; Disadvantages of Measures">統計量的優點與缺點</h2>
-      <!-- Summarise the advantages and disadvantages of common measures of central tendency and dispersion -->
-      <p data-lang="zh">平均數利用所有數據點表示中心，因此在資料符合傳統假設且無明顯離群值時能有效概括資料。不過，平均數對極端值與偏態敏感，少數極端觀察可能大幅拉高或拉低均值。中位數是排序後的中間值，不受離群值影響，適合偏態或有極端值的資料。眾數為最常出現的值，可以應用於數值或類別資料，但在連續資料或有多個眾數時難以代表中心。至於變異數和標準差能利用所有偏差來衡量變異，是推論統計的基礎，但對離群值極為敏感。四分位距（IQR）僅取中間 50% 的資料，能抵抗極端值，是對偏態或有重尾資料的穩健度量；而極差只利用最大和最小值，容易受到樣本大小與極端值影響。</p>
-      <p data-lang="en">The mean uses every observation to summarise the centre of the data, making it an efficient estimator when the data follow classical assumptions and contain no extreme values. However, a few extreme observations can pull the mean far away from the bulk of the data. The median, the middle value after sorting, is unaffected by outliers and is preferred for skewed distributions or when outliers are present. The mode is the most frequent value and can be used for both numeric and categorical data, but it may not represent the centre well when there are multiple modes or no mode at all. Variance and the standard deviation incorporate all deviations from the mean and underpin inferential methods, yet they are extremely sensitive to outliers. The interquartile range (IQR), which measures the spread of the middle 50%, is robust to heavy‑tailed or skewed data, while the range uses only the minimum and maximum and therefore grows with sample size and is highly affected by outliers.</p>
-      <h3 data-zh="適用條件與決策指引" data-en="Applicable Conditions &amp; Decision Guidance">適用條件與決策指引</h3>
-      <ul data-lang="zh">
-        <li>當資料分布近似對稱且希望保留所有觀察值的資訊時，可使用平均數。</li>
-        <li>當分布有顯著偏態或存在離群值時，中位數較能反映典型值。</li>
-        <li>眾數適用於類別資料或需找出最常出現的數值情況，但可能存在多個或沒有眾數。</li>
-        <li>若要描述變異程度並進行統計推論，選用變異數或標準差；但若關心的是典型範圍且資料有極端值，則選擇四分位距。</li>
-        <li>極差適合快速檢查儀器上下限或估計量級，不宜用來比較不同樣本數之間的差異。</li>
-      </ul>
-      <ul data-lang="en">
-        <li>Use the mean when the distribution is roughly symmetric and you want to include information from every observation.</li>
-        <li>When the data are skewed or contain outliers, the median better reflects a typical value.</li>
-        <li>The mode is useful for categorical data or when identifying the most common value, but multiple or absent modes can limit its interpretability.</li>
-        <li>Variance and standard deviation quantify variability for inferential statistics, while the interquartile range is preferred for heavy‑tailed or skewed data.</li>
-        <li>The range is suitable for quick sanity checks or instrument limits but should not be used to compare groups of different sizes.</li>
-      </ul>
-      <h3 data-zh="實例說明" data-en="Practical Example">實例說明</h3>
-      <p data-lang="zh">假設有一組工資資料：20、22、23、24、25、30、120（單位：萬元）。平均數為 37.6 萬，但這是因為 120 萬的高薪拉高了結果。中位數為 24 萬，更能代表大多數員工的收入。當我們只關心大部分人的薪資情況時，建議使用中位數與四分位距描述中心和變異。另一方面，若要計算公司總薪資支出或用於財務預測，則平均數仍具有意義。</p>
-      <p data-lang="en">Consider a set of salaries (in thousands): 20, 22, 23, 24, 25, 30 and 120. The mean is 37.6, which is pulled up by the 120‑thousand outlier. The median is 24 and better represents what most employees earn. When describing the typical salary of the group, the median and interquartile range are appropriate. On the other hand, if the question concerns total payroll or financial forecasting, the mean is still relevant.</p>
-    </section>
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="為什麼描述統計是「不能跳過」的第一步？" data-en="Why descriptive statistics is the step you cannot skip">為什麼描述統計是「不能跳過」的第一步？</h2>
+<div data-lang="zh">
+<p>很多研究者把描述統計當成「論文表 1」的應付項目——填一下 mean ± SD 就完事。這是大錯特錯。<strong>所有推論統計（t 檢定、ANOVA、迴歸）都建構在描述統計的觀察之上</strong>：你選 Welch 還是 Student t、用 mean 還是 median、log 轉換還是原尺度報告，全部取決於你看到的資料形狀。</p>
+<p>更危險的是，<strong>同一組 summary statistics 可以對應到截然不同的資料</strong>——這就是 Anscombe (1973) 提出的「Anscombe's Quartet」與 Matejka & Fitzmaurice (2017)「Datasaurus Dozen」的核心警示。四組資料有完全相同的 mean、SD、相關係數，但畫出散佈圖卻是恐龍、十字、星星。<strong>看圖，永遠先看圖。</strong></p>
+</div>
+<div data-lang="en">
+<p>Many researchers treat descriptive statistics as Table 1 boilerplate — fill in mean ± SD and move on. That is a serious mistake. <strong>All inferential statistics (t-tests, ANOVA, regression) are built on top of descriptive observations</strong>: whether you pick Welch vs Student t, mean vs median, log scale vs raw — all of it follows from what you saw in the data.</p>
+<p>Worse, <strong>the same summary statistics can correspond to wildly different datasets</strong> — the warning at the heart of Anscombe's Quartet (1973) and Matejka & Fitzmaurice's Datasaurus Dozen (2017). Four datasets share identical mean, SD, and correlation, yet their scatter plots are a dinosaur, a cross, a star. <strong>Look at the figure. Always look at the figure first.</strong></p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>EDA 哲學（Tukey 1977）：</strong>探索性資料分析（Exploratory Data Analysis）不是要「證明什麼」，而是<strong>讓資料自己說話</strong>。Tukey 在 1977 年的《Exploratory Data Analysis》就提出：先畫圖、再做檢定。今天，<code>tidyverse::ggplot2</code> 與 <code>seaborn</code> 都是這個哲學的後裔。</span>
+<span data-lang="en"><strong>The EDA philosophy (Tukey 1977):</strong> Exploratory Data Analysis isn't about "proving" something — it's about <strong>letting the data speak first</strong>. In <em>Exploratory Data Analysis</em> (1977), Tukey told us: draw the picture before you run the test. Today, <code>ggplot2</code> and <code>seaborn</code> are descendants of this same philosophy.</span>
+</div></div>
+</section>
 
-    <!-- Interactive self‑quiz -->
-    <section class="section">
-      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
-      <h2 data-zh="自我測驗" data-en="Self‑Quiz">自我測驗</h2>
-      <p data-lang="zh">哪一種集中趨勢的統計量最不受離群值影響？</p>
-      <p data-lang="en">Which measure of central tendency is least affected by outliers?</p>
-      <div class="interactive-panel">
-        <form id="quizForm">
-          <label><input type="radio" name="quiz" value="mean"> <span data-zh="平均數" data-en="Mean">平均數</span></label><br>
-          <label><input type="radio" name="quiz" value="median"> <span data-zh="中位數" data-en="Median">中位數</span></label><br>
-          <label><input type="radio" name="quiz" value="mode"> <span data-zh="眾數" data-en="Mode">眾數</span></label><br>
-          <button type="button" onclick="checkQuizAnswer()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
-        </form>
-        <div id="quizFeedback" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
-      </div>
-    </section>
+<!-- ===== Section 2: Three legs ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心三條腿" data-en="THREE PILLARS">核心三條腿</div>
+<h2 data-zh="一、位置、離散、形狀——資料的三個維度" data-en="I. Location, spread, shape — the three dimensions">一、位置、離散、形狀</h2>
+<div data-lang="zh"><p>任何資料的初步描述都圍繞三個維度：<strong>位置（資料中心在哪？）</strong>、<strong>離散（資料散得多開？）</strong>、<strong>形狀（資料對稱嗎？尾巴重嗎？）</strong>。每個維度都有「敏感」與「穩健」兩派選項，差別在於它對 outlier 的容忍度。</p></div>
+<div data-lang="en"><p>Every data summary lives on three axes: <strong>location (where is the centre?)</strong>, <strong>spread (how scattered?)</strong>, and <strong>shape (symmetric? heavy-tailed?)</strong>. Each axis offers a "sensitive" choice and a "robust" choice — they differ in how much they tolerate outliers.</p></div>
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">📍</div><h4 data-zh="位置 (Location)" data-en="Location">位置 (Location)</h4>
+<div data-lang="zh"><p><span class="kt">Mean</span>：<span class="math">x̄ = Σxᵢ/n</span> · 對 outlier 敏感<br><span class="kt">Median</span>：第 50 百分位數 · 對 outlier 穩健<br><span class="kt">Trimmed mean</span>：去掉前後 5/10% 後的 mean，介於兩者之間<br><span class="kt">Geometric mean</span>：log 後取 mean 再 exp 回去——適用於比例 / 倍數資料（基因表達 fold-change）</p></div>
+<div data-lang="en"><p><span class="kt">Mean</span>: <span class="math">x̄ = Σxᵢ/n</span>; sensitive to outliers.<br><span class="kt">Median</span>: 50th percentile; outlier-robust.<br><span class="kt">Trimmed mean</span>: mean after dropping the top/bottom 5–10%; a middle ground.<br><span class="kt">Geometric mean</span>: mean of logs, then exp — for ratio/fold-change data (e.g. gene expression).</p></div>
+</div>
+<div class="card"><div class="card-icon">↔️</div><h4 data-zh="離散 (Spread)" data-en="Spread">離散 (Spread)</h4>
+<div data-lang="zh"><p><span class="kt">SD</span>：<span class="math">s = √(Σ(xᵢ−x̄)²/(n−1))</span> · 跟 mean 配對<br><span class="kt">IQR</span>：Q₃ − Q₁ · 跟 median 配對，包含中央 50%<br><span class="kt">MAD</span>：<span class="math">median(|xᵢ − median(x)|)</span> · 最穩健<br><span class="kt">Range</span>：max − min · 對 outlier 極敏感，不建議單獨使用</p></div>
+<div data-lang="en"><p><span class="kt">SD</span>: <span class="math">s = √(Σ(xᵢ−x̄)²/(n−1))</span>; pairs with the mean.<br><span class="kt">IQR</span>: Q₃ − Q₁; pairs with median, covers middle 50%.<br><span class="kt">MAD</span>: <span class="math">median(|xᵢ − median(x)|)</span>; the most robust.<br><span class="kt">Range</span>: max − min; outlier-driven, not for solo use.</p></div>
+</div>
+<div class="card"><div class="card-icon">🎨</div><h4 data-zh="形狀 (Shape)" data-en="Shape">形狀 (Shape)</h4>
+<div data-lang="zh"><p><span class="kt">Skewness γ₁</span>：> 0 右偏（尾巴在右側）；< 0 左偏<br><span class="kt">Kurtosis γ₂</span>：> 0 leptokurtic（尾巴重 / 中心尖）；= 0 normal；< 0 platykurtic<br><strong>看 histogram + QQ plot 比看數值更直觀</strong>——γ₁ = 0 不保證對稱（雙峰分布 γ₁ 也可能 = 0）。</p></div>
+<div data-lang="en"><p><span class="kt">Skewness γ₁</span>: > 0 right-skewed (tail on the right); < 0 left-skewed.<br><span class="kt">Kurtosis γ₂</span>: > 0 leptokurtic (heavy tails / sharp peak); = 0 normal; < 0 platykurtic.<br><strong>A histogram + QQ plot beats raw numbers</strong> — γ₁ = 0 does not guarantee symmetry (bimodal distributions can also have γ₁ = 0).</p></div>
+</div>
+</div>
 
-    <!-- R and Python examples -->
-    <section class="section">
-      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
-      <h2 data-zh="R 與 Python 範例" data-en="R and Python Examples">R 與 Python 範例</h2>
-      <p data-lang="zh">以下示範如何使用 R 與 Python 計算平均數、中位數、標準差與四分位距。您可以將這些程式碼貼到 R 或 Python 環境中執行，快速驗證結果。</p>
-      <p data-lang="en">The following examples show how to compute the mean, median, standard deviation and interquartile range using R and Python. You can paste these snippets into an R console or a Python interpreter to verify the results.</p>
-      <!-- Code examples with R and Python tabs.  A copy button allows quick copying of the code to the clipboard. -->
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(this,'code-r')">R</button>
-          <button class="code-tab-btn" onclick="switchTab(this,'code-py')">Python</button>
-        </div>
-        <div class="code-tab-content active" id="code-r">
-          <button class="copy-btn" onclick="copyCode('code-r-content', this)">📋</button>
-          <pre id="code-r-content"><span class="comment"># 向量</span>
-<span class="func">x</span> &lt;- <span class="func">c</span>(<span class="num">20</span>, <span class="num">22</span>, <span class="num">23</span>, <span class="num">24</span>, <span class="num">25</span>, <span class="num">30</span>, <span class="num">120</span>)
-<span class="comment"># 平均數、媒數、標準差、IQR</span>
-<span class="func">mean</span>(x)      <span class="comment"># 37.57</span>
-<span class="func">median</span>(x)    <span class="comment"># 24</span>
-<span class="func">sd</span>(x)        <span class="comment"># 34.17</span>
-<span class="func">IQR</span>(x)       <span class="comment"># 8</span>
-</pre>
-        </div>
-        <div class="code-tab-content" id="code-py">
-          <button class="copy-btn" onclick="copyCode('code-py-content', this)">📋</button>
-          <pre id="code-py-content"><span class="comment"># 導入 NumPy</span>
-<span class="kw">import</span> numpy <span class="kw">as</span> np
-x = np.array([<span class="num">20</span>, <span class="num">22</span>, <span class="num">23</span>, <span class="num">24</span>, <span class="num">25</span>, <span class="num">30</span>, <span class="num">120</span>])
-<span class="comment"># 平均數、媒數、標準差、IQR</span>
-x.<span class="func">mean</span>()           <span class="comment"># 37.57</span>
-np.<span class="func">median</span>(x)       <span class="comment"># 24.0</span>
-x.<span class="func">std</span>(ddof=<span class="num">1</span>)      <span class="comment"># 34.17</span>
-np.<span class="func">quantile</span>(x, [<span class="num">0.25</span>, <span class="num">0.75</span>])
-np.<span class="func">quantile</span>(x, <span class="num">0.75</span>) - np.<span class="func">quantile</span>(x, <span class="num">0.25</span>)
-</pre>
-        </div>
-      </div>
-    </section>
+<div class="formula">
+<span data-lang="zh">⌜ <em>x̄</em> = (1/n)Σ<em>xᵢ</em> &nbsp; · &nbsp; <em>s²</em> = Σ(<em>xᵢ</em>−<em>x̄</em>)²/(n−1) &nbsp; · &nbsp; γ₁ = (1/n)Σ((<em>xᵢ</em>−<em>x̄</em>)/<em>s</em>)³ ⌝
+<span class="fnote">變異數除以 (n−1) 而非 n：這就是「Bessel's correction」——讓樣本變異數成為母體變異數的<strong>無偏估計</strong>（unbiased estimator）。Fisher 1925。</span></span>
+<span data-lang="en">⌜ <em>x̄</em> = (1/n)Σ<em>xᵢ</em> &nbsp; · &nbsp; <em>s²</em> = Σ(<em>xᵢ</em>−<em>x̄</em>)²/(n−1) &nbsp; · &nbsp; γ₁ = (1/n)Σ((<em>xᵢ</em>−<em>x̄</em>)/<em>s</em>)³ ⌝
+<span class="fnote">Dividing by (n−1), not n, is Bessel's correction — it makes the sample variance an <strong>unbiased estimator</strong> of the population variance. Fisher 1925.</span></span>
+</div>
+</section>
 
-    <div class="page-nav">
-      <!-- Invisible placeholder to occupy the left half of the navigation row.
-           Using visibility:hidden retains the element's size but hides its
-           content, ensuring the next card aligns to the right and has the
-           same width as in other pages. -->
-      <a class="nav-placeholder" href="#" aria-hidden="true"></a>
-      <a href="distributions.html">
-        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
-        <span class="nav-title" data-zh="機率分布" data-en="Distributions">機率分布</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    // Define descriptive statistics helper functions locally to avoid relying on external modules.
-    function descriptiveStats(values) {
-      const n = values.length;
-      if (n === 0) return null;
-      const sorted = values.slice().sort((a, b) => a - b);
-      const mean = values.reduce((sum, v) => sum + v, 0) / n;
-      const median = n % 2 === 1
-        ? sorted[(n - 1) / 2]
-        : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
-      const deviations = values.map(v => v - mean);
-      const variance = deviations.reduce((sum, d) => sum + d * d, 0) / (n - 1);
-      const sd = Math.sqrt(variance);
-      const range = sorted[n - 1] - sorted[0];
-      const q1 = quartile(sorted, 0.25);
-      const q3 = quartile(sorted, 0.75);
-      const iqr = q3 - q1;
-      return { n, mean, median, variance, sd, range, q1, q3, iqr, sorted };
-    }
-    function quartile(arr, q) {
-      const pos = (arr.length - 1) * q;
-      const base = Math.floor(pos);
-      const rest = pos - base;
-      if (arr[base + 1] !== undefined) {
-        return arr[base] + rest * (arr[base + 1] - arr[base]);
-      } else {
-        return arr[base];
-      }
-    }
-    function drawHistogram(ctx, values, bins = 10) {
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const width = (max - min) / bins;
-      const counts = new Array(bins).fill(0);
-      values.forEach(v => {
-        const idx = Math.min(Math.floor((v - min) / width), bins - 1);
-        counts[idx]++;
-      });
-      const labels = counts.map((_, i) => (min + i * width).toFixed(2));
-      return new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Frequency',
-            data: counts,
-            backgroundColor: 'rgba(26,107,90,0.6)',
-            borderColor: 'rgba(26,107,90,1)',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            x: { title: { display: true, text: 'Value' } },
-            y: { beginAtZero: true, title: { display: true, text: 'Count' } }
-          },
-          responsive: true,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-    let histChart;
-    // Called when the user clicks the "Calculate" button.  Using an
-    // explicit function and onclick attribute avoids potential issues
-    // with addEventListener not executing under the file:// protocol.
-    function calcAndDraw() {
-      const input = document.getElementById('dataInput').value.trim();
-      if (!input) return;
-      const values = input
-        .split(/[,\s]+/)
-        .map(s => parseFloat(s))
-        .filter(x => !isNaN(x));
-      const stats = descriptiveStats(values);
-      if (!stats) return;
-      const out = document.getElementById('statsOutput');
-      // Format numbers to two decimals
-      function fmt(x) { return Number.parseFloat(x).toFixed(2); }
-      // Determine current language via html lang attribute
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      out.innerHTML =
-        `<p><strong>${lang === 'zh' ? '樣本數' : 'Count'}:</strong> ${stats.n}</p>` +
-        `<p><strong>${lang === 'zh' ? '平均數' : 'Mean'}:</strong> ${fmt(stats.mean)}, ` +
-        `<strong>${lang === 'zh' ? '中位數' : 'Median'}:</strong> ${fmt(stats.median)}</p>` +
-        `<p><strong>${lang === 'zh' ? '標準差' : 'Std Dev'}:</strong> ${fmt(stats.sd)}, ` +
-        `<strong>${lang === 'zh' ? '變異數' : 'Variance'}:</strong> ${fmt(stats.variance)}</p>` +
-        `<p><strong>${lang === 'zh' ? '範圍' : 'Range'}:</strong> ${fmt(stats.range)}, ` +
-        `<strong>${lang === 'zh' ? '四分位距' : 'IQR'}:</strong> ${fmt(stats.iqr)}</p>`;
-      // Draw histogram
-      const ctx = document.getElementById('histCanvas').getContext('2d');
-      if (histChart) histChart.destroy();
-      histChart = drawHistogram(ctx, stats.sorted, Math.min(10, Math.ceil(Math.sqrt(stats.n))));
-    }
-    // Expose to global scope so onclick handler can find it
-    window.calcAndDraw = calcAndDraw;
+<!-- ===== Section 3: Interactive sim 1 ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="偏態如何撕裂 mean 與 median" data-en="How skew tears the mean away from the median">偏態如何撕裂 mean 與 median</h2>
+<div data-lang="zh"><p>拖動下方 skew 滑桿。當資料對稱（skew=0），<strong>mean ≈ median</strong>；當右偏（skew &gt; 0），<strong>mean 被高值拉走</strong>，median 仍接近資料主體。試試 skew = 3 或 5，這正是血液生物標記、薪資、住院日數的典型形狀。</p></div>
+<div data-lang="en"><p>Drag the skew slider. With symmetric data (skew = 0), <strong>mean ≈ median</strong>; under right skew (skew &gt; 0), <strong>the mean is pulled by the tail</strong> while the median stays near the bulk. Try skew = 3 or 5 — that is the typical shape of blood biomarkers, income, and length-of-stay.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="偏態程度 skew" data-en="Skew">偏態 skew</span> <span id="valSkew">0</span></label><input type="range" id="sliderSkew" min="-3" max="6" value="0" step="0.5"></div>
+<div class="slider-group"><label><span data-zh="樣本數 n" data-en="Sample size n">樣本數 n</span> <span id="valN1">300</span></label><input type="range" id="sliderN1" min="30" max="2000" value="300" step="10"></div>
+<div id="descStats" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:280px;"><canvas id="distChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">紅線 = mean · 藍線 = median</span><span data-lang="en">Red = mean · Blue = median</span></p>
+</div>
+</section>
 
-    // Simple quiz grading logic for the self‑quiz.  Checks which radio button is
-    // selected and displays feedback in the appropriate language.  The correct
-    // answer is the median because it is least affected by outliers.  This
-    // function is attached to the global window so it can be invoked from
-    // inline onclick handlers.
-    function checkQuizAnswer() {
-      const form = document.getElementById('quizForm');
-      let answer = '';
-      if (form.quiz) {
-        const opts = form.quiz;
-        if (opts.length) {
-          for (let i = 0; i < opts.length; i++) {
-            if (opts[i].checked) {
-              answer = opts[i].value;
-              break;
-            }
-          }
-        } else if (opts.checked) {
-          answer = opts.value;
-        }
-      }
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      let feedback;
-      if (!answer) {
-        feedback = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
-      } else if (answer === 'median') {
-        feedback = lang === 'zh'
-          ? '答對了！中位數對離群值最不敏感。'
-          : 'Correct! The median is least affected by outliers.';
-      } else {
-        feedback = lang === 'zh'
-          ? '不正確，再試一次。'
-          : 'Incorrect, please try again.';
-      }
-      const fb = document.getElementById('quizFeedback');
-      fb.textContent = feedback;
-    }
-    window.checkQuizAnswer = checkQuizAnswer;
+<!-- ===== Section 4: Boxplot vs Violin vs Dotplot ===== -->
+<section class="section">
+<div class="section-label" data-zh="視覺化選擇" data-en="VISUALIZATION CHOICES">視覺化選擇</div>
+<h2 data-zh="二、Box / Violin / Dot 三種圖怎麼選？" data-en="II. Choosing between box, violin, and dot plots">二、Box / Violin / Dot 三種圖怎麼選？</h2>
+<div data-lang="zh">
+<p>論文最常見「五星級錯誤」之一：用 bar chart（長條圖）+ SEM 報告連續資料。<strong>Weissgerber 2015 PLOS Biology</strong>「Beyond Bar and Line Graphs」的著名警告：相同的 bar + SEM 可以對應 4 種完全不同的資料分布（雙峰、極端值、偏態、合理）。<strong>解方：永遠把個別資料點畫出來</strong>，這也是 SuperPlots（Lord 2020 JCB）與 ggbeeswarm 流行的原因。</p>
+</div>
+<div data-lang="en">
+<p>One of the most common visualisation errors in the literature: bar chart + SEM for continuous data. <strong>Weissgerber 2015 PLOS Biology</strong> ("Beyond Bar and Line Graphs") showed that the same bar+SEM can correspond to four entirely different distributions (bimodal, outlier-driven, skewed, reasonable). <strong>The fix: always show the individual points</strong> — the same reason SuperPlots (Lord 2020 JCB) and <code>ggbeeswarm</code> exist.</p>
+</div>
 
-    // Code tab switching logic for R/Python examples.  Finds the parent
-    // .code-tabs container, deactivates all buttons and panels, then
-    // activates the clicked button and the corresponding content panel.
-    function switchTab(btn, id) {
-      const tabs = btn.closest('.code-tabs');
-      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
-      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
-      btn.classList.add('active');
-      const panel = document.getElementById(id);
-      if (panel) panel.classList.add('active');
-    }
-    // Copy the contents of a code block to the clipboard.  When
-    // successful, temporarily change the button to indicate it was
-    // copied.
-    function copyCode(codeId, btn) {
-      const el = document.getElementById(codeId);
-      if (!el) return;
-      const text = el.innerText;
-      // Immediately update the button to indicate the code has been copied.
-      const original = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      // Try writing to the clipboard; if it fails (e.g. insecure context),
-      // silently ignore.  We still show the "Copied!" feedback.
-      navigator.clipboard.writeText(text).catch(() => {});
-      setTimeout(() => {
-        btn.textContent = '📋';
-        btn.classList.remove('copied');
-      }, 1200);
-    }
-    window.switchTab = switchTab;
-    window.copyCode = copyCode;
-  </script>
-</body>
-</html>
+<table class="comp-table">
+<thead><tr>
+<th data-zh="圖型" data-en="Plot">圖型</th>
+<th data-zh="顯示資訊" data-en="Reveals">顯示資訊</th>
+<th data-zh="優點" data-en="Strengths">優點</th>
+<th data-zh="風險" data-en="Risks">風險</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>Bar + SEM</strong></td><td data-lang="zh">僅 mean + 一條誤差線</td><td data-lang="zh">簡潔</td><td data-lang="zh">隱藏 n、隱藏分布——<span style="color:var(--c-danger)">應避免</span></td><td data-lang="en">Only mean + one error bar</td><td data-lang="en">Clean</td><td data-lang="en">Hides n and distribution — <span style="color:var(--c-danger)">avoid</span></td></tr>
+<tr><td><strong>Boxplot</strong></td><td data-lang="zh">5 數字摘要（min, Q1, median, Q3, max）+ outlier</td><td data-lang="zh">穩健、空間效率高</td><td data-lang="zh">看不到雙峰或細節分布</td><td data-lang="en">5-number summary + outliers</td><td data-lang="en">Robust, space-efficient</td><td data-lang="en">Hides bimodality</td></tr>
+<tr><td><strong>Violin</strong></td><td data-lang="zh">分布密度 + box 中央</td><td data-lang="zh">看得到雙峰、形狀</td><td data-lang="zh">n 小（&lt; 20）時 KDE 平滑會誤導</td><td data-lang="en">Density + median/IQR core</td><td data-lang="en">Shows bimodality and shape</td><td data-lang="en">KDE misleads when n &lt; 20</td></tr>
+<tr><td><strong>Dot / Strip / Bee</strong></td><td data-lang="zh">每個資料點</td><td data-lang="zh">最透明，沒有摘要扭曲</td><td data-lang="zh">n &gt; 1000 時重疊嚴重</td><td data-lang="en">Every data point</td><td data-lang="en">Most transparent</td><td data-lang="en">Overplots when n &gt; 1000</td></tr>
+<tr><td><strong>SuperPlot</strong></td><td data-lang="zh">技術重複（小點）+ 生物重複（大點 mean）疊加</td><td data-lang="zh">區分 biological vs technical replicate</td><td data-lang="zh">需要設計時就分層</td><td data-lang="en">Technical (small) + biological (large) reps overlaid</td><td data-lang="en">Separates biological vs technical replication</td><td data-lang="en">Requires hierarchical design</td></tr>
+</tbody></table>
+
+<div class="idea">
+<span data-lang="zh"><strong>實務原則：</strong>n ≤ 30 用 dot plot 加 median bar；n = 30–200 用 box + jitter；n &gt; 200 用 violin 並標出 median 與 quartiles。生物實驗務必標出生物重複數（如 "n = 5 mice, 3 wells each"）。</span>
+<span data-lang="en"><strong>Practical rule:</strong> n ≤ 30 → dot plot with a median bar; n = 30–200 → box + jitter; n &gt; 200 → violin with median + quartiles. In biological experiments, always state biological replicate counts (e.g., "n = 5 mice, 3 wells each").</span>
+</div>
+</section>
+
+<!-- ===== Section 5: Interactive sim 2 — boxplot anatomy ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="盒鬚圖解剖實驗室" data-en="Boxplot anatomy lab">盒鬚圖解剖實驗室</h2>
+<div data-lang="zh"><p>調整 outlier 強度 + 形狀偏態，觀察 5 數字（min/Q1/median/Q3/max）與 outlier whisker（Tukey fences = Q1 − 1.5·IQR, Q3 + 1.5·IQR）的變化。注意當 outlier 增加時，<strong>median + IQR 幾乎不動</strong>——這就是穩健統計的力量。</p></div>
+<div data-lang="en"><p>Tune outlier strength and skew. Watch the 5-number summary (min/Q1/median/Q3/max) and the Tukey fences (Q1 − 1.5·IQR, Q3 + 1.5·IQR). When outliers grow, <strong>median + IQR barely move</strong> — that is the superpower of robust statistics.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="Outlier 比例" data-en="Outlier fraction">Outlier 比例</span> <span id="valOut">5%</span></label><input type="range" id="sliderOut" min="0" max="30" value="5" step="1"></div>
+<div class="slider-group"><label><span data-zh="Outlier 強度" data-en="Outlier strength">Outlier 強度</span> <span id="valOutS">3σ</span></label><input type="range" id="sliderOutS" min="2" max="8" value="3" step="0.5"></div>
+<div id="boxStats" style="font-size:.88rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:200px;"><canvas id="boxChart"></canvas></div>
+</div>
+</section>
+
+<!-- ===== Section 6: Anscombe & Datasaurus ===== -->
+<section class="section">
+<div class="section-label" data-zh="深入討論" data-en="DEEP DIVE">深入討論</div>
+<h2 data-zh="三、Anscombe Quartet & Datasaurus——統計史上最有名的警告" data-en="III. Anscombe's Quartet & Datasaurus — the most famous warnings in stats">三、Anscombe Quartet & Datasaurus</h2>
+
+<div class="split">
+<div>
+<h5 data-zh="Anscombe Quartet（1973）" data-en="Anscombe's Quartet (1973)">Anscombe Quartet</h5>
+<div data-lang="zh"><p>四組 (x, y) 資料，全部有：<br>· x̄ = 9.0, ȳ = 7.5<br>· SD(x) = 3.32, SD(y) ≈ 2.03<br>· 相關係數 r ≈ 0.816<br>· OLS 線：y = 0.5x + 3</p>
+<p>但畫出散佈圖：(I) 真正線性；(II) 明顯曲線；(III) 線性但有一個極端 outlier；(IV) 所有 x 相同除了一個 outlier 點。<strong>結論：summary stats 完全無法替代圖。</strong></p></div>
+<div data-lang="en"><p>Four (x, y) datasets all share:<br>· x̄ = 9.0, ȳ = 7.5<br>· SD(x) = 3.32, SD(y) ≈ 2.03<br>· r ≈ 0.816<br>· OLS line: y = 0.5x + 3</p>
+<p>But the scatter plots: (I) truly linear; (II) clearly curved; (III) linear with one extreme outlier; (IV) all x equal except one outlier. <strong>The lesson: summary stats are not a substitute for the plot.</strong></p></div>
+</div>
+<div>
+<h5 data-zh="Datasaurus Dozen（2017）" data-en="Datasaurus Dozen (2017)">Datasaurus Dozen</h5>
+<div data-lang="zh"><p>Matejka & Fitzmaurice（2017 CHI）用模擬退火演算法產生 12 組資料，全部具有：<br>· mean(x) = 54.26, mean(y) = 47.83<br>· SD 與 r 相同至小數第二位</p>
+<p>但畫出來分別是：恐龍、十字、星星、平行線、圓圈⋯⋯<strong>R 套件 <code>datasauRus</code> 可重現</strong>。這個演示讓「永遠先畫圖」從口號變成可視鐵證。</p></div>
+<div data-lang="en"><p>Matejka & Fitzmaurice (2017 CHI) used simulated annealing to construct 12 datasets that all share:<br>· mean(x) = 54.26, mean(y) = 47.83<br>· SD and r match to two decimals</p>
+<p>...but the scatters are: a dinosaur, a cross, a star, parallel lines, a circle… <strong>The R package <code>datasauRus</code> reproduces them.</strong> The demo turns "always plot first" from a slogan into a visual proof.</p></div>
+</div>
+</div>
+
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>給 reviewer / supervisor 的提問：</strong>「你看過原始資料的散佈圖嗎？」這一句通常比任何統計討論都更能揭示問題。Anscombe 的論文〈Graphs in statistical analysis〉發表於 1973 年 The American Statistician——超過半世紀後，這個警告仍然有效。</span>
+<span data-lang="en"><strong>One question to ask the reviewer/supervisor:</strong> "Have you seen the scatter plot?" This single sentence reveals more problems than any statistical debate. Anscombe's "Graphs in statistical analysis" appeared in <em>The American Statistician</em> in 1973 — half a century later, the warning still bites.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 7: Log transform & robust ===== -->
+<section class="section">
+<div class="section-label" data-zh="實務技巧" data-en="PRACTICAL TRICKS">實務技巧</div>
+<h2 data-zh="四、轉換與穩健統計" data-en="IV. Transformations & robust statistics">四、轉換與穩健統計</h2>
+
+<div class="card-grid cols-2">
+<div class="card"><h4 data-zh="🧮 對數轉換 (Log transform)" data-en="🧮 Log transform">🧮 對數轉換</h4>
+<div data-lang="zh"><p>右偏的乘法性質資料（血液濃度、基因表達、細菌計數）取 log 後常變對稱。報告時：log 尺度的 mean 對應原尺度的 <strong>geometric mean</strong>（幾何平均）。</p>
+<p><strong>陷阱：</strong>若資料含 0，需用 log(x + c) 或更好的 <code>log1p</code> / <code>asinh</code>。Bland-Altman (2007 BMJ) 指出 c 的選擇會影響 CI。</p></div>
+<div data-lang="en"><p>Right-skewed multiplicative data (concentrations, expression, bacterial counts) often become symmetric after log. Reporting: a mean on the log scale corresponds to the <strong>geometric mean</strong> on the original scale.</p>
+<p><strong>Pitfall:</strong> with zeros, use log(x + c), or better <code>log1p</code> / <code>asinh</code>. Bland-Altman (2007 BMJ) showed the choice of c affects CIs.</p></div>
+</div>
+<div class="card"><h4 data-zh="🛡️ 穩健統計 (Robust stats)" data-en="🛡️ Robust statistics">🛡️ 穩健統計</h4>
+<div data-lang="zh"><p>當 outlier 多到無法忽略：(1) <strong>Trimmed mean</strong>（去 10% 兩尾後 mean，Wilcox 2017 推薦）；(2) <strong>Huber's M-estimator</strong>（自動降低極端值權重）；(3) <strong>Median + MAD</strong>。</p>
+<p>R: <code>mean(x, trim=0.1)</code>, <code>MASS::huber()</code>。Python: <code>scipy.stats.trim_mean(x, 0.1)</code>。</p></div>
+<div data-lang="en"><p>When outliers can't be ignored: (1) <strong>trimmed mean</strong> (drop the top/bottom 10%, Wilcox 2017 recommends); (2) <strong>Huber's M-estimator</strong> (auto-downweights extremes); (3) <strong>median + MAD</strong>.</p>
+<p>R: <code>mean(x, trim=0.1)</code>, <code>MASS::huber()</code>. Python: <code>scipy.stats.trim_mean(x, 0.1)</code>.</p></div>
+</div>
+</div>
+
+<div class="pitfall">
+<span class="pitfall-title" data-zh="陷阱：不要刪 outlier，除非有理由" data-en="Pitfall: Do not delete outliers without reason">陷阱：不要刪 outlier，除非有理由</span>
+<span data-lang="zh">「我把超過 3σ 的點都刪了」是論文常見的紅旗。除非有<strong>明確生物 / 技術理由</strong>（如儀器故障、樣品污染），否則應該保留 outlier，改用穩健統計或 log 轉換。Tabachnick & Fidell（2019）的建議：(1) 確認資料登錄無誤；(2) 報告含/不含 outlier 的兩種結果；(3) 不要事後選有利的版本。</span>
+<span data-lang="en">"I removed everything beyond 3σ" is a frequent red flag in papers. Unless there is a <strong>specific biological or technical reason</strong> (instrument failure, sample contamination), keep the outliers and use robust statistics or a log transform instead. Tabachnick & Fidell (2019) recommend: (1) verify data entry; (2) report both with and without outliers; (3) do not cherry-pick whichever helps your conclusion.</span>
+</div>
+</section>
+
+<!-- ===== Section 8: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="五、如何選擇你的描述統計？" data-en="V. How to choose your descriptives">五、如何選擇？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="描述統計選擇決策樹" data-en="Descriptive choice decision tree">描述統計選擇決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>資料對稱嗎？（看 histogram / γ₁ ≈ 0？）<span class="dt-arrow">→ 是 →</span> <strong>mean ± SD</strong> 即可。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>資料明顯偏態？<span class="dt-arrow">→ 是 →</span> <strong>median + IQR</strong>；或 log 轉換後再用 mean ± SD（報告時註明 log scale）。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>有可疑 outlier？<span class="dt-arrow">→ 是 →</span> <strong>median + IQR + MAD</strong>；考慮 trimmed mean 或 Huber M-estimator。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>是「比例 / 倍數」資料（fold change, ratio）？<span class="dt-arrow">→ 是 →</span> <strong>geometric mean</strong> 與 <strong>CV%</strong>，並考慮 log 轉換。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>n &lt; 10？<span class="dt-arrow">→ 是 →</span> 別摘要——<strong>直接畫每個點</strong>，dot plot 即可。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Are the data symmetric? (histogram / γ₁ ≈ 0?) <span class="dt-arrow">→ Yes →</span> <strong>mean ± SD</strong> works.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Clearly skewed? <span class="dt-arrow">→ Yes →</span> <strong>median + IQR</strong>; or log-transform then mean ± SD (state log scale).</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Suspicious outliers? <span class="dt-arrow">→ Yes →</span> <strong>median + IQR + MAD</strong>; consider trimmed mean or Huber's M-estimator.</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Ratio/fold-change data? <span class="dt-arrow">→ Yes →</span> <strong>geometric mean</strong> and <strong>CV%</strong>; consider log transform.</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>n &lt; 10? <span class="dt-arrow">→ Yes →</span> Don't summarise — <strong>plot every point</strong>; a dot plot suffices.</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 9: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="六、實作範例" data-en="VI. Code examples">六、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R / tidyverse</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python / pandas</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: base + tidyverse</span>
+<span class="func">library</span>(tidyverse)
+<span class="func">library</span>(e1071)        <span class="comment"># skewness / kurtosis</span>
+
+<span class="comment"># Load a biomarker example (right-skewed)</span>
+x &lt;- <span class="func">c</span>(<span class="num">110</span>, <span class="num">118</span>, <span class="num">122</span>, <span class="num">125</span>, <span class="num">130</span>, <span class="num">135</span>, <span class="num">220</span>)
+
+<span class="comment"># --- Three legs of descriptive stats ---</span>
+<span class="func">summary</span>(x)
+<span class="func">mean</span>(x); <span class="func">median</span>(x)
+<span class="func">sd</span>(x); <span class="func">IQR</span>(x); mad &lt;- <span class="func">mad</span>(x)   <span class="comment"># MAD</span>
+e1071::<span class="func">skewness</span>(x); e1071::<span class="func">kurtosis</span>(x)
+
+<span class="comment"># --- Robust: trimmed mean &amp; Huber ---</span>
+<span class="func">mean</span>(x, trim = <span class="num">0.1</span>)            <span class="comment"># 10% trimmed</span>
+MASS::<span class="func">huber</span>(x)$mu              <span class="comment"># Huber M</span>
+
+<span class="comment"># --- Geometric mean for fold changes ---</span>
+<span class="func">exp</span>(<span class="func">mean</span>(<span class="func">log</span>(x)))
+
+<span class="comment"># --- Visualise: ALWAYS first ---</span>
+<span class="func">tibble</span>(x = x) %&gt;%
+  <span class="func">ggplot</span>(<span class="func">aes</span>(y = x, x = <span class="str">""</span>)) +
+  <span class="func">geom_boxplot</span>(width = <span class="num">0.3</span>, outlier.shape = <span class="kw">NA</span>) +
+  <span class="func">geom_jitter</span>(width = <span class="num">0.05</span>, alpha = <span class="num">0.6</span>) +
+  <span class="func">labs</span>(title = <span class="str">"Always show the points"</span>)</pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+x = np.array([<span class="num">110</span>, <span class="num">118</span>, <span class="num">122</span>, <span class="num">125</span>, <span class="num">130</span>, <span class="num">135</span>, <span class="num">220</span>])
+
+<span class="comment"># --- Three legs of descriptive stats ---</span>
+pd.<span class="func">Series</span>(x).<span class="func">describe</span>()
+np.<span class="func">mean</span>(x), np.<span class="func">median</span>(x)
+np.<span class="func">std</span>(x, ddof=<span class="num">1</span>), stats.<span class="func">iqr</span>(x), stats.<span class="func">median_abs_deviation</span>(x)
+stats.<span class="func">skew</span>(x), stats.<span class="func">kurtosis</span>(x)
+
+<span class="comment"># --- Robust: trimmed mean &amp; Huber ---</span>
+stats.<span class="func">trim_mean</span>(x, <span class="num">0.1</span>)               <span class="comment"># 10% trimmed</span>
+<span class="kw">from</span> statsmodels.robust.scale <span class="kw">import</span> Huber
+Huber()(x)[<span class="num">0</span>]                          <span class="comment"># Huber M</span>
+
+<span class="comment"># --- Geometric mean ---</span>
+stats.<span class="func">gmean</span>(x)
+
+<span class="comment"># --- Visualise ---</span>
+sns.<span class="func">stripplot</span>(y=x, jitter=<span class="num">0.1</span>, alpha=<span class="num">0.7</span>)
+plt.<span class="func">title</span>(<span class="str">"Always show the points"</span>)
+plt.<span class="func">show</span>()</pre></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>練習：</strong>在你最近的資料集上跑 <code>e1071::skewness()</code> 或 <code>scipy.stats.skew()</code>。若 |γ₁| &gt; 1，就把 mean ± SD 換成 median + IQR，並且在論文 Methods 寫明「Due to right-skewed distribution (skewness = X), data are presented as median (IQR)」。</span>
+<span data-lang="en"><strong>Exercise:</strong> Run <code>e1071::skewness()</code> or <code>scipy.stats.skew()</code> on your latest dataset. If |γ₁| &gt; 1, swap mean ± SD for median + IQR, and write in Methods: "Due to the right-skewed distribution (skewness = X), data are presented as median (IQR)."</span>
+</div></div>
+</section>
+
+<!-- ===== Section 10: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="七、五個論文最常見的描述統計錯誤" data-en="VII. Five most common reporting errors">七、五個論文最常見的描述統計錯誤</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="混用 SD 與 SEM" data-en="Confusing SD and SEM">SD vs SEM</span></h4>
+<div data-lang="zh"><p>SD 描述「資料散布」；SEM = SD/√n 描述「估計精確度」。SEM 永遠較小，所以許多論文偏好報 SEM 讓誤差條看起來「漂亮」。<strong>Curran-Everett 2008 Adv Physiol Educ</strong>：報告原始變異請用 SD；要表達估計精度用 95% CI（不是 SEM）。</p></div>
+<div data-lang="en"><p>SD describes the spread of the data; SEM = SD/√n describes the precision of the estimate. SEM is always smaller, so papers often pick SEM to make error bars look "tidy". <strong>Curran-Everett 2008 Adv Physiol Educ</strong>: report SD for variability and a 95% CI (not SEM) for estimate precision.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="只報 n，不報生物 vs 技術重複" data-en="Reporting n without biological vs technical">n 的歧義</span></h4>
+<div data-lang="zh"><p>「n = 60」是 60 隻老鼠？還是 20 隻老鼠 × 3 個切片？這兩者統計獨立性差很多。<strong>Lazic 2010 BMC Neurosci</strong> 強調：必須明列「3 mice × 4 wells × 2 technical replicates」，並用混合模型分析（見 Step 13）。</p></div>
+<div data-lang="en"><p>"n = 60" — sixty mice? Or twenty mice × three slices? The independence implications are very different. <strong>Lazic 2010 BMC Neurosci</strong> insists: spell out "3 mice × 4 wells × 2 technical replicates" and analyse with a mixed model (see Step 13).</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="把 SEM 當「dispersion」" data-en="Treating SEM as dispersion">SEM 不是離散度</span></h4>
+<div data-lang="zh"><p>n = 1000 時 SEM ≈ SD/31.6，看起來變異極小——但這是估計的精度，不是資料的離散。要看資料散得多開，永遠用 SD 或 IQR。</p></div>
+<div data-lang="en"><p>With n = 1000, SEM ≈ SD/31.6 — looks tiny, but that's estimate precision, not data spread. To describe how spread the data are, always use SD or IQR.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="N% ± SD 在比例上錯用" data-en="N% ± SD on proportions">比例上用 SD ± 是錯的</span></h4>
+<div data-lang="zh"><p>對於比例 / 百分比資料，SD 不是合適的離散——用 Wilson 或 Clopper-Pearson 95% CI（見 Step 6）。例如 "60% (95% CI 52–67%)" 而非 "60% ± 8%"。</p></div>
+<div data-lang="en"><p>For proportions / percentages, SD is not the right spread — use a Wilson or Clopper-Pearson 95% CI (see Step 6). Report "60% (95% CI 52–67%)" rather than "60% ± 8%".</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="小樣本算 skewness / kurtosis" data-en="Skewness/kurtosis with tiny n">小 n 算 γ₁/γ₂ 不可靠</span></h4>
+<div data-lang="zh"><p>當 n &lt; 30 時，skewness / kurtosis 的標準誤很大（SE(γ₁) ≈ √(6/n)）。<strong>Cain, Zhang, Yuan 2017 Behav Res Methods</strong> 建議 n ≥ 50 才可信。小 n 直接看 dotplot 比算 γ₁ 更實用。</p></div>
+<div data-lang="en"><p>With n &lt; 30, the SE of skewness/kurtosis is huge (SE(γ₁) ≈ √(6/n)). <strong>Cain, Zhang, Yuan 2017 Behav Res Methods</strong> recommend n ≥ 50 for trustworthy values. With small n, a dotplot beats computing γ₁.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Bar+SEM 應淘汰" data-en="Bar+SEM should be retired">Bar+SEM 應淘汰</span></h4>
+<div data-lang="zh"><p><strong>Weissgerber 2015 PLOS Biol</strong>「Beyond Bar and Line Graphs」明確主張：連續變數請用 dot plot / box / violin，<strong>不要用 bar chart</strong>——bar 適合計數，不適合連續資料。</p></div>
+<div data-lang="en"><p><strong>Weissgerber 2015 PLOS Biol</strong> ("Beyond Bar and Line Graphs") is unambiguous: for continuous data use dot / box / violin — <strong>not bar charts</strong>. Bars are for counts, not continuous distributions.</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 11: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">1. 你發現血液 CRP 濃度 skewness = 2.8，下列何者最合適？</p>
+<p data-lang="en">1. You find blood CRP skewness = 2.8. What's most appropriate?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 仍用 mean ± SD，因為論文都這樣寫</span><span data-lang="en">A. Still use mean ± SD because papers do</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 報告 median + IQR，並考慮 log 轉換後再分析</span><span data-lang="en">B. Report median + IQR and consider a log transform</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 刪掉所有 &gt; 3σ 的點再用 mean ± SD</span><span data-lang="en">C. Delete points &gt; 3σ and use mean ± SD</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 只報 mode</span><span data-lang="en">D. Just report the mode</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. 同事說「我把所有 &gt; 2 SD 的資料點刪掉」，最佳回應是？</p>
+<p data-lang="en">2. A colleague says "I removed all data &gt; 2 SD." Best response?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 很好，這樣資料就乾淨了</span><span data-lang="en">A. Great, the data are clean now</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 應該刪到 ±1 SD，更嚴格</span><span data-lang="en">B. Cut to ±1 SD, even stricter</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 沒有生物 / 技術理由不該刪——用穩健統計或 log 轉換</span><span data-lang="en">C. Without a biological/technical reason, don't delete — use robust stats or log transform</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 沒關係，反正資料夠多</span><span data-lang="en">D. Doesn't matter if data are plentiful</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">3. Anscombe's Quartet 的主要啟示是？</p>
+<p data-lang="en">3. The main lesson from Anscombe's Quartet?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 相關係數最重要</span><span data-lang="en">A. Correlation is the most important statistic</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. mean 比 median 好</span><span data-lang="en">B. Mean beats median</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. SD 永遠夠用</span><span data-lang="en">C. SD is always sufficient</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 同樣的 summary stats 可能對應完全不同的資料——必須先畫圖</span><span data-lang="en">D. The same summaries can describe wildly different data — plot first</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">4. 在報告 RNA-seq 中某基因 fold change 的中央趨勢，何者最合適？</p>
+<p data-lang="en">4. To report central tendency of a gene's RNA-seq fold change, what's best?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 算術平均 (arithmetic mean)</span><span data-lang="en">A. Arithmetic mean</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 幾何平均 (geometric mean)——比例 / 倍數資料的首選</span><span data-lang="en">B. Geometric mean — the right pick for ratio / fold data</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Mode（眾數）</span><span data-lang="en">C. Mode</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. SD</span><span data-lang="en">D. SD</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="index.html"><span class="nav-dir" data-zh="← 回首頁" data-en="← Hub">← 回首頁</span><span class="nav-title" data-zh="教學首頁" data-en="Tutorial Hub">教學首頁</span></a><a href="distributions.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 2：機率分布" data-en="Step 2: Distributions">Step 2：機率分布</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== Skewed distribution generator =====
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function genSkewed(s,n){const out=[];for(let i=0;i<n;i++){let z=randn();if(s!==0){z=z+s*(z*z-1)/6;}out.push(120+15*z);}return out;}
+function bin(arr,n){const mn=Math.min(...arr),mx=Math.max(...arr);const w=(mx-mn)/n;const c=new Array(n).fill(0);arr.forEach(v=>{let k=Math.floor((v-mn)/w);if(k>=n)k=n-1;c[k]++;});return{labels:c.map((_,i)=>(mn+w*(i+0.5)).toFixed(0)),data:c,binW:w};}
+function median(a){const s=[...a].sort((x,y)=>x-y);const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function quantile(a,q){const s=[...a].sort((x,y)=>x-y);const i=(s.length-1)*q;const lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+
+// ===== Sim 1: skew + n =====
+const dchart=new Chart(document.getElementById('distChart'),{type:'bar',data:{labels:[],datasets:[{label:'count',data:[],backgroundColor:'rgba(15,118,110,0.5)',borderColor:'rgba(15,118,110,1)',borderWidth:1,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},annotation:{}},scales:{x:{title:{display:true,text:'value'}},y:{title:{display:true,text:'count'}}}}});
+function upDesc(){const s=+document.getElementById('sliderSkew').value;const n=+document.getElementById('sliderN1').value;document.getElementById('valSkew').textContent=s;document.getElementById('valN1').textContent=n;const arr=genSkewed(s,n);const b=bin(arr,24);dchart.data.labels=b.labels;dchart.data.datasets[0].data=b.data;
+  // draw mean/median lines via background colors
+  const mn=arr.reduce((a,b)=>a+b,0)/arr.length;const md=median(arr);
+  // Map mean and median positions to nearest bins
+  const meanIdx=Math.round((mn-+b.labels[0])/(+b.labels[1]-+b.labels[0]));
+  const mdIdx=Math.round((md-+b.labels[0])/(+b.labels[1]-+b.labels[0]));
+  const colors=b.data.map((_,i)=>i===meanIdx?'rgba(192,57,43,0.85)':(i===mdIdx?'rgba(15,118,110,0.95)':'rgba(15,118,110,0.45)'));
+  dchart.data.datasets[0].backgroundColor=colors;
+  dchart.update('none');
+  const sd=Math.sqrt(arr.reduce((s,v)=>s+(v-mn)*(v-mn),0)/(arr.length-1));
+  const q1=quantile(arr,0.25),q3=quantile(arr,0.75);
+  const skn=arr.reduce((s,v)=>s+Math.pow((v-mn)/sd,3),0)/arr.length;
+  const L=I18n.get();
+  document.getElementById('descStats').innerHTML=L==='zh'?
+    `<strong>Mean</strong> = ${mn.toFixed(2)} · <strong>Median</strong> = ${md.toFixed(2)} · <strong>Mean−Median</strong> = ${(mn-md).toFixed(2)}<br><strong>SD</strong> = ${sd.toFixed(2)} · <strong>IQR</strong> = ${(q3-q1).toFixed(2)} (Q1=${q1.toFixed(1)}, Q3=${q3.toFixed(1)})<br><strong>Skewness γ₁</strong> = ${skn.toFixed(2)} ${Math.abs(skn)>1?'⚠️ 強偏態，建議用 median + IQR':(Math.abs(skn)>0.5?'·輕偏態':'·近對稱')}`:
+    `<strong>Mean</strong> = ${mn.toFixed(2)} · <strong>Median</strong> = ${md.toFixed(2)} · <strong>Mean−Median</strong> = ${(mn-md).toFixed(2)}<br><strong>SD</strong> = ${sd.toFixed(2)} · <strong>IQR</strong> = ${(q3-q1).toFixed(2)} (Q1=${q1.toFixed(1)}, Q3=${q3.toFixed(1)})<br><strong>Skewness γ₁</strong> = ${skn.toFixed(2)} ${Math.abs(skn)>1?'⚠️ Strong skew — prefer median + IQR':(Math.abs(skn)>0.5?'· mild skew':'· near-symmetric')}`;
+}
+document.getElementById('sliderSkew').addEventListener('input',upDesc);
+document.getElementById('sliderN1').addEventListener('input',upDesc);
+document.addEventListener('langchange',upDesc);
+upDesc();
+
+// ===== Sim 2: Boxplot anatomy =====
+function genBoxData(outFrac,outStr){const n=200;const arr=[];for(let i=0;i<n;i++){if(Math.random()<outFrac){arr.push(100+(Math.random()<0.5?-1:1)*outStr*15+randn()*5);}else{arr.push(100+randn()*10);}}return arr;}
+const boxChart=new Chart(document.getElementById('boxChart'),{type:'bar',data:{labels:[''],datasets:[
+  {label:'IQR',data:[[0,0]],backgroundColor:'rgba(15,118,110,0.4)',borderColor:'rgba(15,118,110,1)',borderWidth:2,borderSkipped:false,barPercentage:0.45,categoryPercentage:0.6},
+]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{title:{display:true,text:'value'},min:50,max:160},y:{display:false}}}});
+function upBox(){const f=+document.getElementById('sliderOut').value/100;const s=+document.getElementById('sliderOutS').value;document.getElementById('valOut').textContent=(f*100).toFixed(0)+'%';document.getElementById('valOutS').textContent=s+'σ';
+  const arr=genBoxData(f,s);
+  const q1=quantile(arr,0.25),md=median(arr),q3=quantile(arr,0.75);
+  const iqr=q3-q1;const lf=q1-1.5*iqr,uf=q3+1.5*iqr;
+  const mn=arr.reduce((a,b)=>a+b,0)/arr.length;const sd=Math.sqrt(arr.reduce((s,v)=>s+(v-mn)*(v-mn),0)/(arr.length-1));
+  const nOut=arr.filter(v=>v<lf||v>uf).length;
+  boxChart.data.datasets[0].data=[[q1,q3]];
+  boxChart.update('none');
+  const L=I18n.get();
+  document.getElementById('boxStats').innerHTML=L==='zh'?
+    `<strong>Median</strong> = ${md.toFixed(1)} · <strong>Q1</strong> = ${q1.toFixed(1)} · <strong>Q3</strong> = ${q3.toFixed(1)} · <strong>IQR</strong> = ${iqr.toFixed(1)}<br>Tukey fences: [${lf.toFixed(1)}, ${uf.toFixed(1)}] → <strong>${nOut}</strong> outliers (${(nOut/arr.length*100).toFixed(1)}%)<br><strong>Mean</strong> = ${mn.toFixed(1)} · <strong>SD</strong> = ${sd.toFixed(1)} ${sd>15?'← outliers 拉大了 SD':''}`:
+    `<strong>Median</strong> = ${md.toFixed(1)} · <strong>Q1</strong> = ${q1.toFixed(1)} · <strong>Q3</strong> = ${q3.toFixed(1)} · <strong>IQR</strong> = ${iqr.toFixed(1)}<br>Tukey fences: [${lf.toFixed(1)}, ${uf.toFixed(1)}] → <strong>${nOut}</strong> outliers (${(nOut/arr.length*100).toFixed(1)}%)<br><strong>Mean</strong> = ${mn.toFixed(1)} · <strong>SD</strong> = ${sd.toFixed(1)} ${sd>15?'← outliers inflate SD':''}`;
+}
+document.getElementById('sliderOut').addEventListener('input',upBox);
+document.getElementById('sliderOutS').addEventListener('input',upBox);
+document.addEventListener('langchange',upBox);
+upBox();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'右偏資料應該用 median + IQR；考慮 log 轉換能讓尺度對稱再用 mean ± SD。',q1_n:'正確選項已標示。',q2_y:'除非有生物或技術原因，不應刪除 outlier——改用穩健統計或 log 轉換。',q2_n:'正確選項已標示。',q3_y:'同一組 summary statistics 可以對應完全不同的資料，所以「永遠先畫圖」。',q3_n:'正確選項已標示。',q4_y:'Fold change / ratio 是乘法性質，幾何平均才是合適的中央趨勢。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'Right-skewed → median + IQR; consider a log transform to symmetrize before using mean ± SD.',q1_n:'Correct option highlighted.',q2_y:'Don\'t delete outliers without a biological/technical reason — use robust statistics or log transform.',q2_n:'Correct option highlighted.',q3_y:'The same summaries can describe wildly different data — plot first, always.',q3_n:'Correct option highlighted.',q4_y:'Fold change / ratio data are multiplicative — the geometric mean is the right central tendency.',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>

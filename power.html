@@ -1,303 +1,541 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>檢定力與樣本數 | Biostatistics Tutorial</title>
-  <meta name="description" content="Learn about statistical power and sample size planning with an interactive calculator.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- No module import is needed because this page defines its own functions locally -->
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html" class="active">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 11</div>
-      <h1 data-zh="檢定力與樣本數" data-en="Power & Sample Size">檢定力與樣本數</h1>
-      <p class="subtitle" data-lang="zh">研究設計必須考慮檢定力：足夠的樣本數可降低犯第二型錯誤的機率。</p>
-      <p class="subtitle" data-lang="en">Study design must consider statistical power: having enough participants reduces the probability of making a type II error.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="檢定力" data-en="Power">檢定力</h2>
-      <p data-lang="zh">檢定力 (power) 為 1−β，表示在真實存在效應時拒絕零假設的機率。檢定力太低會增加第二型錯誤（漏檢）的風險。規劃研究時需決定可接受的 α 與 β，以及預期效果大小與變異，據此計算所需樣本數。</p>
-      <p data-lang="en">Statistical power is defined as 1−β, the probability of rejecting the null hypothesis when a true effect exists. Low power increases the risk of a type II error (failing to detect a real effect). When planning a study one must set acceptable α and β and specify the expected effect size and variability to compute the required sample size.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="計算樣本數" data-en="Calculate Sample Size">計算樣本數</h2>
-      <p data-lang="zh">假設欲比較兩組平均，輸入預期的效果大小 Δ、標準差 σ、顯著水準 α 以及期望檢定力 (1−β)。計算公式 n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup>。結果為每組所需樣本數。</p>
-      <p data-lang="en">For comparing two means, enter the expected effect size Δ, the standard deviation σ, the significance level α and the desired power (1−β). The required sample size per group is n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup>.</p>
-      <div class="interactive-panel">
-        <label>Δ: <input type="number" id="effectSize" value="2" min="0.01" step="0.1" style="width:60px"></label>
-        <label style="margin-left:12px">σ: <input type="number" id="sigma" value="3" min="0.01" step="0.1" style="width:60px"></label>
-        <label style="margin-left:12px">α: <input type="number" id="alphaPower" value="0.05" min="0.001" max="0.2" step="0.001" style="width:60px"></label>
-        <label style="margin-left:12px">Power: <input type="number" id="desiredPower" value="0.8" min="0.5" max="0.99" step="0.01" style="width:60px"></label>
-        <button id="powerBtn" onclick="computeSampleSize()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Compute</button>
-        <div id="powerOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
-      </div>
-    </section>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 11: Power &amp; Sample Size — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html" class="active">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 11 / 13</div>
+<h1 data-zh="樣本數與檢定力 (Power &amp; Sample Size)" data-en="Power &amp; Sample Size">樣本數與檢定力 (Power &amp; Sample Size)</h1>
+<p class="subtitle" data-lang="zh">α、β、n、效應量——四個量綁在一起；固定其中三個，第四個就決定了。設計時算，<strong>絕不要 post-hoc 算 power</strong>。</p>
+<p class="subtitle" data-lang="en">α, β, n, effect size — four quantities locked together; fix any three and the fourth is determined. Compute at design time; <strong>never compute post-hoc power</strong>.</p>
+</header>
+<main class="content-wrap">
 
-    <!-- Pros, Cons & Limitations section -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons & Limitations">優缺點與限制</div>
-      <h2 data-zh="檢定力與樣本數的優點" data-en="Advantages of Power Analysis">檢定力與樣本數的優點</h2>
-      <p data-lang="zh">在研究設計階段進行檢定力分析能夠估算所需樣本數，避免樣本過少而偵測不到真實效應，或樣本過多造成資源浪費與倫理問題。計畫合理的樣本數有助於提升研究效率、確保結論具說服力，並常被要求於研究計畫書中。</p>
-      <p data-lang="en">Performing a power analysis during study planning helps you determine how many participants you need so your study is neither under‑powered (risking missed effects) nor excessively large (wasting resources or raising ethical concerns). Determining an appropriate sample size improves study efficiency, ensures convincing results and is often required in grant proposals.</p>
-      <h3 data-zh="缺點與限制" data-en="Limitations">缺點與限制</h3>
-      <p data-lang="zh">檢定力分析依賴於事先假設，例如預期效果大小與標準差，因此計算結果通常只是最佳情況估計。當研究方法或統計模型改變時需重新計算樣本數，而且複雜模型可能需要比計算結果更大的樣本。此外，檢定力並非唯一考量，研究者還需顧及研究設計、估計精準度及統計假設是否適用。</p>
-      <p data-lang="en">Power analyses rely on assumptions such as anticipated effect size and variability, so the results are only “best‑case” estimates. Changing the study design or statistical model often requires recalculating the sample size, and some complex analyses demand larger samples than standard formulas suggest. Power is not the only consideration: researchers must also consider precision, model assumptions and overall study design.</p>
-    </section>
+<!-- ===== Section 1: Overview ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="α、β、n、效應量的四角關係" data-en="The four-way relationship between α, β, n, and effect size">α、β、n、效應量的四角關係</h2>
+<div data-lang="zh">
+<p>檢定力分析（power analysis）是統計設計的<strong>第一步</strong>，不是事後補的程序。它把四個量綁在一張紙上：<strong>顯著水準 α</strong>（第一型錯誤率）、<strong>第二型錯誤率 β</strong>（漏掉真效應的機率，<strong>power = 1 − β</strong>）、<strong>樣本數 n</strong>、<strong>效應量 effect size</strong>（你想偵測的最小差異）。這四個量像四面牆——<strong>固定其中三面，第四面自動站直</strong>。</p>
+<p>研究者最常問「n 要多少？」其實是把 α=0.05、power=0.80、最小有意義效應量這三面牆豎好之後，把 n 解出來。如果 effect size 不講，那不是統計問題，是<strong>臨床／生物學問題</strong>——你必須先決定「多大的差別才值得偵測」。這就是 <strong>SESOI（Smallest Effect Size of Interest）</strong>的概念（Lakens 2018; Giner-Sorolla 2024）。</p>
+<p><strong>為什麼 post-hoc power（事後 power）是統計禁忌？</strong>Hoenig &amp; Heisey (2001 <em>The American Statistician</em>) 證明：用觀察到的 effect size 反算 power，得到的「觀察 power」（observed power）<strong>和 p-value 是一對一的單調函數</strong>——p &lt; 0.05 一定對應 observed power &gt; 50%，p = 0.5 一定對應 power = 50%。它<strong>沒有提供 p-value 以外的任何資訊</strong>，卻常被審稿人要求補充。這份教學會教你怎麼禮貌而堅定地拒絕。</p>
+</div>
+<div data-lang="en">
+<p>Power analysis is the <strong>first step</strong> of statistical design — not a salvage operation. It pins four quantities to a single sheet of paper: <strong>significance level α</strong> (type I error rate), <strong>type II error rate β</strong> (missing a real effect, where <strong>power = 1 − β</strong>), <strong>sample size n</strong>, and the <strong>effect size</strong> you want to detect. The four are walls of a box — <strong>fix three and the fourth stands up by itself</strong>.</p>
+<p>Researchers usually ask "what n do I need?" — that is just solving for n after fixing α = 0.05, power = 0.80, and the minimum meaningful effect. If you cannot state the effect size, that is not a statistics question — it is a <strong>clinical or biological one</strong>: you have to decide what difference is worth detecting. This is the <strong>Smallest Effect Size of Interest (SESOI)</strong> idea (Lakens 2018; Giner-Sorolla 2024).</p>
+<p><strong>Why is post-hoc power taboo?</strong> Hoenig &amp; Heisey (2001 <em>The American Statistician</em>) proved that "observed power" computed from the observed effect is a <strong>one-to-one monotone function of the p-value</strong> — p &lt; 0.05 always corresponds to observed power &gt; 50%, p = 0.5 always gives power = 50%. It carries <strong>zero information beyond the p-value</strong>, yet reviewers still request it. This chapter teaches you how to refuse politely and firmly.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>三句話帶走：</strong>(1) Power = 1 − β = 偵測真實效應的機率；(2) 四量（α, β, n, effect）固定 3 求 1；(3) Post-hoc power = p-value 的單射函數，<strong>不要算</strong>。設計階段做 a priori，事後做 sensitivity 或 SESOI，永遠不要做 post-hoc。</span>
+<span data-lang="en"><strong>Take three things home:</strong> (1) Power = 1 − β = probability of detecting a true effect; (2) Fix any three of α, β, n, effect; (3) Post-hoc power is a one-to-one function of the p-value — <strong>do not compute it</strong>. Run a priori at design time, sensitivity afterwards, never post-hoc.</span>
+</div></div>
+</section>
 
-    <!-- Decision guidance & example section -->
-    <section class="section">
-      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance & Example">決策指引與範例</div>
-      <h2 data-zh="如何使用檢定力分析" data-en="How to Use Power Analysis">如何使用檢定力分析</h2>
-      <p data-lang="zh">決定樣本數時，需同時考量預期效果大小、標準差、顯著水準 α 及期望的檢定力 (1−β)。若研究較重視偵測差異，可以選擇較高的檢定力，例如 0.9；若資源有限，可透過提高預期效果大小或降低顯著水準來減少樣本需求，但需考慮型 I/II 錯誤平衡。</p>
-      <p data-lang="en">To determine an appropriate sample size, specify the expected effect size, standard deviation, significance level α and desired power (1−β). If detecting a difference is critical, you might choose higher power (e.g., 0.9). If resources are limited you could assume a larger effect or use a less stringent α to reduce the sample size, but this changes the balance between type I and type II errors.</p>
-      <h3 data-zh="實際範例" data-en="Practical Example">實際範例</h3>
-      <p data-lang="zh">假設想比較兩種治療的平均差異 Δ = 2，標準差 σ = 3，希望以 α = 0.05、檢定力 0.8 進行雙尾 t‑檢定。將這些數值代入公式 n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup> 可得每組所需樣本數。以這些設定為例，大約需要 36 名受試者。本頁的互動工具可協助您試算不同參數下的樣本數。</p>
-      <p data-lang="en">Suppose you wish to compare two treatments with an expected mean difference Δ = 2 and standard deviation σ = 3 using a two‑sided test with α = 0.05 and desired power 0.8. Plugging these values into the formula n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)·σ/Δ)<sup>2</sup> gives the required sample size per group. For these numbers the result is about 36 participants per group. You can use the interactive calculator on this page to explore different scenarios.</p>
-    </section>
+<!-- ===== Section 2: Core concepts ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心概念" data-en="CORE CONCEPTS">核心概念</div>
+<h2 data-zh="一、四個量的鎖鏈關係" data-en="I. The four-quantity chain">一、四個量的鎖鏈關係</h2>
+<div data-lang="zh"><p>把樣本的均值分布想成兩座山——<strong>H₀ 山</strong>位於 μ₀，<strong>H₁ 山</strong>位於 μ₀ + δ。我們在 H₀ 山的右側設立 <strong>critical value</strong>（α 的閾值）；<strong>α</strong> 是 H₀ 山右側超過閾值的尾巴面積（誤殺率），<strong>β</strong> 是 H₁ 山左側落在閾值以下的尾巴面積（漏抓率）。<strong>Power = 1 − β = H₁ 山右側超過閾值的面積</strong>。</p>
+<p>當 n 增大 → 兩座山變瘦 → 重疊變少 → β 變小 → power 變大。當 effect size 增大 → 兩座山被推開 → 重疊變少 → power 變大。當 α 放寬 → 閾值左移 → β 變小但代價是更多誤殺。<strong>這就是四角的物理直覺</strong>。</p></div>
+<div data-lang="en"><p>Picture the sampling distribution of the mean as two hills — the <strong>H₀ hill</strong> at μ₀ and the <strong>H₁ hill</strong> at μ₀ + δ. The <strong>critical value</strong> sits on the right of H₀ at the α threshold. <strong>α</strong> is the right tail of H₀ above the threshold (false alarms); <strong>β</strong> is the left tail of H₁ below the threshold (missed detections). <strong>Power = 1 − β = the right tail of H₁ above the threshold</strong>.</p>
+<p>Increase n → both hills narrow → less overlap → β shrinks → power rises. Increase the effect → the hills move apart → less overlap → power rises. Loosen α → threshold moves left → β shrinks but at the cost of more false alarms. <strong>That is the physical intuition behind the four-way lock.</strong></p></div>
 
-    <!-- Quiz section -->
-    <section class="section">
-      <div class="section-label" data-zh="互動測驗" data-en="Quiz">互動測驗</div>
-      <h2 data-zh="檢定力小測驗" data-en="Power Quiz">檢定力小測驗</h2>
-      <p data-lang="zh">若想提高檢定力，下列哪一項做法通常有效？</p>
-      <p data-lang="en">Which of the following actions generally increases statistical power?</p>
-      <div class="interactive-panel">
-        <label><input type="radio" name="powerQuiz" value="sample"> <span data-zh="增加樣本數" data-en="Increase the sample size">增加樣本數</span></label><br>
-        <label><input type="radio" name="powerQuiz" value="effect"> <span data-zh="減少效果大小" data-en="Decrease the effect size">減少效果大小</span></label><br>
-        <label><input type="radio" name="powerQuiz" value="alpha"> <span data-zh="降低顯著水準" data-en="Lower the significance level">降低顯著水準</span></label><br>
-        <label><input type="radio" name="powerQuiz" value="none"> <span data-zh="以上皆非" data-en="None of the above">以上皆非</span></label><br>
-        <button onclick="checkPowerQuiz()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Submit</button>
-        <div id="powerQuizFeedback" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
-      </div>
-    </section>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="α — 第一型錯誤率" data-en="α — Type I error">α — Type I error</h4>
+<div data-lang="zh"><p>誤殺 H₀ 的機率。生物醫學慣用 <strong>α = 0.05</strong>（單次檢定）。多重檢定要分配 α（見 Step 12 FDR）。GWAS 用 <strong>α = 5×10⁻⁸</strong>（Bonferroni at ~10⁶ SNPs；Pe'er 2008 <em>Genet Epidemiol</em>）。</p></div>
+<div data-lang="en"><p>Probability of a false alarm. Biomedical convention is <strong>α = 0.05</strong> per test. Multiple testing splits α (see Step 12, FDR). GWAS uses <strong>α = 5×10⁻⁸</strong> (Bonferroni over ~10⁶ SNPs; Pe'er 2008 <em>Genet Epidemiol</em>).</p></div>
+</div>
+<div class="card"><div class="card-icon">😴</div><h4 data-zh="β — 第二型錯誤率" data-en="β — Type II error">β — Type II error</h4>
+<div data-lang="zh"><p>漏抓真效應的機率。<strong>Power = 1 − β</strong> 是「偵測力」。學界慣用 <strong>power = 0.80</strong>（β = 0.20，1/5 機率漏抓）。臨床三期 RCT 常要求 <strong>0.90</strong>。Cohen (1988) 提出 α : β = 1 : 4 的成本比例為慣例起源。</p></div>
+<div data-lang="en"><p>Probability of missing a real effect. <strong>Power = 1 − β</strong>. The standard target is <strong>0.80</strong> (β = 0.20, 1-in-5 miss rate); phase-III RCTs often demand <strong>0.90</strong>. Cohen (1988) suggested a 1:4 cost ratio between α and β, the origin of the convention.</p></div>
+</div>
+<div class="card"><div class="card-icon">👥</div><h4 data-zh="n — 樣本數" data-en="n — sample size">n — sample size</h4>
+<div data-lang="zh"><p>每組 n（two-sample）或總 n（regression）。<strong>近似公式</strong>：兩樣本 t 檢定，每組 n ≈ 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)/d)²。當 d = 0.5、α = 0.05、power = 0.80 → 每組 n ≈ 64。Cohen 表 2.4.1 給出大量場景的 n 對照表。</p></div>
+<div data-lang="en"><p>n per group (two-sample) or total n (regression). <strong>Approx formula</strong>: two-sample t, n per group ≈ 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>)/d)². For d = 0.5, α = 0.05, power = 0.80 → n ≈ 64 per group. Cohen's Table 2.4.1 lists n for many scenarios.</p></div>
+</div>
+<div class="card"><div class="card-icon">📏</div><h4 data-zh="Effect size — 效應量" data-en="Effect size">Effect size</h4>
+<div data-lang="zh"><p>偵測對象的「真實差異」標準化後的尺度。連續資料用 <strong>Cohen's d</strong>（小 0.2 / 中 0.5 / 大 0.8；Cohen 1988）、ANOVA 用 <strong>η² 或 f</strong>、相關用 <strong>r</strong>、二分類用 <strong>Cohen's h 或 OR</strong>、存活用 <strong>HR</strong>。<strong>絕不要用「pilot 觀察到的 effect」算正式 n</strong>——pilot 是 noisy 的，會嚴重低估真實 n（Kraemer 2006 Arch Gen Psychiatry）。</p></div>
+<div data-lang="en"><p>The standardised true difference you intend to detect. Continuous → <strong>Cohen's d</strong> (small 0.2 / medium 0.5 / large 0.8; Cohen 1988); ANOVA → <strong>η² or f</strong>; correlation → <strong>r</strong>; binary → <strong>Cohen's h or OR</strong>; survival → <strong>HR</strong>. <strong>Never plug a pilot's observed effect into the formal n calculation</strong> — pilots are noisy and systematically underestimate the required n (Kraemer 2006 <em>Arch Gen Psychiatry</em>).</p></div>
+</div>
+</div>
 
-    <!-- Code examples section -->
-    <section class="section">
-      <div class="section-label" data-zh="R 與 Python 範例" data-en="R & Python Examples">R 與 Python 範例</div>
-      <h2 data-zh="檢定力計算示範" data-en="Power Calculation Examples">檢定力計算示範</h2>
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(this)">R</button>
-          <button class="code-tab-btn" onclick="switchTab(this)">Python</button>
-        </div>
-        <div class="code-tab-content active">
-<pre><code>
-<span class="comment"># 使用 pwr 套件進行雙樣本 t 檢定檢定力分析</span>
-<span class="kw">library</span>(<span class="func">pwr</span>)
-<span class="comment"># 預期差異與標準差</span>
-<span class="kw">delta &lt;-</span> <span class="num">2</span>
-<span class="kw">sigma &lt;-</span> <span class="num">3</span>
-<span class="comment"># 轉換為效應大小 d</span>
-<span class="kw">effect_size &lt;-</span> delta / sigma
-<span class="comment"># 進行功效分析（雙尾）</span>
-<span class="kw">pwr_result &lt;-</span> <span class="func">pwr.t.test</span>(d = effect_size,
-                     power = <span class="num">0.8</span>,
-                     sig.level = <span class="num">0.05</span>,
-                     type = <span class="str">"two.sample"</span>,
-                     alternative = <span class="str">"two.sided"</span>)
-<span class="comment"># 所需每組樣本數</span>
-<span class="kw">required_n &lt;-</span> <span class="func">ceiling</span>(pwr_result$<span class="kw">n</span>)
-<span class="func">print</span>(pwr_result)
-</code></pre>
-          <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy R code"><span class="fa fa-copy"></span> Copy</button>
-        </div>
-        <div class="code-tab-content">
-<pre><code>
-<span class="comment"># Power analysis for two-sample t test using statsmodels</span>
-<span class="kw">import</span> <span class="func">numpy</span> <span class="kw">as</span> <span class="kw">np</span>
-<span class="kw">from</span> <span class="func">statsmodels.stats.power</span> <span class="kw">import</span> <span class="func">TTestIndPower</span>
+<div class="formula">
+<span data-lang="zh">⌜ <strong>兩樣本 t（同變異）：</strong>每組 n ≈ 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>) / d)² &nbsp;·&nbsp; <strong>單樣本比例 z：</strong>n ≈ ((z<sub>1−α/2</sub> + z<sub>1−β</sub>) / h)² &nbsp;·&nbsp; <strong>存活（Schoenfeld 1981）：</strong>所需事件數 d = ((z<sub>1−α/2</sub> + z<sub>1−β</sub>)² · (1+k)²) / (k · (log HR)²)，k = 配對比 ⌝
+<span class="fnote">z 值用 normal 近似；小樣本應改用 t 分布的 non-central t（更精準），這正是 G*Power 與 R 的 pwr 套件做的事。</span></span>
+<span data-lang="en">⌜ <strong>Two-sample t (equal variance):</strong> n per group ≈ 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>) / d)² &nbsp;·&nbsp; <strong>One-sample z (proportion):</strong> n ≈ ((z<sub>1−α/2</sub> + z<sub>1−β</sub>) / h)² &nbsp;·&nbsp; <strong>Survival (Schoenfeld 1981):</strong> required events d = ((z<sub>1−α/2</sub> + z<sub>1−β</sub>)² · (1+k)²) / (k · (log HR)²), k = allocation ratio ⌝
+<span class="fnote">These are normal approximations; small samples need non-central t — which is exactly what G*Power and R's pwr package use under the hood.</span></span>
+</div>
+</section>
 
-<span class="comment"># expected difference and standard deviation</span>
-delta = <span class="num">2</span>
-sigma = <span class="num">3</span>
-effect_size = delta / sigma
+<!-- ===== Section 3: Interactive sim 1 — power calculator ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="Power 計算器：固定三個求第四個" data-en="Power calculator: fix three, solve the fourth">Power 計算器</h2>
+<div data-lang="zh"><p>選擇要求解的量（α、n、effect、power），剩下三個用滑桿給定。下方曲線顯示 <strong>power 隨 n 的成長</strong>（在當前 d 與 α 下）。注意 <strong>power 不是線性</strong>——當 n 從 10 → 30 進步神速，從 100 → 300 邊際遞減。這正是「<strong>n=50–100 是甜點</strong>」的數學原因。</p></div>
+<div data-lang="en"><p>Pick which quantity to solve for (α, n, effect, power); set the other three with sliders. The curve below traces <strong>power vs n</strong> at the current d and α. Notice <strong>power is not linear</strong> — n = 10 → 30 buys a lot; n = 100 → 300 has steeply diminishing returns. That is the math behind the rule of thumb "<strong>n = 50–100 is the sweet spot</strong>".</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="求解" data-en="Solve for">求解</span>
+  <select id="solveFor" style="margin-left:6px;padding:3px 6px;border-radius:4px;border:1px solid var(--c-border,#ccc);">
+    <option value="n">n (per group)</option>
+    <option value="power">power</option>
+    <option value="d">effect d</option>
+    <option value="alpha">α</option>
+  </select></label></div>
+<div class="slider-group" id="grp_d"><label><span data-zh="效應量 Cohen's d" data-en="Effect d">效應量 d</span> <span id="vD">0.50</span></label><input type="range" id="sldD" min="0.1" max="1.5" value="0.50" step="0.05"></div>
+<div class="slider-group" id="grp_a"><label>α <span id="vA">0.050</span></label><input type="range" id="sldA" min="0.001" max="0.1" value="0.05" step="0.001"></div>
+<div class="slider-group" id="grp_n"><label>n / group <span id="vN">64</span></label><input type="range" id="sldN" min="5" max="500" value="64" step="1"></div>
+<div class="slider-group" id="grp_p"><label>Power <span id="vP">0.80</span></label><input type="range" id="sldP" min="0.5" max="0.99" value="0.80" step="0.01"></div>
+<div id="pwrResult" style="font-size:.95rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:280px;"><canvas id="powerCurve"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">藍線 = power 隨 n 變化（當前 d, α）· 紅虛線 = 0.80 慣例 · 綠點 = 目前滑桿位置</span><span data-lang="en">Blue = power vs n at current d, α · Red dashed = 0.80 convention · Green dot = current slider position</span></p>
+</div>
+</section>
 
-<span class="comment"># solve for required sample size per group</span>
-analysis = <span class="func">TTestIndPower</span>()
-result = analysis.<span class="func">solve_power</span>(effect_size=effect_size,
-                               power=<span class="num">0.8</span>,
-                               alpha=<span class="num">0.05</span>,
-                               alternative=<span class="str">'two-sided'</span>)
-required_n = <span class="func">int</span>(<span class="func">np.ceil</span>(result))
-<span class="func">print</span>(required_n)
-</code></pre>
-          <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy Python code"><span class="fa fa-copy"></span> Copy</button>
-        </div>
-      </div>
-    </section>
-    <div class="page-nav">
-      <a href="survival.html">
-        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
-        <span class="nav-title" data-zh="存活分析" data-en="Survival Analysis">存活分析</span>
-      </a>
-      <a href="index.html">
-        <span class="nav-dir" data-zh="回到首頁" data-en="Home">回到首頁</span>
-        <span class="nav-title" data-zh="首頁" data-en="Home">首頁</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    /*
-     * Include a local implementation of the inverse standard normal
-     * cumulative distribution function (quantile function).  This
-     * routine is adapted from biostats.js so that we can compute
-     * z‑scores for given tail probabilities without importing a
-     * separate module.  It is accurate to around 1e-4 in the tails.
-     */
-    function normInv(p) {
-      const a1 = -3.969683028665376e+01;
-      const a2 =  2.209460984245205e+02;
-      const a3 = -2.759285104469687e+02;
-      const a4 =  1.383577518672690e+02;
-      const a5 = -3.066479806614716e+01;
-      const a6 =  2.506628277459239e+00;
+<!-- ===== Section 4: Detailed dive ===== -->
+<section class="section">
+<div class="section-label" data-zh="深入討論" data-en="DEEP DIVE">深入討論</div>
+<h2 data-zh="二、效應量家族、工具地圖、與 SESOI 哲學" data-en="II. Effect-size families, the toolbox map, and SESOI">二、效應量家族與工具</h2>
 
-      const b1 = -5.447609879822406e+01;
-      const b2 =  1.615858368580409e+02;
-      const b3 = -1.556989798598866e+02;
-      const b4 =  6.680131188771972e+01;
-      const b5 = -1.328068155288572e+01;
+<div class="split">
+<div>
+<h5 data-zh="效應量家族" data-en="Effect-size families">效應量家族</h5>
+<div data-lang="zh"><p><strong>連續資料</strong>：<span class="kt">Cohen's d</span> = (μ₁−μ₂)/σ，配對 t 用 d<sub>z</sub>；<span class="kt">Hedges' g</span> = d 的小樣本校正（n &lt; 20 推薦；Hedges 1981）。<br><strong>ANOVA / 迴歸</strong>：<span class="kt">η²</span>（解釋變異比例）、<span class="kt">Cohen's f</span> = √(η²/(1−η²))、<span class="kt">f²</span>（多元迴歸；小 0.02 / 中 0.15 / 大 0.35）。<br><strong>相關</strong>：<span class="kt">r</span>（Pearson；小 0.1 / 中 0.3 / 大 0.5）。<br><strong>二分類</strong>：<span class="kt">Cohen's h</span> = 2(arcsin√p₁ − arcsin√p₂)；<span class="kt">OR</span>（小 1.5 / 中 2 / 大 3）；<span class="kt">RR</span> 也可。<br><strong>存活</strong>：<span class="kt">HR</span>（Hazard Ratio）+ 預期事件數。</p></div>
+<div data-lang="en"><p><strong>Continuous:</strong> <span class="kt">Cohen's d</span> = (μ₁−μ₂)/σ; paired uses d<sub>z</sub>; <span class="kt">Hedges' g</span> = small-n corrected d (recommended for n &lt; 20; Hedges 1981).<br><strong>ANOVA / regression:</strong> <span class="kt">η²</span>, <span class="kt">Cohen's f</span> = √(η²/(1−η²)), <span class="kt">f²</span> for multiple regression (small 0.02 / medium 0.15 / large 0.35).<br><strong>Correlation:</strong> <span class="kt">r</span> (Pearson; 0.1 / 0.3 / 0.5).<br><strong>Binary:</strong> <span class="kt">Cohen's h</span> = 2(arcsin√p₁ − arcsin√p₂); <span class="kt">OR</span> (1.5 / 2 / 3); <span class="kt">RR</span> also fine.<br><strong>Survival:</strong> <span class="kt">HR</span> + expected events.</p></div>
+</div>
+<div>
+<h5 data-zh="工具地圖" data-en="Toolbox map">工具地圖</h5>
+<div data-lang="zh"><p><strong>GUI</strong>：<span class="kt">G*Power 3</span>（Faul 2007 <em>Behav Res Methods</em>；Faul 2009 BRM 41:1149；引用 80,000+ 次；跨 macOS/Win/Linux 免費）。視覺化中央分布與非中央分布的重疊。</p>
+<p><strong>R</strong>：<span class="kt">pwr</span>（Champely）涵蓋 t / ANOVA / r / χ² / 比例 / GLM f²；<span class="kt">longpower</span>（Donohue）做 longitudinal LMM；<span class="kt">gsDesign</span>（Anderson）做臨床試驗群體設計；<span class="kt">survival::nSurv</span>、<span class="kt">TrialSize</span>。</p>
+<p><strong>Python</strong>：<span class="kt">statsmodels.stats.power</span>（TTestIndPower、FTestAnovaPower、NormalIndPower、GofChisquarePower）；<span class="kt">scipy.stats</span> 無內建 power。</p>
+<p><strong>商用</strong>：<span class="kt">PASS</span>（NCSS，涵蓋 1000+ 場景，FDA 認可）、<span class="kt">nQuery</span>、<span class="kt">Stata power 指令</span>。</p></div>
+<div data-lang="en"><p><strong>GUI:</strong> <span class="kt">G*Power 3</span> (Faul 2007 <em>Behav Res Methods</em>; Faul 2009 BRM 41:1149; 80,000+ citations; free on macOS/Win/Linux). Visualises central + noncentral distributions.</p>
+<p><strong>R:</strong> <span class="kt">pwr</span> (Champely) covers t / ANOVA / r / χ² / proportions / GLM f²; <span class="kt">longpower</span> (Donohue) for longitudinal LMM; <span class="kt">gsDesign</span> (Anderson) for group-sequential trials; <span class="kt">survival::nSurv</span>, <span class="kt">TrialSize</span>.</p>
+<p><strong>Python:</strong> <span class="kt">statsmodels.stats.power</span> (TTestIndPower, FTestAnovaPower, NormalIndPower, GofChisquarePower); <span class="kt">scipy.stats</span> has no built-in power.</p>
+<p><strong>Commercial:</strong> <span class="kt">PASS</span> (NCSS, 1000+ scenarios, FDA-trusted), <span class="kt">nQuery</span>, <span class="kt">Stata power</span>.</p></div>
+</div>
+</div>
 
-      const c1 = -7.784894002430293e-03;
-      const c2 = -3.223964580411365e-01;
-      const c3 = -2.400758277161838e+00;
-      const c4 = -2.549732539343734e+00;
-      const c5 =  4.374664141464968e+00;
-      const c6 =  2.938163982698783e+00;
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>SESOI（Smallest Effect Size of Interest）：</strong>Lakens (2018 <em>Adv Methods Pract Psychol Sci</em>) 與 Giner-Sorolla (2024) 推動：在資料收集<strong>前</strong>，用<strong>臨床／科學意義</strong>而非統計顯著性決定「多大差別才值得偵測」。例：降血壓藥要超過安慰劑 SBP −3 mmHg 才算有臨床意義（NICE guideline）。SESOI 把效應量從「猜」變成「論證」。</span>
+<span data-lang="en"><strong>SESOI (Smallest Effect Size of Interest):</strong> Lakens (2018 <em>Adv Methods Pract Psychol Sci</em>) and Giner-Sorolla (2024) push this: <strong>before</strong> data collection, decide on a meaningful difference based on <strong>clinical/scientific</strong> grounds, not statistical convenience. Example: a new antihypertensive must beat placebo by ≥ 3 mmHg SBP to be clinically relevant (NICE). SESOI turns "guess the effect" into "justify the effect".</span>
+</div></div>
 
-      const d1 =  7.784695709041462e-03;
-      const d2 =  3.224671290700398e-01;
-      const d3 =  2.445134137142996e+00;
-      const d4 =  3.754408661907416e+00;
+<h4 data-zh="特殊設計：群集 RCT 與存活" data-en="Special designs: cluster RCTs and survival">特殊設計</h4>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🏘️</div><h4 data-zh="Cluster RCT — 設計效應" data-en="Cluster RCT — design effect">Cluster RCT</h4>
+<div data-lang="zh"><p>當隨機化單位是「群（學校、診所、村莊）」而非個人時，群內個體不獨立。<strong>設計效應 DE = 1 + (m − 1)·ICC</strong>，m = 平均群大小，ICC = 群內相關係數（intraclass correlation）。<strong>有效 n = n<sub>total</sub> / DE</strong>。例：m = 30、ICC = 0.05 → DE = 2.45 → 算出的個人 n 要 × 2.45。<strong>Hayes &amp; Moulton 2017 "Cluster Randomised Trials" 2nd ed</strong> 是聖經。</p></div>
+<div data-lang="en"><p>When the unit of randomisation is a cluster (school, clinic, village), members within a cluster are not independent. <strong>Design effect DE = 1 + (m − 1)·ICC</strong>, m = average cluster size, ICC = intraclass correlation. <strong>Effective n = n<sub>total</sub> / DE</strong>. Example: m = 30, ICC = 0.05 → DE = 2.45 → multiply individual-level n by 2.45. <strong>Hayes &amp; Moulton 2017 "Cluster Randomised Trials" 2nd ed</strong> is the bible.</p></div>
+</div>
+<div class="card"><div class="card-icon">⏱️</div><h4 data-zh="存活分析 — Schoenfeld 1981" data-en="Survival — Schoenfeld 1981">存活分析</h4>
+<div data-lang="zh"><p>存活的 power <strong>取決於事件數，不是樣本數</strong>（Schoenfeld 1981 <em>Biometrics</em>）。先算所需事件 d = ((z<sub>1−α/2</sub>+z<sub>1−β</sub>)·(1+k))² / (k·(ln HR)²)；再用預期事件率反推 n 與追蹤期。R: <code>survival::nSurv()</code>、<code>gsDesign::nSurv</code>；Python: <code>lifelines</code> 沒有直接 power 函式，但可手算。<strong>典型錯誤：</strong>「我收了 200 人，每組 100」但事件只發生 30 次——power 由 30 決定，不是 200。</p></div>
+<div data-lang="en"><p>Survival power is driven by <strong>event count, not sample size</strong> (Schoenfeld 1981 <em>Biometrics</em>). First compute required events d = ((z<sub>1−α/2</sub>+z<sub>1−β</sub>)·(1+k))² / (k·(ln HR)²); then back out n and follow-up using the expected event rate. R: <code>survival::nSurv()</code>, <code>gsDesign::nSurv</code>. Python's <code>lifelines</code> has no built-in power function — compute by hand. <strong>Classic mistake:</strong> "I recruited 200 (100 per arm)" but only 30 events accrue — power is driven by 30, not 200.</p></div>
+</div>
+<div class="card"><div class="card-icon">⚖️</div><h4 data-zh="不等配對 (Allocation ratio)" data-en="Unequal allocation">不等配對</h4>
+<div data-lang="zh"><p>2:1 allocation 比 1:1 損失 power——以 2:1 為例，效率只有 88%（n_total 要多 12%）。為何還用？實務上：(1) 倫理（讓更多人接受新療法）；(2) 預算（控制組已知資料便宜）；(3) 不平衡組變異（heteroscedastic）。算式：<code>pwr.t2n.test(n1, n2, d, sig.level)</code>。</p></div>
+<div data-lang="en"><p>2:1 allocation loses power vs 1:1 — at 2:1 you keep only 88% efficiency (need 12% more total n). Why use it? (1) ethics (more patients on the new arm); (2) cost (existing controls are cheap); (3) unequal variance. Use <code>pwr.t2n.test(n1, n2, d, sig.level)</code>.</p></div>
+</div>
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="多重 endpoint α 分割" data-en="Multiple endpoints α split">多 endpoint α</h4>
+<div data-lang="zh"><p>RCT 預設 ≥ 2 個 primary endpoint：α 要分割（Bonferroni: α/k）或 hierarchical testing（Maurer 2011）。Power 算每個 endpoint 用分割後的 α。FDA / EMA 對 confirmatory trial 要求嚴格事先 SAP（statistical analysis plan）。</p></div>
+<div data-lang="en"><p>RCTs with ≥ 2 primary endpoints must split α (Bonferroni α/k) or use hierarchical / gatekeeping testing (Maurer 2011). Power each endpoint at the split α. FDA / EMA require a pre-specified SAP for confirmatory trials.</p></div>
+</div>
+</div>
+</section>
 
-      const pLow  = 0.02425;
-      const pHigh = 1 - pLow;
-      if (p <= 0 || p >= 1) {
-        throw new Error('Probability must be in (0,1)');
-      }
-      let q, r;
-      if (p < pLow) {
-        q = Math.sqrt(-2 * Math.log(p));
-        return (((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
-               ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
-      }
-      if (p > pHigh) {
-        q = Math.sqrt(-2 * Math.log(1 - p));
-        return -(((((c1 * q + c2) * q + c3) * q + c4) * q + c5) * q + c6) /
-                ((((d1 * q + d2) * q + d3) * q + d4) * q + 1);
-      }
-      q = p - 0.5;
-      r = q * q;
-      return (((((a1 * r + a2) * r + a3) * r + a4) * r + a5) * r + a6) * q /
-             (((((b1 * r + b2) * r + b3) * r + b4) * r + b5) * r + 1);
-    }
-    // Compute sample size when the compute button is clicked.  Expose the
-    // function on the global scope so it can be called via the
-    // onclick attribute on the button.  This avoids relying on
-    // addEventListener in case module scripts are not executed
-    // correctly under the file:// protocol.
-    window.computeSampleSize = function computeSampleSize() {
-      const delta = parseFloat(document.getElementById('effectSize').value);
-      const sigma = parseFloat(document.getElementById('sigma').value);
-      const alpha = parseFloat(document.getElementById('alphaPower').value);
-      const power = parseFloat(document.getElementById('desiredPower').value);
-      if (isNaN(delta) || isNaN(sigma) || isNaN(alpha) || isNaN(power) || delta <= 0 || sigma <= 0) {
-        return;
-      }
-      // Compute critical z values for a two‑sided test at significance
-      // level alpha and for the desired power.  zAlpha uses 1‑alpha/2
-      // because of the two tails; zBeta uses the power directly (1‑β).
-      const zAlpha = Math.abs(normInv(1 - alpha / 2));
-      const zBeta = Math.abs(normInv(power));
-      // Formula for per‑group sample size comparing two means
-      const n = 2 * Math.pow((zAlpha + zBeta) * sigma / delta, 2);
-      const out = document.getElementById('powerOutput');
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      // Create translated labels and show critical z values with subscripts for clarity
-      const sizeLabel = lang === 'zh' ? '每組建議樣本數' : 'Required sample size per group';
-      const criticalLabel = lang === 'zh' ? '臨界 z' : 'Critical z';
-      out.innerHTML = `<p><strong>${sizeLabel}:</strong> ${Math.ceil(n).toFixed(0)}</p>` +
-        `<p><strong>${criticalLabel} (z<sub>1-α/2</sub>):</strong> ${zAlpha.toFixed(3)}, ` +
-        `<strong>z<sub>1-β</sub>:</strong> ${zBeta.toFixed(3)}</p>`;
-    };
+<!-- ===== Section 5: Interactive sim 2 — post-hoc vs p-value ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="Post-hoc power = p-value 的單射函數（Hoenig 2001）" data-en="Post-hoc power is a one-to-one function of the p-value (Hoenig 2001)">Post-hoc power 假象</h2>
+<div data-lang="zh"><p>拖動觀察 p-value 滑桿。下方顯示用「觀察到的 effect size」反算的 observed power。<strong>畫面上的曲線就是 Hoenig &amp; Heisey (2001) 的關鍵發現：observed power 完全由 p-value 決定</strong>——p &lt; 0.05 必然有 observed power &gt; 50%，p = 0.5 必然有 observed power = 50%。<strong>它沒有提供任何新資訊</strong>。當審稿人要求「補 post-hoc power」，正確回應是「請改要 confidence interval 或 sensitivity analysis」。</p></div>
+<div data-lang="en"><p>Slide the observed p-value. The "observed power" computed from the observed effect is plotted. <strong>The curve below is exactly Hoenig &amp; Heisey's (2001) key finding: observed power is completely determined by the p-value</strong> — p &lt; 0.05 always implies observed power &gt; 50%, p = 0.5 always gives 50%. <strong>It carries no new information.</strong> When a reviewer demands "post-hoc power", the right answer is: "let me give you a confidence interval or a sensitivity analysis instead".</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="觀察到的 p-value" data-en="Observed p-value">觀察 p</span> <span id="vPobs">0.050</span></label><input type="range" id="sldPobs" min="0.001" max="0.5" value="0.05" step="0.001"></div>
+<div class="slider-group"><label>n / group <span id="vNph">30</span></label><input type="range" id="sldNph" min="10" max="200" value="30" step="1"></div>
+<div id="phResult" style="font-size:.95rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:280px;"><canvas id="phCurve"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">紫線 = observed power 隨 p 變化 · 紅點 = p=0.05 對應 power≈50%（Hoenig 2001）</span><span data-lang="en">Purple = observed power vs p · Red dot = p=0.05 ↔ power ≈ 50% (Hoenig 2001)</span></p>
+</div>
 
-    // Quiz evaluation for power analysis.  Determines whether the user selected
-    // the correct option and displays feedback in the current language.
-    window.checkPowerQuiz = function checkPowerQuiz() {
-      const radios = document.getElementsByName('powerQuiz');
-      let selected = null;
-      for (const r of radios) {
-        if (r.checked) selected = r.value;
-      }
-      const feedback = document.getElementById('powerQuizFeedback');
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      if (!selected) {
-        feedback.textContent = lang === 'zh' ? '請先選擇一個選項。' : 'Please select an option first.';
-        return;
-      }
-      const correct = selected === 'sample';
-      if (correct) {
-        feedback.textContent = lang === 'zh' ? '答對了！增加樣本數或效果大小能提升檢定力。' : 'Correct! Increasing the sample size or effect size increases power.';
-      } else {
-        feedback.textContent = lang === 'zh' ? '答錯了。真正能增加檢定力的是增加樣本數或效果大小。' : 'Incorrect. The way to increase power is to increase the sample size or effect size.';
-      }
-    };
+<div class="idea">
+<span data-lang="zh"><strong>關鍵直覺：</strong>p-value 衡量「資料和 H₀ 不一致的程度」；observed power 衡量「假設真實 effect 等於觀察 effect，會有多大機率得到 p &lt; α」。兩個算法都用同一個觀察 effect — 所以兩個量必然<strong>等價</strong>。Hoenig 把這個等價關係寫成單一公式：observed power = Φ(z<sub>obs</sub> − z<sub>1−α/2</sub>)，z<sub>obs</sub> = Φ⁻¹(1 − p/2)。</span>
+<span data-lang="en"><strong>Key intuition:</strong> the p-value measures "how inconsistent the data are with H₀"; observed power measures "if the true effect were the observed effect, what is the chance of p &lt; α?". Both use the same observed effect — so they must be <strong>equivalent</strong>. Hoenig writes the relation as observed power = Φ(z<sub>obs</sub> − z<sub>1−α/2</sub>) where z<sub>obs</sub> = Φ⁻¹(1 − p/2).</span>
+</div>
+</section>
 
-    // Switch between R and Python tabs.  Called when the code tab buttons are
-    // clicked.  The button clicked becomes active, and the corresponding
-    // code block is shown.
-    window.switchTab = function switchTab(btn) {
-      const btns = btn.parentElement.querySelectorAll('.code-tab-btn');
-      btns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const contents = btn.parentElement.parentElement.querySelectorAll('.code-tab-content');
-      contents.forEach(c => c.classList.remove('active'));
-      contents[Array.from(btns).indexOf(btn)].classList.add('active');
-    };
+<!-- ===== Section 6: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="三、A priori、Sensitivity、Criterion、（絕不要）Post-hoc" data-en="III. A priori, sensitivity, criterion, (never) post-hoc">三、四種 Power 分析的決策樹</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="Power 分析時機決策樹（Faul 2007 命名）" data-en="Power-analysis type decision tree (Faul 2007)">Power 分析時機</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>你<strong>還沒收資料</strong>？<span class="dt-arrow">→ 是 →</span> <strong>A priori（事前）</strong>：固定 α、power、effect → 求 n。寫 grant、IRB、預先註冊（pre-registration）必備。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>n 已被限制（資金、時間、可獲樣本）？<span class="dt-arrow">→ 是 →</span> <strong>Sensitivity（敏感度）</strong>：固定 α、power、n → 求<strong>最小可偵測效應 MDE</strong>。回答「我這個 n 能偵測到的最小 effect 是多少？」</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>n 與 effect 都固定，但你想知道<strong>用什麼 α 才能保持 power</strong>？<span class="dt-arrow">→ 是 →</span> <strong>Criterion</strong>：固定 n、power、effect → 求 α。少用，但 GWAS 與 ML 預測閾值會用。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>你<strong>已收完資料</strong>，想算「我的 power 是多少」？<span class="dt-arrow">→ 是 →</span> <strong style="color:var(--c-danger)">停！絕不要做 post-hoc。</strong>改報 95% CI（資料和 0 的距離 + 不確定度），或重新做 sensitivity（如果未來會 replicate）。Hoenig 2001 是這個禁忌的經典證明。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>You <strong>haven't collected data yet</strong>? <span class="dt-arrow">→ Yes →</span> <strong>A priori</strong>: fix α, power, effect → solve n. Mandatory for grants, IRB, pre-registration.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>n is capped (budget, time, available samples)? <span class="dt-arrow">→ Yes →</span> <strong>Sensitivity</strong>: fix α, power, n → solve <strong>minimum detectable effect (MDE)</strong>. Answers "with this n, what is the smallest effect I can detect?"</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>n and effect fixed, but you want to know <strong>what α keeps power high</strong>? <span class="dt-arrow">→ Yes →</span> <strong>Criterion</strong>: fix n, power, effect → solve α. Rare; used for GWAS or ML-prediction thresholds.</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>You've <strong>finished data collection</strong> and want to know "what was my power?" <span class="dt-arrow">→ Yes →</span> <strong style="color:var(--c-danger)">Stop. Never run post-hoc.</strong> Report a 95% CI (distance from 0 + uncertainty) instead, or run a sensitivity for a future replication. Hoenig 2001 is the classic proof of this taboo.</div></div>
+</div>
+</div>
+</section>
 
-    // Copy code text to clipboard.  When the copy button is clicked, the
-    // function finds the preceding <pre> element and copies its text content.
-    window.copyCode = function copyCode(btn) {
-      const code = btn.previousElementSibling.textContent;
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      navigator.clipboard.writeText(code).then(() => {
-        const original = btn.innerHTML;
-        btn.innerHTML = lang === 'zh' ? '已複製!' : 'Copied!';
-        setTimeout(() => { btn.innerHTML = original; }, 1500);
-      }).catch(() => {
-        // Even if copy fails, show feedback.
-        const original = btn.innerHTML;
-        btn.innerHTML = lang === 'zh' ? '已複製!' : 'Copied!';
-        setTimeout(() => { btn.innerHTML = original; }, 1500);
-      });
-    };
-  </script>
-</body>
-</html>
+<!-- ===== Section 7: Tool comparison table ===== -->
+<section class="section">
+<div class="section-label" data-zh="工具比較" data-en="TOOL COMPARISON">工具比較</div>
+<h2 data-zh="四、G*Power / pwr / statsmodels / PASS / Stata" data-en="IV. G*Power vs pwr vs statsmodels vs PASS / Stata">四、工具比較</h2>
+<table class="comp-table">
+<thead><tr>
+<th data-zh="工具" data-en="Tool">工具</th>
+<th data-zh="平台" data-en="Platform">平台</th>
+<th data-zh="涵蓋面" data-en="Coverage">涵蓋面</th>
+<th data-zh="優點" data-en="Strengths">優點</th>
+<th data-zh="限制" data-en="Limitations">限制</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>G*Power 3</strong> <span data-lang="zh">(Faul 2007)</span><span data-lang="en">(Faul 2007)</span></td><td>Win / macOS / Linux GUI</td><td data-lang="zh">t / F / χ² / z / 相關，多種 ANOVA / GLM</td><td data-lang="en">t / F / χ² / z / correlation, many ANOVA / GLM</td><td data-lang="zh">免費、GUI 直觀、有圖示中央 / 非中央分布</td><td data-lang="en">Free, intuitive GUI, plots central / noncentral</td><td data-lang="zh">無 survival、無 cluster、不能批次</td><td data-lang="en">No survival, no cluster, no batch</td></tr>
+<tr><td><strong>R pwr</strong> <span data-lang="zh">(Champely)</span><span data-lang="en">(Champely)</span></td><td>R package</td><td data-lang="zh">t、ANOVA (1-way)、r、χ²、比例、f²</td><td data-lang="en">t, 1-way ANOVA, r, χ², proportions, f²</td><td data-lang="zh">script 可重現、可組合 simulation</td><td data-lang="en">Scriptable, reproducible, simulation-friendly</td><td data-lang="zh">無 survival（用 <code>longpower</code>、<code>gsDesign</code>）</td><td data-lang="en">No survival (use <code>longpower</code>, <code>gsDesign</code>)</td></tr>
+<tr><td><strong>statsmodels</strong> <span data-lang="zh">(Python)</span><span data-lang="en">(Python)</span></td><td>Python</td><td data-lang="zh">TTestIndPower / FTestAnovaPower / NormalIndPower / GofChisquarePower</td><td data-lang="en">TTestIndPower / FTestAnovaPower / NormalIndPower / GofChisquarePower</td><td data-lang="zh">融入 ML pipeline，<code>solve_power</code> 可求任一量</td><td data-lang="en">Fits ML pipeline, <code>solve_power</code> back-solves any quantity</td><td data-lang="zh">無 survival、文檔較少</td><td data-lang="en">No survival, sparser docs</td></tr>
+<tr><td><strong>PASS</strong> <span data-lang="zh">(NCSS)</span><span data-lang="en">(NCSS)</span></td><td>Win GUI</td><td data-lang="zh">1000+ 場景：survival, cluster, equivalence, non-inferiority</td><td data-lang="en">1000+ scenarios: survival, cluster, equivalence, non-inferiority</td><td data-lang="zh">FDA 認可、報告品質高、附 PDF references</td><td data-lang="en">FDA-trusted, publication-ready, cites references in PDF</td><td data-lang="zh">商用付費、GUI、不容易自動化</td><td data-lang="en">Paid, GUI-only, hard to script</td></tr>
+<tr><td><strong>Stata power</strong></td><td>Stata</td><td data-lang="zh">完整：survival、cluster、equivalence、cross-over</td><td data-lang="en">Comprehensive: survival, cluster, equivalence, cross-over</td><td data-lang="zh">語法統一、文件詳盡、官方支援</td><td data-lang="en">Unified syntax, thorough docs, official support</td><td data-lang="zh">付費；script 與 R/Python 整合差</td><td data-lang="en">Paid; weaker integration with R/Python pipelines</td></tr>
+</tbody></table>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>實務建議：</strong>學術論文：G*Power 做初算 + R/Python 重現以利 reproducibility。臨床三期 RCT：PASS 或 Stata（FDA 偏好）。Survival/cluster：<code>gsDesign</code>、<code>longpower</code>、<code>nSurv</code>。<strong>關鍵：把 power 計算的所有參數寫進 protocol / pre-registration / Methods</strong>，這是 ARRIVE 2.0 與 CONSORT 都要求的。</span>
+<span data-lang="en"><strong>Practical recipe:</strong> Academic papers: G*Power for the first pass + R/Python to reproduce. Phase-III RCT: PASS or Stata (FDA-preferred). Survival/cluster: <code>gsDesign</code>, <code>longpower</code>, <code>nSurv</code>. <strong>Critical: write all power parameters into the protocol / pre-registration / Methods</strong> — required by ARRIVE 2.0 and CONSORT.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 8: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作範例：R 的 pwr / longpower、Python 的 statsmodels" data-en="V. Code examples: R pwr / longpower, Python statsmodels">五、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R / pwr + longpower</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python / statsmodels</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># ============= R: pwr + survival/longpower =============</span>
+<span class="func">library</span>(pwr)
+<span class="func">library</span>(longpower)
+<span class="func">library</span>(gsDesign)
+
+<span class="comment"># --- 1. Two-sample t-test: a priori (find n) ---</span>
+<span class="func">pwr.t.test</span>(d = <span class="num">0.5</span>, power = <span class="num">0.80</span>, sig.level = <span class="num">0.05</span>,
+            type = <span class="str">"two.sample"</span>, alternative = <span class="str">"two.sided"</span>)
+<span class="comment">#  n per group ≈ 64</span>
+
+<span class="comment"># --- 2. Sensitivity (find min detectable d given n) ---</span>
+<span class="func">pwr.t.test</span>(n = <span class="num">30</span>, power = <span class="num">0.80</span>, sig.level = <span class="num">0.05</span>,
+            type = <span class="str">"two.sample"</span>)
+<span class="comment">#  d ≈ 0.74  (Note: NOT post-hoc; this is sensitivity)</span>
+
+<span class="comment"># --- 3. ANOVA (1-way, k groups, Cohen's f) ---</span>
+<span class="func">pwr.anova.test</span>(k = <span class="num">4</span>, f = <span class="num">0.25</span>, sig.level = <span class="num">0.05</span>, power = <span class="num">0.80</span>)
+
+<span class="comment"># --- 4. Correlation r ---</span>
+<span class="func">pwr.r.test</span>(r = <span class="num">0.3</span>, power = <span class="num">0.80</span>, sig.level = <span class="num">0.05</span>)
+
+<span class="comment"># --- 5. Two-proportion (Cohen's h) ---</span>
+h &lt;- <span class="func">ES.h</span>(<span class="num">0.40</span>, <span class="num">0.30</span>)
+<span class="func">pwr.2p.test</span>(h = h, power = <span class="num">0.80</span>, sig.level = <span class="num">0.05</span>)
+
+<span class="comment"># --- 6. Unequal allocation (2:1) ---</span>
+<span class="func">pwr.t2n.test</span>(n1 = <span class="num">60</span>, n2 = <span class="num">30</span>, d = <span class="num">0.5</span>, sig.level = <span class="num">0.05</span>)
+
+<span class="comment"># --- 7. Survival: events required (Schoenfeld 1981) ---</span>
+<span class="comment"># HR=0.7, two-sided α=0.05, power=0.80, equal allocation</span>
+gsDesign::<span class="func">nSurv</span>(lambdaC = <span class="num">0.05</span>, hr = <span class="num">0.7</span>, eta = <span class="num">0.02</span>,
+                 T = <span class="num">36</span>, minfup = <span class="num">12</span>, alpha = <span class="num">0.025</span>, beta = <span class="num">0.20</span>)
+
+<span class="comment"># --- 8. Longitudinal LMM ---</span>
+longpower::<span class="func">lmmpower</span>(delta = <span class="num">0.1</span>, t = <span class="func">seq</span>(<span class="num">0</span>, <span class="num">1.5</span>, <span class="num">0.25</span>),
+                    sig2.i = <span class="num">55</span>, sig2.s = <span class="num">24</span>, sig2.e = <span class="num">10</span>,
+                    cor.s.i = <span class="num">0.5</span>, power = <span class="num">0.80</span>)
+
+<span class="comment"># --- 9. Cluster RCT: inflate by Design Effect ---</span>
+ICC &lt;- <span class="num">0.05</span>; m &lt;- <span class="num">30</span>
+DE  &lt;- <span class="num">1</span> + (m - <span class="num">1</span>) * ICC                <span class="comment"># = 2.45</span>
+n_indiv &lt;- <span class="func">ceiling</span>(<span class="func">pwr.t.test</span>(d=<span class="num">0.3</span>, power=<span class="num">0.80</span>)$n)
+n_cluster_total &lt;- <span class="func">ceiling</span>(n_indiv * DE)
+<span class="func">cat</span>(<span class="str">"Individuals per arm:"</span>, n_cluster_total, <span class="str">"\n"</span>)</pre></div>
+
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> statsmodels.stats.power <span class="kw">import</span> (
+    TTestIndPower, FTestAnovaPower, NormalIndPower, GofChisquarePower
+)
+<span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportion_effectsize
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> norm
+
+<span class="comment"># --- 1. Two-sample t: a priori (find n) ---</span>
+ap = <span class="func">TTestIndPower</span>()
+n = ap.<span class="func">solve_power</span>(effect_size=<span class="num">0.5</span>, alpha=<span class="num">0.05</span>, power=<span class="num">0.80</span>,
+                    alternative=<span class="str">'two-sided'</span>)
+<span class="func">print</span>(<span class="str">f"n per group ≈ {n:.1f}"</span>)   <span class="comment"># ≈ 63.8</span>
+
+<span class="comment"># --- 2. Sensitivity (find min detectable d at n=30) ---</span>
+d_min = ap.<span class="func">solve_power</span>(nobs1=<span class="num">30</span>, alpha=<span class="num">0.05</span>, power=<span class="num">0.80</span>)
+<span class="func">print</span>(<span class="str">f"Min detectable d ≈ {d_min:.3f}"</span>)
+
+<span class="comment"># --- 3. ANOVA (1-way) ---</span>
+fa = <span class="func">FTestAnovaPower</span>()
+n_total = fa.<span class="func">solve_power</span>(effect_size=<span class="num">0.25</span>, k_groups=<span class="num">4</span>,
+                          alpha=<span class="num">0.05</span>, power=<span class="num">0.80</span>)
+<span class="func">print</span>(<span class="str">f"Total n ≈ {n_total:.1f}"</span>)
+
+<span class="comment"># --- 4. Two-proportion (using Cohen's h) ---</span>
+h = <span class="func">proportion_effectsize</span>(<span class="num">0.40</span>, <span class="num">0.30</span>)
+ni = <span class="func">NormalIndPower</span>().<span class="func">solve_power</span>(effect_size=h, alpha=<span class="num">0.05</span>,
+                                       power=<span class="num">0.80</span>)
+<span class="func">print</span>(<span class="str">f"n per group ≈ {ni:.1f}"</span>)
+
+<span class="comment"># --- 5. Survival (Schoenfeld 1981, by hand) ---</span>
+<span class="kw">def</span> <span class="func">schoenfeld_events</span>(HR, alpha=<span class="num">0.05</span>, power=<span class="num">0.80</span>, k=<span class="num">1</span>):
+    <span class="str">"""k = allocation ratio (n_treat/n_ctrl). Returns required events."""</span>
+    za = norm.<span class="func">ppf</span>(<span class="num">1</span> - alpha/<span class="num">2</span>)
+    zb = norm.<span class="func">ppf</span>(power)
+    <span class="kw">return</span> ((za + zb) ** <span class="num">2</span>) * (<span class="num">1</span> + k) ** <span class="num">2</span> / (k * (np.<span class="func">log</span>(HR)) ** <span class="num">2</span>)
+events = <span class="func">schoenfeld_events</span>(HR=<span class="num">0.7</span>)
+<span class="func">print</span>(<span class="str">f"Required events: {events:.0f}"</span>)   <span class="comment"># ≈ 247</span>
+
+<span class="comment"># --- 6. Cluster RCT design effect ---</span>
+ICC, m = <span class="num">0.05</span>, <span class="num">30</span>
+DE = <span class="num">1</span> + (m - <span class="num">1</span>) * ICC
+n_indiv = ap.<span class="func">solve_power</span>(effect_size=<span class="num">0.3</span>, alpha=<span class="num">0.05</span>, power=<span class="num">0.80</span>)
+n_cluster = np.<span class="func">ceil</span>(n_indiv * DE)
+<span class="func">print</span>(<span class="str">f"DE = {DE:.2f}, individuals per arm = {n_cluster:.0f}"</span>)
+
+<span class="comment"># --- 7. NEVER do this: post-hoc power ---</span>
+<span class="comment"># observed_d = (mean1 - mean2) / pooled_sd  # NO!</span>
+<span class="comment"># ap.power(effect_size=observed_d, nobs1=n, alpha=0.05)  # NO!</span>
+<span class="comment"># Report a 95% CI instead — that IS the right "post-hoc" answer.</span></pre></div>
+</div>
+</section>
+
+<!-- ===== Section 9: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="六、Power 分析最常見的六個錯誤" data-en="VI. Six common power-analysis errors">六、常見錯誤</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="Post-hoc power" data-en="Post-hoc power">Post-hoc power</span></h4>
+<div data-lang="zh"><p>用觀察 effect 反算 power——它和 p-value 是同一個東西的兩種寫法（Hoenig 2001）。審稿人要求時，回信：「Post-hoc power is a deterministic function of the p-value (Hoenig &amp; Heisey 2001 <em>Am Stat</em> 55:19, DOI:10.1198/000313001300339897). We instead report the 95% CI, which directly conveys the precision of our estimate.」</p></div>
+<div data-lang="en"><p>Computing power from the observed effect — it's a deterministic function of the p-value (Hoenig 2001). When reviewers ask, reply: "Post-hoc power is a deterministic function of the p-value (Hoenig &amp; Heisey 2001 <em>Am Stat</em> 55:19, DOI:10.1198/000313001300339897). We instead report the 95% CI, which directly conveys the precision of our estimate."</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="用 pilot effect 算正式 n" data-en="Pilot effect for formal n">Pilot effect 算 n</span></h4>
+<div data-lang="zh"><p>Pilot 樣本太小（典型 n ≤ 30）→ 觀察 effect 變異大且偏向過大（"winner's curse"）→ 算出來的 n 嚴重低估。<strong>Kraemer 2006 <em>Arch Gen Psychiatry</em></strong>：使用 SESOI、文獻 meta-analysis、或 pilot d − 1 SE 作為 effect input。</p></div>
+<div data-lang="en"><p>Pilot n is small (typically ≤ 30) → observed effect is noisy and upwardly biased ("winner's curse") → formal n is severely underestimated. <strong>Kraemer 2006 <em>Arch Gen Psychiatry</em></strong>: use SESOI, a meta-analytic effect, or pilot d − 1 SE as input.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="忽略多重檢定" data-en="Ignoring multiplicity">忽略多重檢定</span></h4>
+<div data-lang="zh"><p>RCT 預設 5 個 primary endpoint 全部用 α = 0.05 → family-wise error 大約 0.23。算 n 時必須用<strong>調整後 α</strong>（Bonferroni α/k 或 hierarchical α-spending；見 Step 12）。GWAS、proteomics 也適用。</p></div>
+<div data-lang="en"><p>An RCT with 5 primary endpoints all at α = 0.05 has family-wise error ≈ 0.23. n must be powered at the <strong>adjusted α</strong> (Bonferroni α/k or hierarchical α-spending; see Step 12). Same for GWAS and proteomics.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="忽略 cluster ICC" data-en="Ignoring cluster ICC">忽略 ICC</span></h4>
+<div data-lang="zh"><p>群集 RCT 用個人 n 算 power → 嚴重高估。記得乘以 DE = 1 + (m − 1)·ICC。<strong>Hayes &amp; Moulton 2017</strong> 警告：典型醫療 ICC = 0.01–0.10；忽略 ICC 是 cluster trial 失敗的頭號原因。</p></div>
+<div data-lang="en"><p>Computing cluster-RCT power on individual n → severe overestimate. Multiply by DE = 1 + (m − 1)·ICC. <strong>Hayes &amp; Moulton 2017</strong>: typical health ICC = 0.01–0.10; ignoring ICC is the top cause of failed cluster trials.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Survival 用 n 而非事件數" data-en="Survival on n, not events">Survival 用 n 不用事件</span></h4>
+<div data-lang="zh"><p>log-rank 的 power <strong>取決於事件數，不是樣本數</strong>。「收 500 人」無關緊要，重點是「事件 ≥ 多少」。Schoenfeld 1981 公式直接算事件 d；再用預期事件率反推 n 與追蹤期。R: <code>gsDesign::nSurv</code>。</p></div>
+<div data-lang="en"><p>log-rank power depends on <strong>events, not n</strong>. "500 enrolled" is irrelevant — only "events accrued" matters. Schoenfeld's 1981 formula gives events d directly; back out n and follow-up from the expected event rate. R: <code>gsDesign::nSurv</code>.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Power = 80%，但 effect 不切實際" data-en="Power = 80%, unrealistic effect">效應量太樂觀</span></h4>
+<div data-lang="zh"><p>研究者最常為了得到「合理」的 n，把 d 從 0.3 改成 0.8——這叫 effect inflation。論文 Methods 必須寫明 effect size 的依據（meta-analysis、SESOI、臨床指引）。<strong>Albers &amp; Lakens 2018 PLOS ONE</strong>：超過 70% 的 power analyses 用無根據的 effect。</p></div>
+<div data-lang="en"><p>The most common shortcut: inflate d from 0.3 to 0.8 just to make n "feasible" — effect inflation. Methods sections must justify the effect (meta-analysis, SESOI, clinical guideline). <strong>Albers &amp; Lakens 2018 PLOS ONE</strong>: &gt; 70% of published power analyses use unjustified effects.</p></div>
+</div>
+</div>
+
+<div class="pitfall">
+<span class="pitfall-title" data-zh="紅旗：論文出現「Our post-hoc power was 0.65」" data-en="Red flag: paper reports 'Our post-hoc power was 0.65'">紅旗：論文寫 "post-hoc power = X"</span>
+<span data-lang="zh">這句話幾乎一定是反模式。<strong>正確替代：</strong>(1) 95% CI 告訴你估計精度；(2) sensitivity analysis 告訴你「我的 n 可偵測到多大的 effect」；(3) 重做 a priori 用 SESOI（如果是準備下一個研究）。Levine &amp; Ensom 2001 <em>Pharmacotherapy</em>、Lenth 2007 <em>Am Stat</em> 都加強這個禁忌。</span>
+<span data-lang="en">That sentence is almost always an anti-pattern. <strong>Correct alternatives:</strong> (1) a 95% CI tells you the precision; (2) sensitivity analysis tells you "what effect could I detect with this n?"; (3) re-run a priori with SESOI for the next study. Levine &amp; Ensom 2001 <em>Pharmacotherapy</em> and Lenth 2007 <em>Am Stat</em> both reinforce the taboo.</span>
+</div>
+</section>
+
+<!-- ===== Section 10: Real biomedical scenarios ===== -->
+<section class="section">
+<div class="section-label" data-zh="實戰案例" data-en="REAL SCENARIOS">實戰案例</div>
+<h2 data-zh="七、三個真實生醫場景" data-en="VII. Three real biomedical scenarios">七、實戰場景</h2>
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">💊</div><h4 data-zh="情境 A：新降血壓藥 RCT" data-en="Scenario A: new antihypertensive RCT">情境 A：降血壓藥 RCT</h4>
+<div data-lang="zh"><p><strong>目標：</strong>偵測新藥 vs 安慰劑 SBP 差 ≥ 5 mmHg。已知 σ ≈ 12 mmHg → d = 5/12 = 0.42。α = 0.025（雙側 0.05 + 雙臂 0.025）、power = 0.90。</p><p><strong>R</strong>：<code>pwr.t.test(d=0.42, power=0.9, sig.level=0.025) → n ≈ 152/arm</code>。加 15% 失訪 → 175/arm。Pre-specified in protocol, SAP fixed.</p></div>
+<div data-lang="en"><p><strong>Goal:</strong> detect drug vs placebo SBP gap ≥ 5 mmHg. Known σ ≈ 12 → d = 5/12 = 0.42. α = 0.025, power = 0.90.</p><p><strong>R:</strong> <code>pwr.t.test(d=0.42, power=0.9, sig.level=0.025) → n ≈ 152/arm</code>. Add 15% dropout → 175/arm. Pre-specified in protocol, SAP locked.</p></div>
+</div>
+<div class="card"><div class="card-icon">🧪</div><h4 data-zh="情境 B：細胞劑量反應實驗" data-en="Scenario B: cell-line dose response">情境 B：劑量反應實驗</h4>
+<div data-lang="zh"><p><strong>目標：</strong>偵測 5 個劑量間 IC50 差異（One-way ANOVA）。文獻 Cohen's f = 0.40（大效應）、α = 0.05、power = 0.80。</p><p><strong>R</strong>：<code>pwr.anova.test(k=5, f=0.40, power=0.8) → n ≈ 16/group → 總 80</code>。技術重複 ≥ 3 wells/group，明確分層分析（Step 13 mixed model）。</p></div>
+<div data-lang="en"><p><strong>Goal:</strong> detect IC50 differences across 5 doses (1-way ANOVA). Literature Cohen's f = 0.40 (large), α = 0.05, power = 0.80.</p><p><strong>R:</strong> <code>pwr.anova.test(k=5, f=0.40, power=0.8) → n ≈ 16/group → total 80</code>. Technical reps ≥ 3 wells/group; analyse hierarchically (Step 13 mixed model).</p></div>
+</div>
+<div class="card"><div class="card-icon">🧬</div><h4 data-zh="情境 C：GWAS Bonferroni" data-en="Scenario C: GWAS Bonferroni">情境 C：GWAS</h4>
+<div data-lang="zh"><p><strong>目標：</strong>偵測 OR = 1.20 的 SNP（MAF = 0.30）。α<sub>GWAS</sub> = 5×10⁻⁸（Pe'er 2008）、power = 0.80。</p><p><strong>Genetic Power Calculator</strong> 或 <strong>Quanto</strong>：≈ 12,000 cases + 12,000 controls。為何要這麼大？因為 α 嚴格到 5×10⁻⁸ 對應 z<sub>1−α/2</sub> ≈ 5.45（vs α=0.05 的 1.96）——光是 (5.45/1.96)² ≈ 7.7 倍的 n。</p></div>
+<div data-lang="en"><p><strong>Goal:</strong> detect SNP at OR = 1.20 (MAF = 0.30). α<sub>GWAS</sub> = 5×10⁻⁸ (Pe'er 2008), power = 0.80.</p><p><strong>Genetic Power Calculator</strong> or <strong>Quanto</strong>: ≈ 12,000 cases + 12,000 controls. Why so big? α = 5×10⁻⁸ ↔ z<sub>1−α/2</sub> ≈ 5.45 (vs 1.96 at α = 0.05) — that alone is (5.45/1.96)² ≈ 7.7× the n.</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 11: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 審稿人寫信：「請補上 post-hoc power 分析。」最佳回應是？</p>
+<p data-lang="en">1. A reviewer asks: "Please add a post-hoc power analysis." Best response?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 立刻算 observed power 並補進論文</span><span data-lang="en">A. Compute observed power immediately and add it</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 把 power 算到 99% 給審稿人看</span><span data-lang="en">B. Compute power at 99% to look strong</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 引用 Hoenig &amp; Heisey 2001，改報 95% CI 與 sensitivity 分析</span><span data-lang="en">C. Cite Hoenig &amp; Heisey 2001 and report 95% CI + sensitivity analysis instead</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 拒絕修改</span><span data-lang="en">D. Refuse without explanation</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. 你規劃一個 cluster RCT（學校為單位），平均每校 m = 25 名學生，預期 ICC = 0.04。個人層級算出每組需 100 人——實際每組要多少？</p>
+<p data-lang="en">2. You plan a cluster RCT (schools as clusters), m = 25 students/school, ICC = 0.04. Individual-level power says 100 per arm — what do you actually need per arm?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 100（ICC 可以忽略）</span><span data-lang="en">A. 100 (ICC negligible)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 125</span><span data-lang="en">B. 125</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 196（DE = 1 + (25−1)×0.04 = 1.96 → 100 × 1.96）</span><span data-lang="en">C. 196 (DE = 1 + (25−1)×0.04 = 1.96 → 100 × 1.96)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 50（cluster 提升 power）</span><span data-lang="en">D. 50 (clustering boosts power)</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">3. 你被預算限制 n = 40/組。最合適的 power 分析類型是？</p>
+<p data-lang="en">3. Your budget caps n at 40/group. Which power-analysis type fits?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. A priori：固定 effect 求 n</span><span data-lang="en">A. A priori: fix effect, solve n</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. Post-hoc：等收完資料再算 power</span><span data-lang="en">B. Post-hoc: compute power after data collection</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Criterion：求 α</span><span data-lang="en">C. Criterion: solve α</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. Sensitivity：固定 n、α、power → 求最小可偵測 effect (MDE)</span><span data-lang="en">D. Sensitivity: fix n, α, power → solve minimum detectable effect (MDE)</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">4. 存活分析（log-rank）power 主要取決於下列哪一項？</p>
+<p data-lang="en">4. Survival (log-rank) power mainly depends on which of the following?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 收案人數（總 n）</span><span data-lang="en">A. Enrolled n</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 事件數（events / deaths）——Schoenfeld 1981</span><span data-lang="en">B. Event count (events / deaths) — Schoenfeld 1981</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 追蹤天數</span><span data-lang="en">C. Follow-up days</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. SD of survival time</span><span data-lang="en">D. SD of survival time</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="survival.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="Step 10：存活分析" data-en="Step 10: Survival Analysis">Step 10：存活分析</span></a><a href="fdr.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 12：多重檢定" data-en="Step 12: Multiple Testing">Step 12：多重檢定</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== Normal CDF / inverse =====
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const t=1/(1+p*x);const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return s*y;}
+function Phi(z){return 0.5*(1+erf(z/Math.SQRT2));}
+function invPhi(p){if(p<=0)return -8;if(p>=1)return 8;// Beasley-Springer-Moro
+  const a=[-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239];
+  const b=[-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];
+  const c=[-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783];
+  const d=[7.784695709041462e-3,3.224671290700398e-1,2.445134137142996,3.754408661907416];
+  const pl=0.02425,ph=1-pl;
+  let q,r;
+  if(p<pl){q=Math.sqrt(-2*Math.log(p));return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  else if(p<=ph){q=p-0.5;r=q*q;return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+  else{q=Math.sqrt(-2*Math.log(1-p));return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+}
+// Power for two-sample, two-sided (normal approx)
+function powerTT(d,n,alpha){const za=invPhi(1-alpha/2);const ncp=d*Math.sqrt(n/2);return Phi(ncp-za)+Phi(-ncp-za);}
+// Inverse solvers via bisection
+function solveN(d,alpha,power){let lo=2,hi=10000;while(hi-lo>1){const m=Math.floor((lo+hi)/2);if(powerTT(d,m,alpha)<power)lo=m;else hi=m;}return hi;}
+function solveD(n,alpha,power){let lo=0.01,hi=3;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(powerTT(m,n,alpha)<power)lo=m;else hi=m;}return (lo+hi)/2;}
+function solveAlpha(d,n,power){let lo=1e-6,hi=0.5;for(let i=0;i<80;i++){const m=(lo+hi)/2;if(powerTT(d,n,m)<power)lo=m;else hi=m;}return (lo+hi)/2;}
+
+// ===== Sim 1: Power Calculator =====
+const powerCurve=new Chart(document.getElementById('powerCurve'),{
+  type:'line',
+  data:{labels:[],datasets:[
+    {label:'power',data:[],borderColor:'rgba(15,118,110,1)',backgroundColor:'rgba(15,118,110,0.15)',fill:true,tension:0.25,pointRadius:0,borderWidth:2},
+    {label:'0.80',data:[],borderColor:'rgba(192,57,43,0.7)',borderDash:[5,5],pointRadius:0,borderWidth:1.5,fill:false},
+    {label:'current',data:[],borderColor:'rgba(20,150,80,1)',backgroundColor:'rgba(20,150,80,1)',pointRadius:6,pointHoverRadius:8,showLine:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'n per group'}},y:{min:0,max:1,title:{display:true,text:'power'}}}}
+});
+function syncGroups(){const sf=document.getElementById('solveFor').value;document.getElementById('grp_n').style.opacity=sf==='n'?0.4:1;document.getElementById('grp_p').style.opacity=sf==='power'?0.4:1;document.getElementById('grp_d').style.opacity=sf==='d'?0.4:1;document.getElementById('grp_a').style.opacity=sf==='alpha'?0.4:1;document.getElementById('sldN').disabled=(sf==='n');document.getElementById('sldP').disabled=(sf==='power');document.getElementById('sldD').disabled=(sf==='d');document.getElementById('sldA').disabled=(sf==='alpha');}
+function upPwr1(){
+  const sf=document.getElementById('solveFor').value;
+  let d=+document.getElementById('sldD').value;
+  let a=+document.getElementById('sldA').value;
+  let n=+document.getElementById('sldN').value;
+  let p=+document.getElementById('sldP').value;
+  let solved='';
+  if(sf==='n'){n=solveN(d,a,p);solved=`<strong>n per group = ${n}</strong> (total ${2*n})`;}
+  else if(sf==='power'){p=powerTT(d,n,a);solved=`<strong>power = ${p.toFixed(3)}</strong>`;}
+  else if(sf==='d'){d=solveD(n,a,p);solved=`<strong>minimum detectable d = ${d.toFixed(3)}</strong>`;}
+  else if(sf==='alpha'){a=solveAlpha(d,n,p);solved=`<strong>α = ${a.toExponential(3)}</strong>`;}
+  document.getElementById('vD').textContent=d.toFixed(2);
+  document.getElementById('vA').textContent=a.toExponential ? (a<0.001?a.toExponential(2):a.toFixed(3)) : a.toFixed(3);
+  document.getElementById('vN').textContent=n;
+  document.getElementById('vP').textContent=p.toFixed(2);
+  // Curve: power vs n at current d, a
+  const labels=[];const pts=[];const ref=[];const cur=[];
+  for(let k=5;k<=500;k+=5){labels.push(k);const pw=powerTT(d,k,a);pts.push(pw);ref.push(0.80);cur.push(Math.abs(k-n)<=2?pw:null);}
+  powerCurve.data.labels=labels;
+  powerCurve.data.datasets[0].data=pts;
+  powerCurve.data.datasets[1].data=ref;
+  powerCurve.data.datasets[2].data=cur;
+  powerCurve.update('none');
+  const L=I18n.get();
+  const para=L==='zh'?`目前：d = ${d.toFixed(2)} · α = ${a<0.001?a.toExponential(2):a.toFixed(3)} · n = ${n}/組 · power = ${p.toFixed(3)}<br>解出：${solved}<br><span style="color:var(--c-ink-muted);font-size:.85em;">公式：n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>) / d)² · z<sub>1−α/2</sub> = ${invPhi(1-a/2).toFixed(3)} · z<sub>1−β</sub> = ${invPhi(p).toFixed(3)}</span>`:`Current: d = ${d.toFixed(2)} · α = ${a<0.001?a.toExponential(2):a.toFixed(3)} · n = ${n}/group · power = ${p.toFixed(3)}<br>Solved: ${solved}<br><span style="color:var(--c-ink-muted);font-size:.85em;">Formula: n = 2·((z<sub>1−α/2</sub> + z<sub>1−β</sub>) / d)² · z<sub>1−α/2</sub> = ${invPhi(1-a/2).toFixed(3)} · z<sub>1−β</sub> = ${invPhi(p).toFixed(3)}</span>`;
+  document.getElementById('pwrResult').innerHTML=para;
+  syncGroups();
+}
+['solveFor','sldD','sldA','sldN','sldP'].forEach(id=>document.getElementById(id).addEventListener('input',upPwr1));
+document.addEventListener('langchange',upPwr1);
+upPwr1();
+
+// ===== Sim 2: Post-hoc power vs p-value =====
+const phCurve=new Chart(document.getElementById('phCurve'),{
+  type:'line',
+  data:{labels:[],datasets:[
+    {label:'observed power',data:[],borderColor:'rgba(120,55,150,1)',backgroundColor:'rgba(120,55,150,0.15)',fill:true,tension:0.2,pointRadius:0,borderWidth:2},
+    {label:'p=0.05',data:[],borderColor:'rgba(192,57,43,0.7)',borderDash:[5,5],pointRadius:0,borderWidth:1.5,fill:false},
+    {label:'current',data:[],borderColor:'rgba(192,57,43,1)',backgroundColor:'rgba(192,57,43,1)',pointRadius:7,showLine:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{type:'logarithmic',title:{display:true,text:'observed p-value (log)'}},y:{min:0,max:1,title:{display:true,text:'observed power'}}}}
+});
+// Observed power = Phi(z_obs - z_{1-α/2}) where z_obs = invPhi(1 - p/2), α = 0.05
+function obsPower(p,alpha){const zobs=invPhi(1-p/2);const za=invPhi(1-alpha/2);return Phi(zobs-za);}
+function upPh(){
+  const p=+document.getElementById('sldPobs').value;
+  const n=+document.getElementById('sldNph').value;
+  document.getElementById('vPobs').textContent=p<0.001?p.toExponential(2):p.toFixed(3);
+  document.getElementById('vNph').textContent=n;
+  // recover implied d from p and n: z_obs = d*sqrt(n/2)  → d = z_obs / sqrt(n/2)
+  const zobs=invPhi(1-p/2);const dImp=zobs/Math.sqrt(n/2);
+  const op=obsPower(p,0.05);
+  const labels=[];const pts=[];const ref=[];const cur=[];
+  for(let i=0;i<=200;i++){const pv=0.001*Math.pow(0.5/0.001,i/200);labels.push(pv);const opv=obsPower(pv,0.05);pts.push(opv);ref.push(0.5);cur.push(Math.abs(pv-p)/p<0.05?opv:null);}
+  phCurve.data.labels=labels.map(v=>v.toExponential(1));
+  phCurve.data.datasets[0].data=pts;
+  phCurve.data.datasets[1].data=ref;
+  phCurve.data.datasets[2].data=cur;
+  phCurve.update('none');
+  const L=I18n.get();
+  document.getElementById('phResult').innerHTML=L==='zh'?
+    `<strong>觀察 p</strong> = ${p<0.001?p.toExponential(2):p.toFixed(3)} · 推回的 effect d ≈ ${dImp.toFixed(3)} (n=${n}/組)<br><strong>Observed (post-hoc) power = ${op.toFixed(3)}</strong> ${p<0.05?'(p&lt;0.05 ⇒ power&gt;0.5)':'(p≥0.05 ⇒ power≤0.5)'}<br><span style="color:var(--c-warn,#c0392b);">⚠️ Hoenig 2001：observed power 完全由 p 決定。它沒有比 p 多任何資訊——請改報 95% CI。</span>`:
+    `<strong>Observed p</strong> = ${p<0.001?p.toExponential(2):p.toFixed(3)} · implied effect d ≈ ${dImp.toFixed(3)} (n=${n}/group)<br><strong>Observed (post-hoc) power = ${op.toFixed(3)}</strong> ${p<0.05?'(p&lt;0.05 ⇒ power&gt;0.5)':'(p≥0.05 ⇒ power≤0.5)'}<br><span style="color:var(--c-warn,#c0392b);">⚠️ Hoenig 2001: observed power is fully determined by p. It carries no new information — report a 95% CI instead.</span>`;
+}
+document.getElementById('sldPobs').addEventListener('input',upPh);
+document.getElementById('sldNph').addEventListener('input',upPh);
+document.addEventListener('langchange',upPh);
+upPh();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'引用 Hoenig &amp; Heisey 2001：observed power 是 p-value 的單射函數，無新資訊。改報 95% CI 或 sensitivity。',q1_n:'正確選項已標示。',q2_y:'DE = 1 + (m−1)·ICC = 1 + 24×0.04 = 1.96，個人 n 要乘以 DE。',q2_n:'正確選項已標示。',q3_y:'n 被限制時做 sensitivity：固定 n、α、power → 求最小可偵測效應 MDE。',q3_n:'正確選項已標示。',q4_y:'Schoenfeld 1981：log-rank power 由事件數決定，而非樣本數。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'Cite Hoenig &amp; Heisey 2001: observed power is a one-to-one function of p, no new info. Report a 95% CI or sensitivity instead.',q1_n:'Correct option highlighted.',q2_y:'DE = 1 + (m−1)·ICC = 1 + 24×0.04 = 1.96; multiply individual-level n by DE.',q2_n:'Correct option highlighted.',q3_y:'When n is capped, run sensitivity: fix n, α, power → solve minimum detectable effect (MDE).',q3_n:'Correct option highlighted.',q4_y:'Schoenfeld 1981: log-rank power is driven by event count, not n.',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>

@@ -1,285 +1,547 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>邏輯斯迴歸 | Biostatistics Tutorial</title>
-  <meta name="description" content="Learn about logistic regression and explore the logistic function interactively.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html" class="active">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 9</div>
-      <h1 data-zh="邏輯斯迴歸" data-en="Logistic Regression">邏輯斯迴歸</h1>
-      <p class="subtitle" data-lang="zh">適用於二元或分類反應的回歸模型，利用 logistic 函數將預測機率限制在 0 到 1 之間。</p>
-      <p class="subtitle" data-lang="en">A regression model for binary or categorical responses that uses the logistic function to constrain predicted probabilities between 0 and 1.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="邏輯斯模型" data-en="The Logistic Model">邏輯斯模型</h2>
-      <p data-lang="zh">在邏輯斯迴歸中，對數機率（logit）與解釋變數線性相關：log(p/(1−p)) = β₀ + β₁ x。將其轉換回機率形式，可得 logistic 函數：p = 1/(1 + e<sup>−(β₀ + β₁ x)</sup>)。此模型常用於預測二元結局。</p>
-      <p data-lang="en">In logistic regression the log odds are linearly related to the predictor: log(p/(1−p)) = β₀ + β₁ x. Converting this back to a probability yields the logistic function p = 1/(1 + e<sup>−(β₀ + β₁ x)</sup>). This model is often used to predict binary outcomes.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="調整斜率與截距" data-en="Adjust Slope and Intercept">調整斜率與截距</h2>
-      <p data-lang="zh">修改 β₀ 與 β₁ 參數，觀察 logistic 曲線如何改變。</p>
-      <p data-lang="en">Change the parameters β₀ and β₁ to see how the logistic curve changes.</p>
-      <div class="interactive-panel">
-        <label>β₀: <input type="number" id="logitB0" value="0" step="0.5" style="width:60px"></label>
-        <label style="margin-left:12px">β₁: <input type="number" id="logitB1" value="1" step="0.5" style="width:60px"></label>
-        <!-- Use inline handler to ensure reliable plotting on local pages -->
-        <button id="logitBtn" onclick="plotLogit()" style="margin-left:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
-        <div class="chart-container" style="margin-top:12px"><canvas id="logitCanvas"></canvas></div>
-      </div>
-    </section>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 9: Logistic Regression — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html" class="active">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 9 / 13</div>
+<h1 data-zh="邏輯斯迴歸 (Logistic Regression)" data-en="Logistic Regression">邏輯斯迴歸 (Logistic Regression)</h1>
+<p class="subtitle" data-lang="zh">從二元結果到機率：logit 連結、OR、MLE 與 IRLS；EPV ≥ 10 與 Riley 2020 新規則；Wald vs LRT；ROC、AUC、calibration、Brier、決策曲線；完美分離與 Firth 罰估計。</p>
+<p class="subtitle" data-lang="en">From binary outcome to probability: logit link, OR, MLE via IRLS; EPV ≥ 10 and Riley 2020's modern rule; Wald vs LRT; ROC, AUC, calibration, Brier, decision curve analysis; perfect separation and Firth's penalised likelihood.</p>
+</header>
+<main class="content-wrap">
 
-    <!-- Pros and Cons Section -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
-      <h2 data-zh="優勢與局限" data-en="Advantages and Limitations">優勢與局限</h2>
-      <p data-lang="zh">下列列出使用邏輯斯迴歸時常見的優點與缺點。邏輯斯迴歸是一種容易實作且易於解釋的模型，但仍有假設與限制需要留意。</p>
-      <p data-lang="en">Below are common advantages and drawbacks when using logistic regression. While logistic regression is straightforward to implement and interpret, there are assumptions and limitations to keep in mind.</p>
-      <div class="two-col">
-        <div>
-          <h3 data-zh="優點" data-en="Advantages">優點</h3>
-          <ul>
-            <li data-lang="zh">模型簡單且訓練效率高，參數估計容易收斂。</li>
-            <li data-lang="zh">輸出係數可直接說明自變數對對數比值 (logit) 的影響方向與大小，易於解釋。</li>
-            <li data-lang="zh">對自變數分布的假設較少，可處理連續與類別型變數。</li>
-            <li data-lang="zh">可以擴展到多分類（多元邏輯斯迴歸），應用廣泛。</li>
-            <li data-lang="en">Simple model with efficient training; parameter estimation converges quickly.</li>
-            <li data-lang="en">Coefficients directly indicate the direction and magnitude of predictors’ effects on the log odds, making results interpretable.</li>
-            <li data-lang="en">Requires few assumptions about the distribution of predictors and handles both continuous and categorical variables.</li>
-            <li data-lang="en">Extends to multiclass problems (multinomial logistic regression) and is widely used across fields.</li>
-          </ul>
-        </div>
-        <div>
-          <h3 data-zh="缺點與限制" data-en="Drawbacks &amp; Limitations">缺點與限制</h3>
-          <ul>
-            <li data-lang="zh">樣本量需多於自變數數量，否則容易過度擬合。</li>
-            <li data-lang="zh">假設解釋變數與 logit 之間呈線性關係，只能建立線性決策邊界，不適合複雜非線性模式。</li>
-            <li data-lang="zh">對多重共線性敏感，若自變數高度相關會影響估計結果。</li>
-            <li data-lang="zh">當資料在特徵空間上線性不可分時，模型表現較差，且高維特徵容易過度擬合。</li>
-            <li data-lang="en">Requires that the number of observations exceed the number of predictors; otherwise, it may overfit.</li>
-            <li data-lang="en">Assumes a linear relationship between predictors and the log odds, so it creates only linear decision boundaries and does not capture complex nonlinear patterns.</li>
-            <li data-lang="en">Sensitive to multicollinearity—highly correlated predictors can distort coefficient estimates.</li>
-            <li data-lang="en">Performs poorly when classes are not linearly separable and can overfit high‑dimensional data.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="從二元結果到一條機率曲線" data-en="From a binary outcome to a probability">從二元結果到一條機率曲線</h2>
+<div data-lang="zh">
+<p>當 Y 是<strong>二元結果</strong>（病/不病、活/死、有反應/無反應、30 天再入院/未再入院），直接套線性迴歸會產生不合理的負機率或大於 1 的機率，也違反同方差與常態假設。<strong>邏輯斯迴歸（logistic regression）</strong>用 <em>logit</em> 連結把機率轉到實數線：logit(p) = log(p/(1−p)) = β₀ + β₁X₁ + … + βₚXₚ。反過來，<strong>sigmoid</strong>（S 型）把線性預測值再映射回 [0, 1] 的機率區間。</p>
+<p>它不只是「分類器」——更是<strong>機率模型</strong>。臨床預測模型（clinical prediction model）的主流，從 Framingham 心血管風險、APACHE II 重症評分、到 TRIPOD（Collins et al. 2015 BMJ；2024 升級為 TRIPOD+AI），骨幹都是 logistic / Cox。掌握 logistic 不只是學一個 GLM，是學會<strong>建構、驗證、報告</strong>一個可被臨床採用的風險模型。</p>
+</div>
+<div data-lang="en">
+<p>When Y is a <strong>binary outcome</strong> (disease/healthy, alive/dead, responder/non-responder, 30-day readmission yes/no), linear regression will produce nonsensical probabilities below 0 or above 1 and violate homoscedasticity and normality. <strong>Logistic regression</strong> uses a <em>logit</em> link to push probabilities onto the real line: logit(p) = log(p/(1−p)) = β₀ + β₁X₁ + … + βₚXₚ. The inverse — the <strong>sigmoid</strong> S-curve — maps the linear predictor back into [0, 1].</p>
+<p>It is more than a classifier — it is a <strong>probability model</strong>. The workhorse behind clinical prediction (Framingham, APACHE II, and the TRIPOD reporting guideline of Collins et al. 2015 BMJ, now TRIPOD+AI 2024) is logistic or Cox regression. Mastering logistic regression is mastering how to <strong>build, validate, and report</strong> a risk model that a clinician can actually use.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>核心訊息：</strong>logistic 不是「分類」工具，是「機率估計」工具。預測出的 <em>p̂</em> 應該與真實事件率對齊——這叫 <strong>calibration</strong>，比 AUC 更難達成、卻常被忽視。一個 AUC=0.85 但 calibration 差的模型，臨床上可能比 AUC=0.75 但校準良好的模型更糟糕。</span>
+<span data-lang="en"><strong>Core message:</strong> logistic is a probability model, not just a classifier. The predicted <em>p̂</em> should track the observed event rate — that is <strong>calibration</strong>, harder to achieve than discrimination (AUC) and routinely ignored. A model with AUC=0.85 but poor calibration can be clinically worse than one with AUC=0.75 and good calibration.</span>
+</div></div>
+</section>
 
-    <!-- Decision Guidance & Example Section -->
-    <section class="section">
-      <div class="section-label" data-zh="決策與範例" data-en="Decision Guidance &amp; Example">決策與範例</div>
-      <h2 data-zh="何時使用邏輯斯迴歸" data-en="When to Use Logistic Regression">何時使用邏輯斯迴歸</h2>
-      <p data-lang="zh">邏輯斯迴歸適合建模二元或分類結果，以下為一些應用建議：</p>
-      <p data-lang="en">Logistic regression is appropriate for modeling binary or categorical outcomes. Consider the following guidance:</p>
-      <ul>
-        <li data-lang="zh">確保觀察值相互獨立，自變數彼此獨立且樣本數量足夠。</li>
-        <li data-lang="zh">連續型自變數與 logit 之間應近似線性；若顯著非線性可考慮特徵轉換或使用其他模型。</li>
-        <li data-lang="zh">避免高度相關的自變數，必要時可採用降維或刪除共線性變數。</li>
-        <li data-lang="zh">依據資料類型選擇模型：二元結果用二元邏輯斯迴歸，多分類結果可用多元邏輯斯迴歸。</li>
-        <li data-lang="en">Ensure observations are independent and the sample size is sufficiently larger than the number of predictors.</li>
-        <li data-lang="en">Continuous predictors should relate approximately linearly to the log odds; use transformations or alternative models if relationships are highly nonlinear.</li>
-        <li data-lang="en">Avoid strong multicollinearity among predictors; consider dimensionality reduction or removing correlated variables.</li>
-        <li data-lang="en">Choose the appropriate form: binary logistic regression for two categories and multinomial logistic regression for multiple categories.</li>
-      </ul>
-      <h3 data-zh="實例" data-en="Example">實例</h3>
-      <p data-lang="zh">假設我們想預測某人是否會罹患心血管疾病 (1=有, 0=無)，自變數為年齡與是否吸菸。邏輯斯迴歸模型為 log(p/(1−p)) = β₀ + β₁·年齡 + β₂·吸菸，經估計後可得到各變數對罹病機率的影響。輸出機率 p=1/(1+e^{-(β₀+β₁·年齡+β₂·吸菸)})，若 p>0.5 可預測為罹患。</p>
-      <p data-lang="en">Suppose we want to predict whether someone has cardiovascular disease (1=yes, 0=no) based on their age and smoking status. A logistic model can be written as log(p/(1−p)) = β₀ + β₁ × age + β₂ × smoking. After fitting, the coefficients show how age and smoking influence the odds of disease. Converting to probability p = 1/(1 + e^{-(β₀ + β₁ × age + β₂ × smoking)}), we may classify someone as high risk if p > 0.5.</p>
-    </section>
+<!-- ===== Section 2: Core concepts ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心概念" data-en="CORE CONCEPTS">核心概念</div>
+<h2 data-zh="一、Logit 連結、Sigmoid、Odds Ratio、MLE" data-en="I. Logit link, sigmoid, OR, MLE">一、Logit、Sigmoid、OR、MLE</h2>
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🔗</div><h4 data-zh="Logit 連結" data-en="Logit link">Logit 連結</h4>
+<div data-lang="zh"><p><span class="kt">logit(p) = log(p/(1−p))</span> = β₀ + β₁X<br>把 [0,1] 的機率拉到 (−∞, +∞)；對 X 線性。<br><strong>Odds</strong> = p/(1−p)；機率 0.5 → odds 1 → logit 0。</p></div>
+<div data-lang="en"><p><span class="kt">logit(p) = log(p/(1−p))</span> = β₀ + β₁X.<br>Stretches [0,1] onto (−∞, +∞); linear in X.<br><strong>Odds</strong> = p/(1−p); p = 0.5 → odds 1 → logit 0.</p></div>
+</div>
+<div class="card"><div class="card-icon">🌊</div><h4 data-zh="Sigmoid 反函數" data-en="Sigmoid inverse">Sigmoid 反函數</h4>
+<div data-lang="zh"><p><span class="kt">p = 1/(1 + e<sup>−η</sup>)</span>，η = β₀ + β₁X。<br>50% 機率出現在 X = −β₀/β₁。<br>β₁ 越大 → 曲線越陡。</p></div>
+<div data-lang="en"><p><span class="kt">p = 1/(1 + e<sup>−η</sup>)</span>, η = β₀ + β₁X.<br>50% probability at X = −β₀/β₁.<br>Larger |β₁| → steeper curve.</p></div>
+</div>
+<div class="card"><div class="card-icon">📈</div><h4 data-zh="Odds Ratio (OR)" data-en="Odds Ratio">Odds Ratio</h4>
+<div data-lang="zh"><p>X 增 1 單位 → odds 變 <span class="kt">e<sup>β₁</sup></span> 倍。<br>注意：是 odds × e<sup>β</sup>，<strong>不是</strong> probability × e<sup>β</sup>。<br>e<sup>β₁</sup> = 1 → 無關；&gt; 1 → 風險升高。</p></div>
+<div data-lang="en"><p>+1 unit in X → odds multiplied by <span class="kt">e<sup>β₁</sup></span>.<br>Beware: it's odds × e<sup>β</sup>, <strong>not</strong> probability × e<sup>β</sup>.<br>e<sup>β₁</sup> = 1 → no effect; &gt; 1 → higher odds.</p></div>
+</div>
+</div>
 
-    <!-- Quiz Section -->
-    <section class="section">
-      <div class="section-label" data-zh="測驗" data-en="Quiz">測驗</div>
-      <h2 data-zh="檢查你的理解" data-en="Check Your Understanding">檢查你的理解</h2>
-      <p data-lang="zh">以下哪一項是邏輯斯迴歸的重要假設？</p>
-      <p data-lang="en">Which of the following is a key assumption of logistic regression?</p>
-      <div class="quiz-options" style="margin-bottom:8px">
-        <label><input type="radio" name="logitQuiz" value="1"> <span data-zh="觀察值獨立" data-en="Independent observations">觀察值獨立</span></label><br>
-        <label><input type="radio" name="logitQuiz" value="2"> <span data-zh="依變數必須連續" data-en="Dependent variable must be continuous">依變數必須連續</span></label><br>
-        <label><input type="radio" name="logitQuiz" value="3"> <span data-zh="殘差方差必須固定" data-en="Residuals must have constant variance">殘差方差必須固定</span></label><br>
-        <label><input type="radio" name="logitQuiz" value="4"> <span data-zh="允許完美多重共線性" data-en="Perfect multicollinearity is allowed">允許完美多重共線性</span></label>
-      </div>
-      <button onclick="checkLogitQuiz()" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer" data-zh="提交" data-en="Submit">提交</button>
-      <p id="logitQuizFeedback" style="margin-top:8px;font-weight:600"></p>
-    </section>
+<div class="formula">
+<span data-lang="zh">⌜ logit(p) = log( p / (1 − p) ) = β₀ + β₁X &nbsp; · &nbsp; p = 1 / (1 + e<sup>−(β₀ + β₁X)</sup>) &nbsp; · &nbsp; OR = e<sup>β₁</sup> ⌝
+<span class="fnote">Logit 是 Berkson (1944) 提出，sigmoid 形式則更早可追溯到 Verhulst 1838 的人口成長曲線；現代 GLM 框架由 Nelder & Wedderburn 1972 J Roy Statist Soc A 統一。</span></span>
+<span data-lang="en">⌜ logit(p) = log( p / (1 − p) ) = β₀ + β₁X &nbsp; · &nbsp; p = 1 / (1 + e<sup>−(β₀ + β₁X)</sup>) &nbsp; · &nbsp; OR = e<sup>β₁</sup> ⌝
+<span class="fnote">The logit was named by Berkson (1944); the sigmoid form traces back to Verhulst's 1838 population curve. The unifying GLM framework comes from Nelder & Wedderburn (1972, JRSS-A).</span></span>
+</div>
 
-    <!-- Code Examples Section -->
-    <section class="section">
-      <div class="section-label" data-zh="R 與 Python 範例" data-en="R &amp; Python Examples">R 與 Python 範例</div>
-      <h2 data-zh="邏輯斯迴歸程式碼" data-en="Logistic Regression Code">邏輯斯迴歸程式碼</h2>
-      <p data-lang="zh">下列程式示範如何在 R 和 Python 中產生邏輯斯曲線並擬合邏輯斯迴歸模型。</p>
-      <p data-lang="en">The following examples show how to generate a logistic curve and fit a logistic regression model in R and Python.</p>
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(event, 'logitR')">R</button>
-          <button class="code-tab-btn" onclick="switchTab(event, 'logitPy')">Python</button>
-        </div>
-        <div class="code-tab-contents">
-          <div id="logitR" class="code-tab-content active">
-            <button class="copy-btn" onclick="copyCode(this)"><span class="copy-icon">📋</span></button>
-            <pre class="code-block"><code>
-<span class="comment"># 模擬數據並繪製 logistic 曲線</span>
-x &lt;- seq(-5, 5, length.out = 100)
-eta &lt;- -1 + 0.8 * x
-p &lt;- 1 / (1 + exp(-eta))
-<span class="func">plot</span>(x, p, type=<span class="str">"l"</span>, main=<span class="str">"Logistic Function"</span>, xlab=<span class="str">"x"</span>, ylab=<span class="str">"p"</span>)
+<div data-lang="zh">
+<p><strong>估計：最大概似法（MLE）。</strong>沒有閉式解，標準做法是 <strong>IRLS（Iteratively Reweighted Least Squares，疊代加權最小平方）</strong>——每一輪用上一輪的 <em>p̂</em> 計算工作反應變數和權重，做加權迴歸，更新 β，直到收斂。R 的 <code>glm()</code> 與 Python 的 <code>statsmodels</code> 內部都跑 IRLS。</p>
+<p>觀察 n 個資料 (Xᵢ, Yᵢ)，對數概似為 ℓ(β) = Σ [Yᵢ log pᵢ + (1−Yᵢ) log(1−pᵢ)]。最大化 ℓ 等於最小化「<strong>log-loss / 交叉熵</strong>」——這正是機器學習裡 sigmoid 神經元的損失函數，logistic 是最簡單的單層神經網路。</p>
+</div>
+<div data-lang="en">
+<p><strong>Estimation: maximum likelihood (MLE).</strong> There is no closed-form solution; the standard procedure is <strong>IRLS (Iteratively Reweighted Least Squares)</strong> — each iteration uses the current <em>p̂</em> to build a working response and weights, fits a weighted least-squares regression, and updates β until convergence. Both R's <code>glm()</code> and Python's <code>statsmodels</code> run IRLS under the hood.</p>
+<p>For n observations (Xᵢ, Yᵢ) the log-likelihood is ℓ(β) = Σ [Yᵢ log pᵢ + (1−Yᵢ) log(1−pᵢ)]. Maximising ℓ equals minimising <strong>log-loss / cross-entropy</strong> — the very loss used by a sigmoid neuron in ML. Logistic regression is the simplest one-layer neural network.</p>
+</div>
 
-<span class="comment"># 擬合邏輯斯迴歸模型</span>
-df &lt;- data.frame(y = <span class="func">rbinom</span>(100, <span class="num">1</span>, p), x = x)
-model &lt;- <span class="func">glm</span>(y ~ x, data = df, family = binomial())
-<span class="func">summary</span>(model)
-            </code></pre>
-          </div>
-          <div id="logitPy" class="code-tab-content">
-            <button class="copy-btn" onclick="copyCode(this)"><span class="copy-icon">📋</span></button>
-            <pre class="code-block"><code>
-<span class="comment"># simulate data and plot logistic curve</span>
-<span class="kw">import</span> numpy <span class="kw">as</span> np
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>OR ≠ RR（風險比）！</strong>當事件常見（例如 incidence &gt; 10%），OR 會明顯誇大 RR。例如 RR = 2 時，當基準率 1%，OR ≈ 2.02；當基準率 30%，OR ≈ 3.5。<strong>Zhang & Yu 1998 JAMA</strong> 提出常被引用（但有爭議）的校正公式；現代建議：常見結局直接用 log-binomial 或 Poisson with robust SE 估計 RR（Zou 2004 Am J Epidemiol）。報告時請明確寫「odds ratio」，不要混用「risk」、「likelihood」、「times more likely」等模糊詞。</span>
+<span data-lang="en"><strong>OR ≠ RR (risk ratio)!</strong> When events are common (incidence &gt; 10%), the OR materially exaggerates the RR. For RR = 2: with a 1% baseline OR ≈ 2.02, but with a 30% baseline OR ≈ 3.5. <strong>Zhang & Yu (1998 JAMA)</strong> popularised a (controversial) correction; modern practice for common outcomes is log-binomial or Poisson with robust SE to estimate RR directly (Zou 2004 Am J Epidemiol). In reporting, always write "odds ratio" — never the muddier "risk", "likelihood", or "times more likely".</span>
+</div></div>
+</section>
+
+<!-- ===== Section 3: Interactive sim 1 ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="Sigmoid 遊樂場：β₀ 平移、β₁ 控制陡度" data-en="Sigmoid playground: β₀ shifts, β₁ steepens">Sigmoid 遊樂場</h2>
+<div data-lang="zh"><p>調整 β₀（截距，移動曲線左右）與 β₁（斜率，控制陡度）。30 個模擬樣本（藍/橘 = 0/1）會跟著機率曲線重新生成。<strong>觀察重點：</strong>(1) β₁ &gt; 0 時曲線向右上升，β₁ &lt; 0 反向；(2) 機率 50% 落在 X = −β₀/β₁；(3) OR = e<sup>β₁</sup>；(4) β₁ → 0 時曲線變平坦——X 幾乎不影響 Y。</p></div>
+<div data-lang="en"><p>Adjust β₀ (intercept — shifts left/right) and β₁ (slope — controls steepness). The 30 simulated points (blue = 0, orange = 1) re-draw from the current probability curve. <strong>Notice:</strong> (1) β₁ &gt; 0 rises right, β₁ &lt; 0 falls; (2) p = 0.5 at X = −β₀/β₁; (3) OR = e<sup>β₁</sup>; (4) as β₁ → 0 the curve flattens — X carries little information.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="β₀ 截距" data-en="β₀ intercept">β₀</span> <span id="vB0">-2</span></label><input type="range" id="slB0" min="-5" max="5" value="-2" step="0.1"></div>
+<div class="slider-group"><label><span data-zh="β₁ 斜率" data-en="β₁ slope">β₁</span> <span id="vB1">1</span></label><input type="range" id="slB1" min="-2" max="2" value="1" step="0.05"></div>
+<div id="logDesc" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:300px;"><canvas id="logChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">綠線 = sigmoid 機率曲線 · 灰虛線 = 50% 閾值 · 點 = 30 個模擬樣本（藍=0, 橘=1）</span><span data-lang="en">Green = sigmoid · grey dashed = 0.5 threshold · dots = 30 simulated samples (blue = 0, orange = 1)</span></p>
+</div>
+</section>
+
+<!-- ===== Section 4: Inference: Wald, LRT, Score ===== -->
+<section class="section">
+<div class="section-label" data-zh="統計推論" data-en="INFERENCE">統計推論</div>
+<h2 data-zh="二、三種檢定：Wald / LRT / Score" data-en="II. Three tests: Wald / LRT / Score">二、Wald / LRT / Score</h2>
+<div data-lang="zh">
+<p>對單一係數 β<sub>j</sub> 檢定「H₀: β<sub>j</sub> = 0」有三種等價的<strong>漸近</strong>方法，但在<strong>有限樣本</strong>下表現差異很大。</p>
+</div>
+<div data-lang="en">
+<p>To test "H₀: β<sub>j</sub> = 0" we have three asymptotically equivalent tests, but their finite-sample behaviour can differ a lot.</p>
+</div>
+<table class="comp-table">
+<thead><tr>
+<th data-zh="檢定" data-en="Test">檢定</th>
+<th data-zh="統計量" data-en="Statistic">統計量</th>
+<th data-zh="優點" data-en="Strengths">優點</th>
+<th data-zh="風險" data-en="Risks">風險</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>Wald</strong></td><td><span class="math">z = β̂ / SE(β̂)</span></td><td data-lang="zh">最快、軟體預設輸出</td><td data-lang="zh">小樣本或 |β| 大時不可靠（Hauck-Donner 1977）；可能反而拒絕變弱</td>
+<td data-lang="en">Fastest, default software output</td><td data-lang="en">Unreliable for small n or large |β| (Hauck-Donner 1977); power paradoxically drops</td></tr>
+<tr><td><strong>Likelihood-Ratio (LRT)</strong></td><td><span class="math">2(ℓ₁ − ℓ₀) ~ χ²(df)</span></td><td data-lang="zh">統計學界公認最可靠；對巢狀模型比較通用</td><td data-lang="zh">需 refit 兩個模型；多了一次計算</td>
+<td data-lang="en">Most reliable; works for nested model comparison</td><td data-lang="en">Needs two fits — slight computational cost</td></tr>
+<tr><td><strong>Score (Rao)</strong></td><td data-lang="zh">在 H₀ 下的梯度</td><td data-lang="zh">只需擬合限制模型；理論上接近 LRT</td><td data-lang="zh">實務罕用；某些分析（如 McNemar）等同</td>
+<td data-lang="en">Gradient evaluated under H₀</td><td data-lang="en">Needs only the restricted fit; close to LRT in theory</td><td data-lang="en">Rarely used in practice; equivalent to McNemar in 2×2 designs</td></tr>
+</tbody></table>
+
+<div class="idea">
+<span data-lang="zh"><strong>實務建議：</strong>整體模型適合度 → 用 <strong>LRT</strong>（R: <code>anova(fit, test="Chisq")</code>；Python: <code>statsmodels</code> 的 LR-test）。報告個別係數 → 用 <strong>profile-likelihood 95% CI</strong>（R: <code>confint(fit)</code>，預設即 profile）比 Wald CI 更可靠，尤其當 |β| 大、樣本小、或趨近完美分離。</span>
+<span data-lang="en"><strong>Practical rule:</strong> for overall model fit, use the <strong>LRT</strong> (R: <code>anova(fit, test="Chisq")</code>; Python: <code>statsmodels</code> LR-test). For individual coefficients, prefer the <strong>profile-likelihood 95% CI</strong> (R's <code>confint(fit)</code> defaults to profile) over Wald CIs — much safer when |β| is large, n is small, or separation is approached.</span>
+</div>
+
+<div data-lang="zh"><p><strong>Pseudo-R² 警告：</strong>三種常見指標 <em>McFadden</em>（1 − ℓ₁/ℓ₀）、<em>Cox-Snell</em>（有上限&lt;1）、<em>Nagelkerke</em>（縮放到 [0,1]）<strong>都不是線性 R² 的對等物</strong>。McFadden 0.2–0.4 已算「優秀」。報告時請明確標出哪一種，並<strong>不要</strong>把 0.3 跟線性 R² 的 0.3 比較。</p></div>
+<div data-lang="en"><p><strong>Pseudo-R² caveats:</strong> the three common variants — <em>McFadden</em> (1 − ℓ₁/ℓ₀), <em>Cox-Snell</em> (capped &lt; 1), and <em>Nagelkerke</em> (rescaled to [0,1]) — <strong>are NOT direct analogues of linear R²</strong>. McFadden values of 0.2–0.4 already count as "excellent". Always state which variant, and <strong>do not</strong> compare a pseudo-R² of 0.3 to a linear-regression R² of 0.3.</p></div>
+</section>
+
+<!-- ===== Section 5: GOF, calibration, discrimination, DCA ===== -->
+<section class="section">
+<div class="section-label" data-zh="模型評估" data-en="MODEL EVALUATION">模型評估</div>
+<h2 data-zh="三、適合度、區辨力、校準度、臨床效益" data-en="III. Goodness-of-fit, discrimination, calibration, clinical utility">三、GOF / Discrimination / Calibration / DCA</h2>
+
+<div data-lang="zh">
+<p>評估邏輯斯模型有<strong>四層</strong>，許多論文只報第二層就停下——這是 Steyerberg 2019《Clinical Prediction Models》與 TRIPOD 2015 一再批評的疏失。</p>
+</div>
+<div data-lang="en">
+<p>A logistic model should be evaluated on <strong>four layers</strong>. Many papers stop at the second one — exactly the gap criticised by Steyerberg's <em>Clinical Prediction Models</em> (2019) and TRIPOD (2015).</p>
+</div>
+
+<div class="card-grid cols-2">
+<div class="card"><h4>① <span data-zh="適合度 Goodness-of-fit" data-en="Goodness-of-fit">適合度 GOF</span></h4>
+<div data-lang="zh"><p><strong>Deviance</strong>：D = −2 ℓ。比較巢狀模型直接用 ΔD ~ χ². <strong>Hosmer-Lemeshow GOF</strong>：把 <em>p̂</em> 切 10 等分，比較預期 vs 觀察事件數。<br><strong>警告（Hosmer-Lemeshow-Sturdivant 2013 3rd ed）：</strong>HL 檢定對分組數 g 很敏感（g 從 8 變 12 結論可能反轉），且大 n 時容易顯著、小 n 時又力不足。<strong>現代建議：</strong>看 calibration plot，而不是只盯 HL p 值。</p></div>
+<div data-lang="en"><p><strong>Deviance</strong>: D = −2 ℓ. Compare nested models with ΔD ~ χ². <strong>Hosmer-Lemeshow GOF</strong>: bin <em>p̂</em> into 10 deciles and compare expected vs observed counts.<br><strong>Warning (Hosmer-Lemeshow-Sturdivant 2013, 3rd ed):</strong> the HL test is sensitive to the bin count g (changing g from 8 to 12 can flip the verdict), tends to be over-significant at large n and under-powered at small n. <strong>Modern advice:</strong> look at the calibration plot, not the HL p-value alone.</p></div>
+</div>
+<div class="card"><h4>② <span data-zh="區辨力 Discrimination" data-en="Discrimination">區辨力（ROC / AUC）</span></h4>
+<div data-lang="zh"><p><strong>ROC 曲線</strong>：在所有閾值下繪 TPR (sensitivity) vs FPR (1 − specificity)。<strong>AUC</strong> = 隨機抽一正一負，模型給正樣本較高分的機率。0.5 = 亂猜；0.7–0.8 普通；0.8–0.9 好；&gt; 0.9 罕見、需檢查 overfit 或資訊洩漏。</p>
+<p><strong>陷阱：</strong>類別不平衡（如 1:99 罕病）時 ROC/AUC 可能虛胖——<strong>Saito & Rehmsmeier 2015 PLOS ONE</strong> 建議改用 <strong>Precision-Recall curve / AUPRC</strong>。</p></div>
+<div data-lang="en"><p><strong>ROC curve</strong>: TPR (sensitivity) vs FPR (1 − specificity) across thresholds. <strong>AUC</strong> = the probability the model scores a random positive higher than a random negative. 0.5 = chance; 0.7–0.8 fair; 0.8–0.9 good; &gt; 0.9 rare — check for overfitting or data leakage.</p>
+<p><strong>Pitfall:</strong> with severe class imbalance (e.g. 1:99 rare disease), ROC/AUC can be misleadingly optimistic — <strong>Saito & Rehmsmeier 2015 PLOS ONE</strong> recommend the <strong>Precision-Recall curve / AUPRC</strong> instead.</p></div>
+</div>
+<div class="card"><h4>③ <span data-zh="校準度 Calibration" data-en="Calibration">校準度 Calibration</span></h4>
+<div data-lang="zh"><p><strong>Calibration plot</strong>：x = 預測機率 <em>p̂</em>（分十等分或用 loess 平滑），y = 該段的觀察事件率。完美時落在 y = x 對角線。<br><strong>三層 (Van Calster 2019 BMC Med):</strong> 平均校準（calibration-in-the-large）、弱校準（intercept + slope）、強校準（每個 <em>p̂</em> 都對齊）。<br><strong>Brier score</strong> = mean(<em>p̂</em><sub>i</sub> − Y<sub>i</sub>)²；越小越好；含 calibration + discrimination；可分解為 reliability − resolution + uncertainty。</p></div>
+<div data-lang="en"><p><strong>Calibration plot</strong>: x = predicted probability <em>p̂</em> (deciles or loess smooth), y = observed event rate. Perfect lies on the y = x diagonal.<br><strong>Three layers (Van Calster 2019 BMC Med):</strong> mean calibration (calibration-in-the-large), weak (intercept + slope), strong (every <em>p̂</em> aligned).<br><strong>Brier score</strong> = mean(<em>p̂</em><sub>i</sub> − Y<sub>i</sub>)²; smaller is better; combines calibration + discrimination; decomposable into reliability − resolution + uncertainty.</p></div>
+</div>
+<div class="card"><h4>④ <span data-zh="臨床效益 DCA" data-en="Clinical utility DCA">臨床效益（DCA）</span></h4>
+<div data-lang="zh"><p><strong>Decision Curve Analysis</strong>（Vickers & Elkin 2006 Med Decis Making）：在各閾值 p<sub>t</sub> 計算 <strong>net benefit</strong> = (TP/n) − (FP/n) × (p<sub>t</sub> / (1 − p<sub>t</sub>))。同圖比較「模型 vs 全治療 vs 全不治療」三條線——模型只有在「贏過兩個極端策略」的閾值範圍內才有臨床價值。<br>實作：R 套件 <code>dcurves</code>（Vickers 維護）；Python 套件 <code>dcurves</code>。</p></div>
+<div data-lang="en"><p><strong>Decision Curve Analysis</strong> (Vickers & Elkin 2006 Med Decis Making): at each threshold p<sub>t</sub> compute <strong>net benefit</strong> = (TP/n) − (FP/n) × (p<sub>t</sub> / (1 − p<sub>t</sub>)). Plot the model against "treat all" and "treat none" — the model has clinical value only over the threshold range where it beats both extremes.<br>Implementation: R package <code>dcurves</code> (maintained by Vickers); Python <code>dcurves</code>.</p></div>
+</div>
+</div>
+
+<div class="callout danger"><span class="callout-icon">🚫</span><div>
+<span data-lang="zh"><strong>預設閾值 0.5 幾乎總是錯的。</strong>0.5 只在「false positive 與 false negative 等價且 prevalence ≈ 0.5」時才合理。實務上請：(1) 用 <strong>Youden's J = max(TPR − FPR)</strong> 找區辨最佳閾值；(2) 用 DCA 找<strong>臨床最佳</strong>閾值（依 utility 而非統計）；(3) 提供完整 ROC + DCA 而非單一閾值的混淆矩陣。</span>
+<span data-lang="en"><strong>The default 0.5 threshold is almost always wrong.</strong> It is only sensible when false positives and false negatives are equally costly and prevalence ≈ 0.5. Instead: (1) use <strong>Youden's J = max(TPR − FPR)</strong> for the discrimination-optimal cut; (2) use DCA for the <strong>clinical</strong> optimum (utility-driven, not statistical); (3) report the full ROC + DCA rather than a single confusion matrix at one cut.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 6: EPV / sample size ===== -->
+<section class="section">
+<div class="section-label" data-zh="樣本數規則" data-en="SAMPLE SIZE">樣本數規則</div>
+<h2 data-zh="四、EPV 規則：從 Peduzzi 1996 到 Riley 2020" data-en="IV. EPV rule: from Peduzzi 1996 to Riley 2020">四、EPV：從 1996 到 2020</h2>
+<div class="split">
+<div>
+<h5 data-zh="傳統規則：EPV ≥ 10（Peduzzi 1996）" data-en="Classic: EPV ≥ 10 (Peduzzi 1996)">EPV ≥ 10</h5>
+<div data-lang="zh"><p><strong>Peduzzi et al. 1996 J Clin Epidemiol</strong>（DOI:10.1016/S0895-4356(96)00236-3）以模擬證明：每個 predictor 至少需要 <strong>10 個 events</strong>（注意：是「事件數」即少數類別的個數，不是總 n）。EPV &lt; 10 時，β̂ 嚴重偏誤、CI 涵蓋率錯誤、變數選擇不穩定。例：若預期事件率 20%，目標 n = 200，則最多可放 200×0.2 / 10 = <strong>4 個變數</strong>。</p></div>
+<div data-lang="en"><p><strong>Peduzzi et al. 1996 J Clin Epidemiol</strong> (DOI:10.1016/S0895-4356(96)00236-3) showed via simulation that each predictor needs at least <strong>10 events</strong> (the count of the minority class, not the total n). Below EPV = 10, β̂ is biased, CI coverage is wrong, and variable selection becomes unstable. Example: expected event rate 20%, target n = 200 → at most 200×0.2 / 10 = <strong>4 predictors</strong>.</p></div>
+</div>
+<div>
+<h5 data-zh="現代規則：Riley 2020 BMJ" data-en="Modern: Riley 2020 BMJ">Riley 2020 BMJ</h5>
+<div data-lang="zh"><p><strong>Riley et al. 2020 BMJ</strong>「Calculating the sample size required for developing a clinical prediction model」指出 EPV ≥ 10 是<strong>粗糙</strong>的經驗法則。新方法基於三個目標：(1) 低 optimism (overfitting)；(2) Cox-Snell R²<sub>app</sub> − R²<sub>true</sub> 小於 0.05；(3) calibration slope 接近 1。R 套件 <code>pmsampsize</code> 是官方實作；Python 對應為 <code>pmsampsize-py</code>。</p>
+<p><strong>典型結果：</strong>當預測變數多、預期 R² 低、結局少見時，<strong>新公式需要的 n 往往遠大於 EPV=10 給的</strong>。例如 10 個變數、event rate 10%、預期 Cox-Snell R²=0.05 → 至少需 n ≈ 900（EPV 規則只說 n=100）。</p></div>
+<div data-lang="en"><p><strong>Riley et al. 2020 BMJ</strong> ("Calculating the sample size required for developing a clinical prediction model") shows EPV ≥ 10 is a <strong>coarse</strong> rule of thumb. The newer derivation targets three criteria: (1) low optimism (overfitting); (2) Cox-Snell R²<sub>app</sub> − R²<sub>true</sub> &lt; 0.05; (3) calibration slope close to 1. R package <code>pmsampsize</code> is the canonical implementation; Python has <code>pmsampsize-py</code>.</p>
+<p><strong>Typical outcome:</strong> with many predictors, low expected R², and a rare outcome, the modern formula usually demands <strong>far more</strong> than EPV=10. E.g. 10 predictors, 10% event rate, expected Cox-Snell R² = 0.05 → n ≈ 900 (EPV rule would say only n = 100).</p></div>
+</div>
+</div>
+
+<div class="pitfall">
+<span class="pitfall-title" data-zh="陷阱：n 大不代表 EPV 大" data-en="Pitfall: large n is not large EPV">陷阱：n 大不代表 EPV 大</span>
+<span data-lang="zh">罕見結局（rare outcome）的研究 n 可能很大（10,000 人）但只有 50 個事件——EPV 隨「事件」而非「總人數」放大。若放 8 個 predictor，EPV = 50/8 ≈ 6，<strong>仍嫌不足</strong>。請永遠先計算事件數。</span>
+<span data-lang="en">A rare-outcome study can have huge n (10,000 people) yet only 50 events — EPV scales with the event count, not total sample size. Fit 8 predictors and EPV = 50/8 ≈ 6, <strong>still too few</strong>. Always count events first.</span>
+</div>
+</section>
+
+<!-- ===== Section 7: Interactive sim 2 — ROC ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="ROC 曲線實驗：分離度 → AUC → Youden 最佳閾值" data-en="ROC lab: separation → AUC → Youden's optimal cut">ROC 曲線實驗</h2>
+<div data-lang="zh"><p>調整兩組（正/負）的「分離度」（類似 Cohen's d）。1000 個模擬樣本在每個閾值下計算 TPR / FPR，畫出 ROC 曲線並計算 AUC。<strong>觀察：</strong>(1) 分離度 = 0 時 AUC ≈ 0.5（亂猜）；(2) 分離度 = 3 時 AUC &gt; 0.95；(3) Youden 最佳閾值（紅點）通常<strong>不是 0.5</strong>，會隨類別重疊改變。</p></div>
+<div data-lang="en"><p>Adjust the separation (Cohen's d-like) between the positive and negative groups. 1000 simulated points produce TPR / FPR at every threshold to draw the ROC curve and compute AUC. <strong>Watch:</strong> (1) separation = 0 → AUC ≈ 0.5 (chance); (2) separation = 3 → AUC &gt; 0.95; (3) Youden's optimal cut (red dot) is rarely 0.5 and shifts with overlap.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="兩類分離度 (Cohen's d)" data-en="Separation (Cohen's d)">分離度</span> <span id="vSep">1.5</span></label><input type="range" id="slSep" min="0" max="3" value="1.5" step="0.1"></div>
+<div class="slider-group"><label><span data-zh="正類比例" data-en="Positive prevalence">正類比例</span> <span id="vPi">50%</span></label><input type="range" id="slPi" min="10" max="90" value="50" step="5"></div>
+<div id="rocDesc" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:320px;"><canvas id="rocChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">綠線 = ROC · 灰虛線 = 亂猜對角 · 紅點 = Youden's J 最佳閾值</span><span data-lang="en">Green = ROC · grey dashed = chance · red dot = Youden's J optimum</span></p>
+</div>
+</section>
+
+<!-- ===== Section 8: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="五、Logistic 還是別的家族？" data-en="V. Logistic — or a cousin?">五、Logistic 還是別的家族？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="二元 / 多類 / 順序結果決策樹" data-en="Binary / multinomial / ordinal decision tree">結果型別決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Y 只有兩類（病/不病）？<span class="dt-arrow">→ 是 →</span> <strong>Logistic regression</strong>（logit link, family=binomial）。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Y 是 0/1 但實驗模式為「相同 X，n 次試驗中成功幾次」？<span class="dt-arrow">→ 是 →</span> 仍是 logistic，但餵 cbind(success, fail) 或用 <strong>binomial GLM with weights</strong>。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>結局常見且需 RR 而非 OR？<span class="dt-arrow">→ 是 →</span> <strong>log-binomial</strong> 或 <strong>modified Poisson with robust SE</strong>（Zou 2004）。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Y 有 ≥ 3 類但有<strong>順序</strong>（mild/moderate/severe）？<span class="dt-arrow">→ 是 →</span> <strong>Ordinal (proportional odds) logistic</strong>，R: <code>MASS::polr</code>；先檢查 PO 假設。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Y 有 ≥ 3 類但<strong>無</strong>順序（藥物 A/B/C）？<span class="dt-arrow">→ 是 →</span> <strong>Multinomial logistic</strong>，R: <code>nnet::multinom</code>。</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>需要 latent normal 解讀（譬如心理計量）？<span class="dt-arrow">→ 是 →</span> 可考慮 <strong>probit</strong>；係數 × 1.6 ≈ logistic 係數，實質結論幾乎相同。</div></div>
+<div class="dt-node"><span class="dt-q">Q7:</span><div>有<strong>群集 / 重複測量</strong>（同病人多次量測）？<span class="dt-arrow">→ 是 →</span> <strong>GEE</strong>（族群平均效應，<code>geepack</code>）或 <strong>GLMM</strong>（個體效應，<code>lme4::glmer</code>）。見 Step 13。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Two categories (disease/no)? <span class="dt-arrow">→ Yes →</span> <strong>Logistic regression</strong> (logit link, family=binomial).</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Y is 0/1 but design is "same X, n trials, k successes"? <span class="dt-arrow">→ Yes →</span> still logistic, feed cbind(success, fail) or use <strong>binomial GLM with weights</strong>.</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Outcome common and you need RR not OR? <span class="dt-arrow">→ Yes →</span> <strong>log-binomial</strong> or <strong>modified Poisson with robust SE</strong> (Zou 2004).</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>≥ 3 categories with a <strong>natural order</strong>? <span class="dt-arrow">→ Yes →</span> <strong>Ordinal (proportional odds) logistic</strong> via R <code>MASS::polr</code>; check the PO assumption first.</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>≥ 3 categories <strong>without</strong> order? <span class="dt-arrow">→ Yes →</span> <strong>Multinomial logistic</strong> (R: <code>nnet::multinom</code>).</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>Need a latent-normal story (psychometrics)? <span class="dt-arrow">→ Yes →</span> consider <strong>probit</strong>; coefficients × 1.6 ≈ logistic, conclusions barely change.</div></div>
+<div class="dt-node"><span class="dt-q">Q7:</span><div>Clustered / repeated measures? <span class="dt-arrow">→ Yes →</span> <strong>GEE</strong> (population-average; <code>geepack</code>) or <strong>GLMM</strong> (subject-specific; <code>lme4::glmer</code>). See Step 13.</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 9: Perfect separation & Firth ===== -->
+<section class="section">
+<div class="section-label" data-zh="特殊情境" data-en="EDGE CASES">特殊情境</div>
+<h2 data-zh="六、完美分離 & Firth 罰估計" data-en="VI. Perfect separation & Firth's penalised likelihood">六、Perfect Separation & Firth</h2>
+<div data-lang="zh">
+<p><strong>完美分離（complete separation）</strong>：某個 X 可以 100% 區分 Y = 0 / 1 → 對應 β → ±∞，MLE 不存在。軟體會給「algorithm did not converge」或極大的 SE（如 SE = 10⁹）。<strong>準完美分離（quasi-complete）</strong>：分離只在部分資料發生。常見於罕見事件、小樣本、稀有 category。</p>
+<p><strong>解法：Firth's 罰估計（Firth 1993 Biometrika）。</strong>對概似乘上 Jeffreys prior 的開根號項，等價於對 score 加上偏誤修正項。可得到<strong>有限的</strong> β̂ 與合理的 CI。R 套件 <code>logistf</code>（Heinze & Schemper 2002 Stat Med）；Python 有 <code>firthlogist</code>。</p>
+<p>近年也常見 <strong>L2 (Ridge)</strong> 或 <strong>L1 (Lasso)</strong> 罰估計（<code>glmnet</code>、<code>sklearn LogisticRegression(penalty='l1'/'l2')</code>），用於高維情境（變數 &gt; n），但<strong>會犧牲係數的因果可解釋性</strong>，預測為主時才適用。</p>
+</div>
+<div data-lang="en">
+<p><strong>Complete separation</strong>: some X perfectly splits Y = 0 / 1 → the corresponding β → ±∞ and MLE does not exist. Software will throw "algorithm did not converge" or huge SE (e.g. 10⁹). <strong>Quasi-complete separation</strong> occurs partially. Common with rare events, small samples, or sparse categories.</p>
+<p><strong>Fix: Firth's penalised likelihood (Firth 1993 Biometrika).</strong> Multiplies the likelihood by the square root of the Jeffreys prior, equivalently adds a score-function bias correction. Yields <strong>finite</strong> β̂ and well-behaved CIs. R: <code>logistf</code> (Heinze & Schemper 2002 Stat Med); Python: <code>firthlogist</code>.</p>
+<p>Modern alternatives include <strong>L2 (ridge)</strong> or <strong>L1 (lasso)</strong> penalties (<code>glmnet</code>, <code>sklearn LogisticRegression(penalty='l1'/'l2')</code>) for high-dimensional settings (p &gt; n), but they <strong>sacrifice causal interpretability</strong> of coefficients — fine when prediction is the only goal.</p>
+</div>
+
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>診斷檢核清單：</strong>(1) 任何 |β̂| &gt; 10 或 SE &gt; 10 → 懷疑分離；(2) <code>glm</code> 警告 "fitted probabilities 0 or 1" → 強烈警示；(3) cross-tab 看每個 binary X 對 Y 的 2×2 表，若有 0 cell → 高度可疑；(4) 解法優先序：<strong>合併稀有 category &gt; Firth &gt; 移除該變數</strong>。</span>
+<span data-lang="en"><strong>Diagnostic checklist:</strong> (1) any |β̂| &gt; 10 or SE &gt; 10 → suspect separation; (2) <code>glm</code> warns "fitted probabilities 0 or 1" → strong signal; (3) cross-tab each binary X against Y — any zero cell is a red flag; (4) priority order: <strong>collapse sparse categories &gt; Firth &gt; drop the variable</strong>.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 10: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="七、實作範例（R + Python）" data-en="VII. Code examples (R + Python)">七、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R / tidyverse</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: glm + diagnostics + ROC + calibration + Brier + DCA</span>
+<span class="func">library</span>(tidyverse); <span class="func">library</span>(pROC); <span class="func">library</span>(rms); <span class="func">library</span>(dcurves); <span class="func">library</span>(logistf); <span class="func">library</span>(pmsampsize)
+
+<span class="comment"># --- Fit ---</span>
+fit &lt;- <span class="func">glm</span>(disease ~ age + bmi + smoke,
+            data = df, family = <span class="func">binomial</span>(link = <span class="str">"logit"</span>))
+<span class="func">summary</span>(fit)
+<span class="func">exp</span>(<span class="func">cbind</span>(OR = <span class="func">coef</span>(fit), <span class="func">confint</span>(fit)))   <span class="comment"># profile-likelihood CI</span>
+
+<span class="comment"># --- LRT vs Wald ---</span>
+<span class="func">anova</span>(fit, test = <span class="str">"Chisq"</span>)                  <span class="comment"># LRT (preferred)</span>
+fit0 &lt;- <span class="func">update</span>(fit, . ~ . - smoke)
+<span class="func">anova</span>(fit0, fit, test = <span class="str">"LRT"</span>)              <span class="comment"># nested LRT</span>
+
+<span class="comment"># --- Discrimination: ROC + AUC ---</span>
+p &lt;- <span class="func">predict</span>(fit, type = <span class="str">"response"</span>)
+roc1 &lt;- pROC::<span class="func">roc</span>(df$disease, p, ci = <span class="kw">TRUE</span>)
+roc1$auc; pROC::<span class="func">ci.auc</span>(roc1)
+pROC::<span class="func">coords</span>(roc1, <span class="str">"best"</span>, ret = <span class="func">c</span>(<span class="str">"threshold"</span>, <span class="str">"sens"</span>, <span class="str">"spec"</span>),
+              best.method = <span class="str">"youden"</span>)
+
+<span class="comment"># --- Calibration plot + Brier (rms package) ---</span>
+ddist &lt;- rms::<span class="func">datadist</span>(df); <span class="func">options</span>(datadist = <span class="str">"ddist"</span>)
+fit_lrm &lt;- rms::<span class="func">lrm</span>(disease ~ age + bmi + smoke, data = df, x = <span class="kw">TRUE</span>, y = <span class="kw">TRUE</span>)
+rms::<span class="func">calibrate</span>(fit_lrm, method = <span class="str">"boot"</span>, B = <span class="num">200</span>) |&gt; <span class="func">plot</span>()
+<span class="func">mean</span>((p - df$disease)^<span class="num">2</span>)                       <span class="comment"># Brier score</span>
+
+<span class="comment"># --- Hosmer-Lemeshow GOF (use with caution) ---</span>
+ResourceSelection::<span class="func">hoslem.test</span>(df$disease, p, g = <span class="num">10</span>)
+
+<span class="comment"># --- Decision Curve Analysis (Vickers 2006) ---</span>
+dcurves::<span class="func">dca</span>(disease ~ p, data = df, thresholds = <span class="func">seq</span>(<span class="num">0.05</span>, <span class="num">0.5</span>, <span class="num">0.01</span>)) |&gt; <span class="func">plot</span>()
+
+<span class="comment"># --- Perfect separation → Firth ---</span>
+fit_firth &lt;- logistf::<span class="func">logistf</span>(disease ~ rare_var + age, data = df)
+<span class="func">summary</span>(fit_firth)
+
+<span class="comment"># --- Sample size: Riley 2020 ---</span>
+pmsampsize::<span class="func">pmsampsize</span>(type = <span class="str">"b"</span>, csrsquared = <span class="num">0.05</span>, parameters = <span class="num">10</span>,
+                        prevalence = <span class="num">0.10</span>)
+</pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np, pandas <span class="kw">as</span> pd
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+<span class="kw">from</span> statsmodels.formula.api <span class="kw">import</span> logit
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score, roc_curve, brier_score_loss
+<span class="kw">from</span> sklearn.calibration <span class="kw">import</span> calibration_curve
 <span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
-<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
 
-x = np.linspace(-5, 5, <span class="num">100</span>)
-eta = -<span class="num">1</span> + <span class="num">0.8</span> * x
-p = <span class="num">1</span> / (<span class="num">1</span> + np.exp(-eta))
-plt.plot(x, p)
-plt.xlabel(<span class="str">"x"</span>)
-plt.ylabel(<span class="str">"p"</span>)
-plt.title(<span class="str">"Logistic Function"</span>)
-plt.show()
+<span class="comment"># --- Fit ---</span>
+fit = <span class="func">logit</span>(<span class="str">"disease ~ age + bmi + smoke"</span>, df).<span class="func">fit</span>(disp=<span class="num">0</span>)
+<span class="func">print</span>(fit.<span class="func">summary</span>())
+OR  = np.<span class="func">exp</span>(fit.params)
+CI  = np.<span class="func">exp</span>(fit.<span class="func">conf_int</span>())                    <span class="comment"># Wald CI</span>
 
-<span class="comment"># fit logistic regression model</span>
-rng = np.random.default_rng(<span class="num">0</span>)
-y = rng.binomial(<span class="num">1</span>, p)
-X = x.reshape(-<span class="num">1</span>, <span class="num">1</span>)
-model = LogisticRegression()
-model.fit(X, y)
-print(model.intercept_, model.coef_)
-            </code></pre>
-          </div>
-        </div>
-      </div>
-    </section>
-    <div class="page-nav">
-      <a href="regression.html">
-        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
-        <span class="nav-title" data-zh="線性回歸" data-en="Linear Regression">線性回歸</span>
-      </a>
-      <a href="survival.html">
-        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
-        <span class="nav-title" data-zh="存活分析" data-en="Survival Analysis">存活分析</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    let logitChart;
-    function logistic(x, b0, b1) {
-      return 1 / (1 + Math.exp(-(b0 + b1 * x)));
-    }
-    function plotLogit() {
-      const b0 = parseFloat(document.getElementById('logitB0').value);
-      const b1 = parseFloat(document.getElementById('logitB1').value);
-      const xs = [];
-      const ys = [];
-      for (let i = 0; i <= 100; i++) {
-        const x = -5 + i * (10 / 100);
-        xs.push(x.toFixed(2));
-        ys.push(logistic(x, b0, b1));
-      }
-      const ctx = document.getElementById('logitCanvas').getContext('2d');
-      if (logitChart) logitChart.destroy();
-      logitChart = new Chart(ctx, {
-        type: 'line',
-        data: { labels: xs, datasets: [{ data: ys, borderColor:'rgba(212,160,60,1)', fill:false }] },
-        options: {
-          scales: {
-            x: { title: { display:true, text:'x' } },
-            y: { title: { display:true, text:'p(x)' }, min:0, max:1 }
-          },
-          responsive:true,
-          plugins:{ legend:{ display:false } }
-        }
-      });
-    }
-    // initial plot on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      plotLogit();
-    });
+<span class="comment"># --- LRT (preferred over Wald for inference) ---</span>
+fit0 = <span class="func">logit</span>(<span class="str">"disease ~ age + bmi"</span>, df).<span class="func">fit</span>(disp=<span class="num">0</span>)
+LR   = <span class="num">2</span>*(fit.llf - fit0.llf)
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> chi2
+p_LR = <span class="num">1</span> - chi2.<span class="func">cdf</span>(LR, df=<span class="num">1</span>)
 
-    // quiz evaluation for logistic regression
-    function checkLogitQuiz() {
-      const lang = document.documentElement.lang;
-      const selected = document.querySelector('input[name="logitQuiz"]:checked');
-      const feedback = document.getElementById('logitQuizFeedback');
-      if (!selected) {
-        feedback.style.color = 'var(--c-accent)';
-        feedback.textContent = lang === 'zh' ? '請選擇答案。' : 'Please select an answer.';
-        return;
-      }
-      const correct = selected.value === '1';
-      if (correct) {
-        feedback.style.color = 'green';
-        feedback.textContent = lang === 'zh' ? '答對了！觀察值獨立是邏輯斯迴歸的重要假設之一。' : 'Correct! Independent observations are a key assumption in logistic regression.';
-      } else {
-        feedback.style.color = 'red';
-        feedback.textContent = lang === 'zh' ? '答錯了，再試一次。' : 'Incorrect. Try again.';
-      }
-    }
+<span class="comment"># --- ROC + AUC + Youden ---</span>
+p = fit.<span class="func">predict</span>(df)
+auc = <span class="func">roc_auc_score</span>(df.disease, p)
+fpr, tpr, thr = <span class="func">roc_curve</span>(df.disease, p)
+j = tpr - fpr; t_opt = thr[j.<span class="func">argmax</span>()]
 
-    // code tab switching
-    function switchTab(event, panelId) {
-      const btn = event.target;
-      // activate clicked tab
-      const btns = btn.parentElement.querySelectorAll('.code-tab-btn');
-      btns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      // show corresponding panel
-      const contents = btn.parentElement.nextElementSibling.querySelectorAll('.code-tab-content');
-      contents.forEach(p => p.classList.remove('active'));
-      document.getElementById(panelId).classList.add('active');
-    }
+<span class="comment"># --- Calibration plot + Brier ---</span>
+prob_pred, prob_obs = <span class="func">calibration_curve</span>(df.disease, p, n_bins=<span class="num">10</span>)
+brier = <span class="func">brier_score_loss</span>(df.disease, p)
+plt.<span class="func">plot</span>(prob_pred, prob_obs, marker=<span class="str">"o"</span>); plt.<span class="func">plot</span>([<span class="num">0</span>,<span class="num">1</span>], [<span class="num">0</span>,<span class="num">1</span>], <span class="str">"k--"</span>)
 
-    // copy code to clipboard
-    function copyCode(btn) {
-      const pre = btn.nextElementSibling;
-      const code = pre.innerText;
-      navigator.clipboard.writeText(code).then(() => {
-        const original = btn.innerHTML;
-        btn.innerHTML = '<span class="copy-icon">✔️</span>';
-        setTimeout(() => { btn.innerHTML = original; }, 1500);
-      }).catch(() => {
-        const original = btn.innerHTML;
-        btn.innerHTML = '<span class="copy-icon">✔️</span>';
-        setTimeout(() => { btn.innerHTML = original; }, 1500);
-      });
-    }
-  </script>
-</body>
-</html>
+<span class="comment"># --- Decision Curve Analysis (dcurves package) ---</span>
+<span class="comment"># pip install dcurves</span>
+<span class="kw">from</span> dcurves <span class="kw">import</span> dca, plot_graphs
+res = <span class="func">dca</span>(data=df, outcome=<span class="str">"disease"</span>, modelnames=[<span class="str">"p"</span>],
+          thresholds=np.<span class="func">arange</span>(<span class="num">0.05</span>, <span class="num">0.5</span>, <span class="num">0.01</span>))
+<span class="func">plot_graphs</span>(res)
+
+<span class="comment"># --- Firth penalised likelihood (separation) ---</span>
+<span class="comment"># pip install firthlogist</span>
+<span class="kw">from</span> firthlogist <span class="kw">import</span> FirthLogisticRegression
+flr = <span class="func">FirthLogisticRegression</span>().<span class="func">fit</span>(X, y)
+flr.coef_, flr.ci_                              <span class="comment"># finite β̂ + CIs</span>
+</pre></div>
+</div>
+
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>實務工作流：</strong>(1) <code>pmsampsize</code> 算 n；(2) <code>glm</code> 擬合，profile CI；(3) LRT 報告整體 / 子組顯著性；(4) ROC + AUC + Youden 區辨；(5) calibration plot + Brier 校準；(6) DCA 評估臨床效益；(7) bootstrap 內部驗證（200–500 次）或外部驗證集；(8) 依 TRIPOD 2015 / TRIPOD+AI 2024 撰寫報告。</span>
+<span data-lang="en"><strong>Workflow:</strong> (1) <code>pmsampsize</code> for n; (2) <code>glm</code> + profile CIs; (3) LRT for overall/sub-effects; (4) ROC + AUC + Youden for discrimination; (5) calibration plot + Brier; (6) DCA for clinical utility; (7) bootstrap internal validation (200–500 reps) or an external cohort; (8) write the report against TRIPOD 2015 / TRIPOD+AI 2024.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 11: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="八、邏輯斯迴歸的六個經典錯誤" data-en="VIII. Six classic mistakes in logistic regression">八、六個經典錯誤</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="把 OR 當 RR" data-en="Reading OR as RR">OR 當 RR 解讀</span></h4>
+<div data-lang="zh"><p>「吸菸 OR=2 → 風險變兩倍」是常見誤讀。當基準率高時 OR 會誇大 RR；當基準率 &lt; 5% 時 OR ≈ RR 才成立。常見結局請用 log-binomial 或 Poisson with robust SE（Zou 2004）。</p></div>
+<div data-lang="en"><p>"OR=2 for smoking means double the risk" is a common misread. With a common outcome OR overstates RR; only when prevalence &lt; 5% is OR ≈ RR. For common outcomes use log-binomial or Poisson with robust SE (Zou 2004).</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="忽視 EPV / Riley 2020" data-en="Ignoring EPV / Riley 2020">小 EPV → overfit</span></h4>
+<div data-lang="zh"><p>事件數少卻塞入十幾個變數是「醫學期刊 reviewer 看一眼就拒」的紅旗。先用 <code>pmsampsize</code> 算 n，事件多的最好；變數多時請改用 Lasso 或 penalised logistic 並做 bootstrap 內部驗證。</p></div>
+<div data-lang="en"><p>Stuffing a dozen predictors into a model with few events is a reviewer's instant red flag. Compute n with <code>pmsampsize</code>; with many variables use Lasso or penalised logistic plus bootstrap internal validation.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="完美分離未處理" data-en="Ignoring perfect separation">完美分離未處理</span></h4>
+<div data-lang="zh"><p>輸出顯示 OR = 4.7 × 10⁸、SE = 9.9 × 10⁹，仍照常報告——這個結果無意義。請改用 <strong>Firth (<code>logistf</code>)</strong> 或合併稀有 category。Heinze & Schemper 2002 是經典實作參考。</p></div>
+<div data-lang="en"><p>Reporting OR = 4.7 × 10⁸ with SE = 9.9 × 10⁹ as if it were real — that result is meaningless. Use <strong>Firth (<code>logistf</code>)</strong> or collapse sparse categories. Heinze & Schemper 2002 Stat Med is the canonical reference.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="預設閾值 0.5 切" data-en="Default 0.5 threshold">預設閾值 0.5</span></h4>
+<div data-lang="zh"><p>在不平衡或 false-positive / false-negative 成本不對稱時，0.5 幾乎肯定不是最佳。請用 Youden's J、Net Benefit、或最大化「clinical utility」的閾值；報告整條 ROC + DCA，而不是單一混淆矩陣。</p></div>
+<div data-lang="en"><p>With class imbalance or asymmetric costs of FP/FN, 0.5 is almost surely suboptimal. Use Youden's J, net benefit, or the threshold maximising "clinical utility"; report the full ROC + DCA, not a single confusion matrix.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="只看 AUC，忽略 calibration" data-en="AUC-only, no calibration">只報 AUC</span></h4>
+<div data-lang="zh"><p>AUC 高的模型可能 systematically 高估或低估機率（calibration 差），臨床上仍會給錯藥。<strong>Van Calster 2019 BMC Med</strong>：必報 calibration plot + intercept + slope + Brier。</p></div>
+<div data-lang="en"><p>A model with high AUC can still systematically over- or under-estimate probabilities (poor calibration), leading clinicians astray. <strong>Van Calster 2019 BMC Med</strong>: always report calibration plot + intercept + slope + Brier.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="內部 = 外部驗證？" data-en="Mixing internal and external validation">內部 ≠ 外部驗證</span></h4>
+<div data-lang="zh"><p>train/test split 與 cross-validation 是<strong>內部</strong>驗證（同分布）。模型搬到不同醫院、不同年代、不同人口要做<strong>外部</strong>驗證，TRIPOD 2015 / TRIPOD+AI 2024 強調分開報告 development、internal validation、external validation 三階段。</p></div>
+<div data-lang="en"><p>Train/test splits and cross-validation are <strong>internal</strong> validation (same distribution). Transporting the model to a different hospital, era, or population requires <strong>external</strong> validation. TRIPOD 2015 / TRIPOD+AI 2024 require separate reporting of development, internal validation, and external validation.</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 12: References ===== -->
+<section class="section">
+<div class="section-label" data-zh="重要文獻" data-en="KEY REFERENCES">重要文獻</div>
+<h2 data-zh="九、必讀文獻" data-en="IX. Must-read references">九、必讀文獻</h2>
+<div data-lang="zh">
+<ul style="line-height:1.85;font-size:.92rem;color:var(--c-ink-light)">
+<li><strong>Peduzzi P et al.</strong> 1996 J Clin Epidemiol — EPV ≥ 10 原始模擬。<a href="https://doi.org/10.1016/S0895-4356(96)00236-3">DOI:10.1016/S0895-4356(96)00236-3</a></li>
+<li><strong>Riley RD et al.</strong> 2020 BMJ — 現代樣本數規則，<code>pmsampsize</code> 對應。<a href="https://doi.org/10.1136/bmj.m441">DOI:10.1136/bmj.m441</a></li>
+<li><strong>Firth D</strong> 1993 Biometrika — 罰估計法，解決完美分離。<a href="https://doi.org/10.1093/biomet/80.1.27">DOI:10.1093/biomet/80.1.27</a></li>
+<li><strong>Hosmer DW, Lemeshow S, Sturdivant RX</strong> 2013 <em>Applied Logistic Regression</em> 3rd ed, Wiley.</li>
+<li><strong>Steyerberg EW</strong> 2019 <em>Clinical Prediction Models</em> 2nd ed, Springer — 預測模型 SOP。</li>
+<li><strong>Collins GS, Reitsma JB, Altman DG, Moons KGM</strong> 2015 BMJ — TRIPOD reporting guideline。<a href="https://doi.org/10.1136/bmj.g7594">DOI:10.1136/bmj.g7594</a></li>
+<li><strong>Collins GS et al.</strong> 2024 BMJ — <strong>TRIPOD+AI</strong> 更新版。<a href="https://doi.org/10.1136/bmj-2023-078378">DOI:10.1136/bmj-2023-078378</a></li>
+<li><strong>Vickers AJ, Elkin EB</strong> 2006 Med Decis Making — Decision Curve Analysis。<a href="https://doi.org/10.1177/0272989X06295361">DOI:10.1177/0272989X06295361</a></li>
+<li><strong>Saito T, Rehmsmeier M</strong> 2015 PLOS ONE — 類別不平衡時 PR 優於 ROC。<a href="https://doi.org/10.1371/journal.pone.0118432">DOI:10.1371/journal.pone.0118432</a></li>
+<li><strong>Van Calster B et al.</strong> 2019 BMC Med — Calibration「未完成」的呼籲。<a href="https://doi.org/10.1186/s12916-019-1466-7">DOI:10.1186/s12916-019-1466-7</a></li>
+<li><strong>Zou G</strong> 2004 Am J Epidemiol — Modified Poisson for RR。<a href="https://doi.org/10.1093/aje/kwh090">DOI:10.1093/aje/kwh090</a></li>
+<li><strong>Heinze G, Schemper M</strong> 2002 Stat Med — Firth 在邏輯斯迴歸中的實作 (<code>logistf</code>)。<a href="https://doi.org/10.1002/sim.1047">DOI:10.1002/sim.1047</a></li>
+</ul>
+</div>
+<div data-lang="en">
+<ul style="line-height:1.85;font-size:.92rem;color:var(--c-ink-light)">
+<li><strong>Peduzzi P et al.</strong> 1996 J Clin Epidemiol — the original EPV ≥ 10 simulation. <a href="https://doi.org/10.1016/S0895-4356(96)00236-3">DOI:10.1016/S0895-4356(96)00236-3</a></li>
+<li><strong>Riley RD et al.</strong> 2020 BMJ — modern sample-size formulae behind <code>pmsampsize</code>. <a href="https://doi.org/10.1136/bmj.m441">DOI:10.1136/bmj.m441</a></li>
+<li><strong>Firth D</strong> 1993 Biometrika — penalised likelihood for separation. <a href="https://doi.org/10.1093/biomet/80.1.27">DOI:10.1093/biomet/80.1.27</a></li>
+<li><strong>Hosmer DW, Lemeshow S, Sturdivant RX</strong> 2013 <em>Applied Logistic Regression</em> 3rd ed, Wiley.</li>
+<li><strong>Steyerberg EW</strong> 2019 <em>Clinical Prediction Models</em> 2nd ed, Springer — the prediction-modelling SOP.</li>
+<li><strong>Collins GS, Reitsma JB, Altman DG, Moons KGM</strong> 2015 BMJ — the TRIPOD guideline. <a href="https://doi.org/10.1136/bmj.g7594">DOI:10.1136/bmj.g7594</a></li>
+<li><strong>Collins GS et al.</strong> 2024 BMJ — <strong>TRIPOD+AI</strong> update. <a href="https://doi.org/10.1136/bmj-2023-078378">DOI:10.1136/bmj-2023-078378</a></li>
+<li><strong>Vickers AJ, Elkin EB</strong> 2006 Med Decis Making — Decision Curve Analysis. <a href="https://doi.org/10.1177/0272989X06295361">DOI:10.1177/0272989X06295361</a></li>
+<li><strong>Saito T, Rehmsmeier M</strong> 2015 PLOS ONE — PR over ROC under class imbalance. <a href="https://doi.org/10.1371/journal.pone.0118432">DOI:10.1371/journal.pone.0118432</a></li>
+<li><strong>Van Calster B et al.</strong> 2019 BMC Med — the "calibration is not done" call. <a href="https://doi.org/10.1186/s12916-019-1466-7">DOI:10.1186/s12916-019-1466-7</a></li>
+<li><strong>Zou G</strong> 2004 Am J Epidemiol — modified Poisson for RR. <a href="https://doi.org/10.1093/aje/kwh090">DOI:10.1093/aje/kwh090</a></li>
+<li><strong>Heinze G, Schemper M</strong> 2002 Stat Med — Firth implementation in logistic regression (<code>logistf</code>). <a href="https://doi.org/10.1002/sim.1047">DOI:10.1002/sim.1047</a></li>
+</ul>
+</div>
+</section>
+
+<!-- ===== Section 13: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 你訓練了一個 30 天死亡率的 logistic 模型，總 n = 1200，但事件僅 60，候選變數 12。下列何者最合適？</p>
+<p data-lang="en">1. You build a logistic model for 30-day mortality, total n = 1200, events = 60, candidate predictors = 12. Best step?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. n = 1200 很大，全部 12 變數直接放，看顯著性挑</span><span data-lang="en">A. n = 1200 is large — drop all 12 in and pick by p-values</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 樣本數靠 AUC 判斷</span><span data-lang="en">B. Decide sample size from AUC</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. EPV = 60/12 = 5 不足；先用 <code>pmsampsize</code>，或縮減變數 / 改 Lasso / Firth</span><span data-lang="en">C. EPV = 60/12 = 5 is too low — use <code>pmsampsize</code>, or shrink/Lasso/Firth</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 直接 train/test split 解決</span><span data-lang="en">D. Just do a train/test split</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">2. 一篇論文報告 AUC = 0.88 但沒有 calibration plot。下列何者是最強的疑慮？</p>
+<p data-lang="en">2. A paper reports AUC = 0.88 but no calibration plot. Strongest concern?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. AUC 太高一定 overfit</span><span data-lang="en">A. AUC that high must be overfit</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. AUC &gt; 0.85 就足夠了</span><span data-lang="en">B. AUC &gt; 0.85 is already enough</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 沒問題，AUC 已經涵蓋所有性能面向</span><span data-lang="en">C. No issue — AUC covers all aspects of performance</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 區辨力（AUC）≠ 校準度；模型可能 systematically 高/低估機率，臨床決策仍可能錯</span><span data-lang="en">D. Discrimination ≠ calibration; the model may systematically mis-estimate probabilities and mislead clinical use</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">3. <code>glm()</code> 警告 "fitted probabilities numerically 0 or 1 occurred"，且某係數 SE = 1.2 × 10⁹。最佳處理？</p>
+<p data-lang="en">3. <code>glm()</code> warns "fitted probabilities numerically 0 or 1 occurred" and one SE = 1.2 × 10⁹. Best fix?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 忽略警告，模型還是收斂了</span><span data-lang="en">A. Ignore the warning — the model converged</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 強行用 Wald 95% CI 報告</span><span data-lang="en">B. Force a Wald 95% CI and report</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 屬於（準）完美分離；用 Firth (<code>logistf</code>) 或合併稀有 category</span><span data-lang="en">C. This is (quasi-)complete separation — switch to Firth (<code>logistf</code>) or collapse sparse categories</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 換 random forest</span><span data-lang="en">D. Switch to random forest</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">4. 30 天再入院率約 25%（常見結局）。研究者報告「OR=2.5 表示再入院風險變 2.5 倍」。下列何者最正確？</p>
+<p data-lang="en">4. 30-day readmission rate ≈ 25% (common outcome). The authors say "OR=2.5 means 2.5× the risk." Most correct?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 正確，OR 等於 RR</span><span data-lang="en">A. Correct — OR equals RR</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 常見結局時 OR 會誇大 RR；應改用 log-binomial 或 Poisson with robust SE 直接估 RR</span><span data-lang="en">B. With common outcomes, OR overstates RR — use log-binomial or Poisson with robust SE for RR directly</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. OR 和 RR 永遠相同</span><span data-lang="en">C. OR and RR are always identical</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 該說「機率 × 2.5」</span><span data-lang="en">D. Phrase it as "probability × 2.5"</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="regression.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="Step 8：線性迴歸" data-en="Step 8: Linear Regression">Step 8：線性迴歸</span></a><a href="survival.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 10：存活分析" data-en="Step 10: Survival Analysis">Step 10：存活分析</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== Helpers =====
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function sig(x,b0,b1){return 1/(1+Math.exp(-(b0+b1*x)));}
+
+// ===== Sim 1: Sigmoid playground =====
+const xs=[];for(let i=-10;i<=10;i+=0.2)xs.push(i);
+// Pre-generate 30 sample X-values (kept fixed so re-renders are stable)
+const sampleX=[];for(let i=0;i<30;i++){sampleX.push(-8+16*Math.random());}
+const lc=new Chart(document.getElementById('logChart'),{type:'line',data:{labels:xs.map(x=>x.toFixed(1)),datasets:[
+  {label:'sigmoid',data:xs.map(x=>sig(x,-2,1)),borderColor:'#0F766E',backgroundColor:'rgba(15,118,110,0.12)',fill:true,pointRadius:0,borderWidth:2.5,tension:0.2,order:2},
+  {label:'p=0.5',data:xs.map(()=>0.5),borderColor:'rgba(107,114,128,0.55)',borderDash:[5,5],pointRadius:0,borderWidth:1,fill:false,order:3},
+  {label:'samples',type:'scatter',data:[],borderWidth:0,pointRadius:5,pointHoverRadius:7,order:1,parsing:false}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:(c)=>c.dataset.label==='samples'?`X=${c.parsed.x.toFixed(2)}, Y=${c.parsed.y}`:`p=${(+c.parsed.y).toFixed(3)}`}}},scales:{x:{type:'linear',min:-10,max:10,title:{display:true,text:'X'},ticks:{stepSize:2}},y:{title:{display:true,text:'P(Y=1)'},min:-0.05,max:1.05}}}});
+function upLog(){const b0=+document.getElementById('slB0').value;const b1=+document.getElementById('slB1').value;document.getElementById('vB0').textContent=b0.toFixed(2);document.getElementById('vB1').textContent=b1.toFixed(2);
+  lc.data.datasets[0].data=xs.map(x=>({x:x,y:sig(x,b0,b1)}));
+  lc.data.datasets[0].parsing=false;
+  lc.data.datasets[1].data=xs.map(x=>({x:x,y:0.5}));
+  lc.data.datasets[1].parsing=false;
+  // Bernoulli samples from current curve, color by Y
+  const pts=sampleX.map(x=>{const p=sig(x,b0,b1);const y=(Math.random()<p)?1:0;return {x,y,bg:y===1?'rgba(234,88,12,0.85)':'rgba(37,99,235,0.85)'};});
+  lc.data.datasets[2].data=pts.map(p=>({x:p.x,y:p.y}));
+  lc.data.datasets[2].pointBackgroundColor=pts.map(p=>p.bg);
+  lc.data.datasets[2].pointBorderColor=pts.map(p=>p.bg);
+  lc.update('none');
+  const OR=Math.exp(b1);const cut=(-b0/(b1||1e-6));
+  const p0=sig(0,b0,b1),p1=sig(1,b0,b1),p2=sig(2,b0,b1);
+  const L=I18n.get();
+  document.getElementById('logDesc').innerHTML=L==='zh'?
+    `<strong>OR = e^β₁</strong> = ${OR.toFixed(3)} · 每 X 加 1 → odds × ${OR.toFixed(2)}<br><strong>50% 機率閾值</strong>在 X = ${cut.toFixed(2)} (X = −β₀/β₁)<br><strong>p(X=0)</strong> = ${p0.toFixed(3)} · <strong>p(X=1)</strong> = ${p1.toFixed(3)} · <strong>p(X=2)</strong> = ${p2.toFixed(3)} ${Math.abs(b1)<0.1?'⚠️ β₁ ≈ 0，X 幾乎不影響 Y':''}`:
+    `<strong>OR = e^β₁</strong> = ${OR.toFixed(3)} · +1 in X → odds × ${OR.toFixed(2)}<br><strong>50% probability cut-off</strong> at X = ${cut.toFixed(2)} (X = −β₀/β₁)<br><strong>p(X=0)</strong> = ${p0.toFixed(3)} · <strong>p(X=1)</strong> = ${p1.toFixed(3)} · <strong>p(X=2)</strong> = ${p2.toFixed(3)} ${Math.abs(b1)<0.1?'⚠️ β₁ ≈ 0, X carries little info':''}`;
+}
+['slB0','slB1'].forEach(id=>document.getElementById(id).addEventListener('input',upLog));document.addEventListener('langchange',upLog);upLog();
+
+// ===== Sim 2: ROC curve =====
+function genTwoClass(d,prevalence,n){const pos=Math.round(n*prevalence);const neg=n-pos;const arr=[];for(let i=0;i<pos;i++)arr.push({s:d/2+randn(),y:1});for(let i=0;i<neg;i++)arr.push({s:-d/2+randn(),y:0});return arr;}
+function rocCurve(arr){const sorted=[...arr].sort((a,b)=>b.s-a.s);const P=arr.filter(o=>o.y===1).length,N=arr.length-P;let tp=0,fp=0;const pts=[{x:0,y:0,t:Infinity}];for(const o of sorted){if(o.y===1)tp++;else fp++;pts.push({x:fp/N,y:tp/P,t:o.s});}pts.push({x:1,y:1,t:-Infinity});return {pts,P,N};}
+function aucFromROC(pts){let auc=0;for(let i=1;i<pts.length;i++){auc+=(pts[i].x-pts[i-1].x)*(pts[i].y+pts[i-1].y)/2;}return auc;}
+const rc=new Chart(document.getElementById('rocChart'),{type:'line',data:{datasets:[
+  {label:'ROC',data:[],borderColor:'#0F766E',backgroundColor:'rgba(15,118,110,0.15)',fill:true,pointRadius:0,borderWidth:2.5,tension:0,order:2,parsing:false},
+  {label:'chance',data:[{x:0,y:0},{x:1,y:1}],borderColor:'rgba(107,114,128,0.6)',borderDash:[6,6],pointRadius:0,borderWidth:1,fill:false,order:3,parsing:false},
+  {label:'youden',type:'scatter',data:[],pointBackgroundColor:'#dc2626',pointBorderColor:'#dc2626',pointRadius:7,pointHoverRadius:9,order:1,parsing:false}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{enabled:true,callbacks:{label:(c)=>`FPR=${(+c.parsed.x).toFixed(3)}, TPR=${(+c.parsed.y).toFixed(3)}`}}},scales:{x:{type:'linear',min:0,max:1,title:{display:true,text:'False Positive Rate (1 − Specificity)'}},y:{type:'linear',min:0,max:1,title:{display:true,text:'True Positive Rate (Sensitivity)'}}}}});
+function upRoc(){const d=+document.getElementById('slSep').value;const pi=+document.getElementById('slPi').value/100;document.getElementById('vSep').textContent=d.toFixed(1);document.getElementById('vPi').textContent=(pi*100).toFixed(0)+'%';
+  const arr=genTwoClass(d,pi,1000);const {pts,P,N}=rocCurve(arr);const auc=aucFromROC(pts);
+  // Find Youden best
+  let bestJ=-1,bestPt=pts[0];for(const p of pts){const J=p.y-p.x;if(J>bestJ){bestJ=J;bestPt=p;}}
+  rc.data.datasets[0].data=pts.map(p=>({x:p.x,y:p.y}));
+  rc.data.datasets[2].data=[{x:bestPt.x,y:bestPt.y}];
+  rc.update('none');
+  const sens=bestPt.y,spec=1-bestPt.x;
+  const L=I18n.get();
+  const auc_q=auc<0.6?'(亂猜邊緣)':(auc<0.7?'(差)':(auc<0.8?'(普通)':(auc<0.9?'(好)':'(優異/檢查 overfit)')));
+  const auc_q_en=auc<0.6?'(near chance)':(auc<0.7?'(poor)':(auc<0.8?'(fair)':(auc<0.9?'(good)':'(excellent — check overfit)')));
+  document.getElementById('rocDesc').innerHTML=L==='zh'?
+    `<strong>AUC</strong> = ${auc.toFixed(3)} ${auc_q} · n = 1000 (P=${P}, N=${N})<br><strong>Youden's J</strong> 最佳 = ${bestJ.toFixed(3)} → 閾值 score ≈ ${bestPt.t===Infinity?'+∞':bestPt.t===-Infinity?'−∞':bestPt.t.toFixed(2)}<br>該閾值下 <strong>Sensitivity</strong> = ${sens.toFixed(3)} · <strong>Specificity</strong> = ${spec.toFixed(3)}`:
+    `<strong>AUC</strong> = ${auc.toFixed(3)} ${auc_q_en} · n = 1000 (P=${P}, N=${N})<br><strong>Youden's J</strong> max = ${bestJ.toFixed(3)} → threshold score ≈ ${bestPt.t===Infinity?'+∞':bestPt.t===-Infinity?'−∞':bestPt.t.toFixed(2)}<br>At this cut: <strong>Sensitivity</strong> = ${sens.toFixed(3)} · <strong>Specificity</strong> = ${spec.toFixed(3)}`;
+}
+['slSep','slPi'].forEach(id=>document.getElementById(id).addEventListener('input',upRoc));document.addEventListener('langchange',upRoc);upRoc();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'EPV = 60/12 = 5 太低，會 overfit、CI 涵蓋率錯、變數選擇不穩。請用 pmsampsize 算 n 或用 Lasso / Firth / 縮減候選變數。',q1_n:'正確選項已標示。',q2_y:'高 AUC 不代表機率本身準。Van Calster 2019 要求必報 calibration plot、intercept、slope、Brier。',q2_n:'正確選項已標示。',q3_y:'這是（準）完美分離的典型表徵。用 Firth (logistf) 罰估計，或合併稀有 category。直接報 Wald CI 沒有意義。',q3_n:'正確選項已標示。',q4_y:'再入院率 25% 屬常見結局，OR 會明顯誇大 RR。建議改用 log-binomial 或 Poisson with robust SE 直接估 RR。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'EPV = 60/12 = 5 is too low — expect overfit, wrong CI coverage, unstable selection. Use pmsampsize / Lasso / Firth / fewer candidates.',q1_n:'Correct option highlighted.',q2_y:'High AUC does not mean predicted probabilities are accurate. Van Calster 2019 requires calibration plot + intercept + slope + Brier.',q2_n:'Correct option highlighted.',q3_y:'Classic signs of (quasi-)complete separation. Switch to Firth (logistf) or collapse sparse categories; the Wald CI is meaningless here.',q3_n:'Correct option highlighted.',q4_y:'A 25% readmission rate is a common outcome — OR overstates RR substantially. Use log-binomial or Poisson with robust SE for RR.',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>

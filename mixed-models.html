@@ -1,0 +1,542 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 13: Mixed-Effects Models — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html" class="active">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 13 / 13</div>
+<h1 data-zh="混合效應模型 (Mixed-Effects Models)" data-en="Mixed-Effects Models">混合效應模型 (Mixed-Effects Models)</h1>
+<p class="subtitle" data-lang="zh">生物 vs 技術重複是一個統計問題——隨機效應、ICC、lme4，避免 pseudoreplication 的最後一道防線。</p>
+<p class="subtitle" data-lang="en">"Biological vs technical replicate" is a statistical question — random effects, ICC, lme4, and the last line of defence against pseudoreplication.</p>
+</header>
+<main class="content-wrap">
+
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="為什麼「生物 vs 技術重複」是一個統計問題？" data-en="Why &quot;biological vs technical replicate&quot; is a statistical question">為什麼「生物 vs 技術重複」是一個統計問題？</h2>
+<div data-lang="zh">
+<p>實驗室白板上常寫著「n = 60」。但仔細追問：是 60 隻獨立小鼠？還是 3 隻小鼠 × 20 顆細胞？這兩者在統計上<strong>不是同一件事</strong>。前者的自由度接近 60；後者真正獨立的單位只有 3——做 t 檢定假裝 n = 60，就是 <strong>Hurlbert (1984) Ecological Monographs 54:187</strong> 所定義的 <strong>pseudoreplication（假性重複）</strong>。</p>
+<p>Hurlbert 1984 那篇論文檢視 156 篇生態學論文，發現<strong>近一半</strong>存在 pseudoreplication；後續神經科學（Lazic 2010 BMC Neurosci 11:5；Aarts et al. 2014 Nat Neurosci 17:491）、細胞生物學（Lord et al. 2020 J Cell Biol 219:e202001064 SuperPlots）也重複驗證了同一個問題。<strong>混合效應模型（mixed-effects models）就是處理這類「巢狀／群聚（nested / clustered）」資料的標準工具</strong>：透過 random effect 把 cluster 結構顯式建模，讓 SE 與 p 值反映真正的資訊量。</p>
+</div>
+<div data-lang="en">
+<p>The lab whiteboard says "n = 60". Ask twice: sixty independent mice, or 3 mice × 20 cells? Statistically these are <strong>not the same thing</strong>. The first has roughly 60 degrees of freedom; the second has only 3 truly independent units — running a t-test as if n = 60 is the textbook case of <strong>pseudoreplication</strong>, the term coined by <strong>Hurlbert (1984) Ecological Monographs 54:187</strong>.</p>
+<p>Hurlbert reviewed 156 ecology papers and found <strong>nearly half</strong> contained pseudoreplication; the same problem has since been documented in neuroscience (Lazic 2010 BMC Neurosci 11:5; Aarts et al. 2014 Nat Neurosci 17:491) and cell biology (Lord et al. 2020 J Cell Biol 219:e202001064, SuperPlots). <strong>Mixed-effects models are the standard tool for nested / clustered data</strong>: they make the cluster structure explicit through random effects, so SEs and p-values reflect the actual amount of independent information.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>核心訊息：</strong>當你的資料有「結構」——同一個病人多次測量、同一隻小鼠多顆神經元、同一片組織多個視野、同一塊培養盤多孔位、同一家醫院多病人——<strong>觀察值不獨立</strong>，必須用混合模型。OLS／普通 t 檢定是「單層模型」，它假設每個觀察值都是 i.i.d.，但生物學幾乎從不滿足這個假設。</span>
+<span data-lang="en"><strong>The headline:</strong> when your data have <em>structure</em> — repeated measures on the same patient, many neurons per mouse, many fields per slice, many wells per plate, many patients per hospital — <strong>the observations are not independent</strong>, and you need a mixed model. OLS / a vanilla t-test is a "flat" model that assumes i.i.d. observations; biology almost never delivers i.i.d.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 2: Fixed vs Random ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心觀念" data-en="CORE CONCEPTS">核心觀念</div>
+<h2 data-zh="一、Fixed vs Random、Intercept vs Slope、ICC" data-en="I. Fixed vs Random, Intercept vs Slope, ICC">一、Fixed vs Random、Intercept vs Slope、ICC</h2>
+
+<div data-lang="zh"><p>混合模型由三件事組成：<strong>固定效應（fixed effects）</strong>是你關心、想要做 inference 的參數；<strong>隨機效應（random effects）</strong>是分群的變異成分，你假設群組是來自某個更大母體的「樣本」；以及<strong>殘差變異（residual）</strong>。模型形式：<span class="math">y_ij = X_ij β + Z_ij b_i + ε_ij</span>，其中 b_i ~ N(0, G)、ε_ij ~ N(0, σ²)。</p></div>
+<div data-lang="en"><p>A mixed model has three ingredients: <strong>fixed effects</strong> — the parameters you care about and want to infer; <strong>random effects</strong> — variance components for grouping variables (you treat the groups as a sample from a wider population); and the <strong>residual</strong>. The form: <span class="math">y_ij = X_ij β + Z_ij b_i + ε_ij</span>, with b_i ~ N(0, G) and ε_ij ~ N(0, σ²).</p></div>
+
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="Fixed Effects 固定效應" data-en="Fixed Effects">Fixed Effects</h4>
+<div data-lang="zh"><p>你<strong>關心的效應</strong>，所有 level 都觀察到、想要做點估計與假設檢定。<br>例：<span class="kt">treatment</span>（藥 vs 安慰劑）、<span class="kt">time</span>、<span class="kt">sex</span>、<span class="kt">genotype</span>。<br>類比：你想知道「這個藥對所有人是否有效」。</p></div>
+<div data-lang="en"><p>The <strong>effects you care about</strong> — all levels observed, want a point estimate plus a hypothesis test.<br>e.g. <span class="kt">treatment</span> (drug vs placebo), <span class="kt">time</span>, <span class="kt">sex</span>, <span class="kt">genotype</span>.<br>Analogy: "does the drug work, on average, across people?"</p></div>
+</div>
+<div class="card"><div class="card-icon">🎲</div><h4 data-zh="Random Effects 隨機效應" data-en="Random Effects">Random Effects</h4>
+<div data-lang="zh"><p>群組是<strong>母體的樣本</strong>，你不關心特定 level 的效應，只關心群組之間有多少變異。<br>例：<span class="kt">mouse_id</span>、<span class="kt">patient_id</span>、<span class="kt">plate_id</span>、<span class="kt">clinic</span>、<span class="kt">cage</span>。<br>類比：你不想知道「小鼠 7 號比 8 號高多少」，只想知道「小鼠之間有多少基線差異」。</p></div>
+<div data-lang="en"><p>Groups are a <strong>sample from a population</strong>; you do not care about individual level effects, only how much they vary.<br>e.g. <span class="kt">mouse_id</span>, <span class="kt">patient_id</span>, <span class="kt">plate_id</span>, <span class="kt">clinic</span>, <span class="kt">cage</span>.<br>Analogy: not "how much does mouse #7 differ from #8", but "how much do mice vary?"</p></div>
+</div>
+<div class="card"><div class="card-icon">📐</div><h4 data-zh="ICC 群內相關" data-en="ICC">ICC</h4>
+<div data-lang="zh"><p><strong>Intraclass Correlation Coefficient</strong>：<br><span class="math">ICC = σ²_between / (σ²_between + σ²_within)</span><br>同 cluster 內兩觀察值的相關係數。ICC = 0 表完全獨立，ICC → 1 表 cluster 內幾乎相同。神經元 / 細胞層級研究常見 ICC = 0.1–0.5。</p></div>
+<div data-lang="en"><p><strong>Intraclass Correlation Coefficient</strong>:<br><span class="math">ICC = σ²_between / (σ²_between + σ²_within)</span><br>The correlation between two observations from the same cluster. ICC = 0 → fully independent; ICC → 1 → within-cluster nearly identical. Neuron / cell studies often show ICC ≈ 0.1–0.5.</p></div>
+</div>
+</div>
+
+<div class="split">
+<div>
+<h5 data-zh="隨機截距 (Random Intercept)" data-en="Random Intercept">隨機截距 Random Intercept</h5>
+<div data-lang="zh"><p>公式：<code>y ~ x + (1 | mouse)</code><br>每隻小鼠有自己的<strong>基線</strong>（intercept），但<strong>反應斜率相同</strong>。<br>適用：個體基線差異大（基礎血壓、基礎表達量），但對處理的反應方向類似。</p></div>
+<div data-lang="en"><p>Formula: <code>y ~ x + (1 | mouse)</code><br>Each mouse has its own <strong>baseline</strong>, but a <strong>shared slope</strong>.<br>Use when: baselines differ a lot (baseline BP, baseline expression), but the response to treatment is similar across subjects.</p></div>
+</div>
+<div>
+<h5 data-zh="隨機斜率 (Random Slope)" data-en="Random Slope">隨機斜率 Random Slope</h5>
+<div data-lang="zh"><p>公式：<code>y ~ time + (1 + time | mouse)</code><br>每隻小鼠不僅基線不同，<strong>對 time 的反應強度也不同</strong>。<br>適用：個體間反應差異大（drug responder vs non-responder、成長曲線斜率不一）。<br>限制：每群至少要有<strong>多筆觀察</strong>（建議 ≥ 5），否則無法估計群組層級的斜率。</p></div>
+<div data-lang="en"><p>Formula: <code>y ~ time + (1 + time | mouse)</code><br>Each mouse has its own baseline <strong>and its own response strength</strong> to time.<br>Use when: subjects respond very differently (drug responders vs non-responders, varying growth-curve slopes).<br>Constraint: each group needs <strong>multiple observations</strong> (≥ 5 is a healthy minimum) — otherwise group-level slopes cannot be identified.</p></div>
+</div>
+</div>
+
+<div class="formula">
+<span data-lang="zh">⌜ y_ij = β₀ + β₁·x_ij + <em>b_0i</em> + <em>b_1i</em>·x_ij + ε_ij &nbsp;,&nbsp; b_i ~ N(0, G) &nbsp;,&nbsp; ε ~ N(0, σ²) ⌝
+<span class="fnote">b_0i = 群 i 的截距偏移；b_1i = 群 i 的斜率偏移。當只有 b_0i 時 = 隨機截距；同時有 b_0i 與 b_1i 時 = 隨機斜率。Laird-Ware (1982 Biometrics 38:963) 是現代混合模型的奠基公式。</span></span>
+<span data-lang="en">⌜ y_ij = β₀ + β₁·x_ij + <em>b_0i</em> + <em>b_1i</em>·x_ij + ε_ij &nbsp;,&nbsp; b_i ~ N(0, G) &nbsp;,&nbsp; ε ~ N(0, σ²) ⌝
+<span class="fnote">b_0i = group-i intercept offset; b_1i = group-i slope offset. With b_0i alone: random intercept. With both b_0i and b_1i: random slope. Laird &amp; Ware (1982 Biometrics 38:963) is the foundational formulation of modern mixed models.</span></span>
+</div>
+</section>
+
+<!-- ===== Section 3: Interactive sim 1: Nested data simulator ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="巢狀資料模擬器：OLS vs 混合模型" data-en="Nested-data simulator: OLS vs mixed model">巢狀資料模擬器：OLS vs 混合模型</h2>
+<div data-lang="zh"><p>下面模擬「小鼠 × 細胞」實驗：產生 n_mice 隻小鼠，每隻測 m 顆細胞，真實處理效應為 β。比較兩種分析：(A) <strong>OLS（pseudoreplication）</strong>把每顆細胞當獨立觀察，會嚴重低估 SE；(B) <strong>混合模型</strong>把 mouse_id 加為隨機截距，SE 反映真實的小鼠數。看看當 between-mouse SD 變大、ICC 變高時，兩種分析的差異會放多大。</p></div>
+<div data-lang="en"><p>Below: a "mouse × cell" experiment. Generate n_mice mice, m cells per mouse, with a true treatment effect β. Compare: (A) <strong>OLS (pseudoreplication)</strong> — treats every cell as independent, severely underestimates SE; (B) <strong>mixed model</strong> — adds mouse_id as a random intercept, SE reflects the real number of mice. Increase the between-mouse SD or the ICC and watch the gap grow.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="小鼠數 n_mice" data-en="n_mice">小鼠數 n_mice</span> <span id="vNmice">6</span></label><input type="range" id="sNmice" min="2" max="20" value="6" step="1"></div>
+<div class="slider-group"><label><span data-zh="每隻小鼠細胞數 m" data-en="cells per mouse">每隻小鼠細胞數 m</span> <span id="vMcells">20</span></label><input type="range" id="sMcells" min="5" max="50" value="20" step="1"></div>
+<div class="slider-group"><label><span data-zh="細胞層 SD (within-mouse)" data-en="within-mouse SD">細胞層 SD</span> <span id="vSdW">1.0</span></label><input type="range" id="sSdW" min="0.2" max="3" value="1.0" step="0.1"></div>
+<div class="slider-group"><label><span data-zh="小鼠層 SD (between-mouse)" data-en="between-mouse SD">小鼠層 SD</span> <span id="vSdB">1.2</span></label><input type="range" id="sSdB" min="0" max="3" value="1.2" step="0.1"></div>
+<div class="slider-group"><label><span data-zh="真實處理效應 β" data-en="true effect β">真實 β</span> <span id="vBeta">0.6</span></label><input type="range" id="sBeta" min="-2" max="2" value="0.6" step="0.1"></div>
+<div id="nestedStats" style="font-size:.88rem;color:var(--c-ink-light);margin:10px 0;padding:12px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:300px;"><canvas id="nestedChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">每隻小鼠一種顏色，左 = 對照，右 = 處理。橫線 = 該小鼠的細胞 mean。</span><span data-lang="en">One colour per mouse; left = control, right = treated. Bar = that mouse's cell-level mean.</span></p>
+</div>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>觀察：</strong>把 between-mouse SD 從 0.2 拉到 2.5，OLS 的 p 值幾乎不變，但混合模型的 SE 會明顯放大。這就是為什麼<strong>用 OLS 分析巢狀資料會給你「假陽性」</strong>。極端例子：n_mice = 3、m = 100 時，OLS 「n = 300」聲稱有顯著差異，混合模型可能告訴你 p &gt; 0.3。</span>
+<span data-lang="en"><strong>What to watch:</strong> push between-mouse SD from 0.2 to 2.5: the OLS p barely budges, but the mixed-model SE inflates a lot. That is why <strong>OLS on nested data gives you false positives</strong>. Extreme case: n_mice = 3, m = 100 — OLS claims "n = 300" and a huge significance; the mixed model can give p &gt; 0.3.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 4: Deep dive on methods ===== -->
+<section class="section">
+<div class="section-label" data-zh="深入討論" data-en="DEEP DIVE">深入討論</div>
+<h2 data-zh="二、lme4、REML、df 修正、BLUP、GLMM、GEE、Bayesian" data-en="II. lme4, REML, df corrections, BLUPs, GLMM, GEE, Bayesian">二、lme4、REML、df 修正、BLUP、GLMM、GEE、Bayesian</h2>
+
+<div class="card-grid cols-2">
+<div class="card"><h4>📦 <span data-zh="lme4 (Bates 2015 J Stat Softw 67:1)" data-en="lme4 (Bates 2015 J Stat Softw 67:1)">lme4</span></h4>
+<div data-lang="zh"><p>R 的事實標準。<code>lmer(y ~ treat + (1|mouse))</code>。基於 sparse Cholesky 與 PIRLS 的 ECM 演算法，可以處理交叉（crossed）與巢狀（nested）隨機效應，速度比 nlme 快數十倍。<strong>但 lme4 預設不給 p 值</strong>——Doug Bates 的立場是：適當的 reference distribution 在混合模型中沒有單一正確答案。</p></div>
+<div data-lang="en"><p>The de facto R standard. <code>lmer(y ~ treat + (1|mouse))</code>. Sparse Cholesky + PIRLS ECM; handles crossed and nested random effects far faster than nlme. <strong>By design lme4 does not return p-values</strong> — Doug Bates argues there is no single correct reference distribution for mixed models.</p></div>
+</div>
+<div class="card"><h4>📦 <span data-zh="nlme (Pinheiro-Bates 2000)" data-en="nlme (Pinheiro-Bates 2000)">nlme</span></h4>
+<div data-lang="zh"><p>R 的「老牌」混合模型套件，<code>lme()</code> 與 <code>nlme()</code>。比 lme4 慢，但支援<strong>相關結構（correlation structures）</strong>——AR(1)、exchangeable、compound symmetry，這對縱貫資料 (longitudinal) 非常重要。教科書 Pinheiro & Bates 2000《Mixed-Effects Models in S and S-PLUS》仍是經典。</p></div>
+<div data-lang="en"><p>The classic R package: <code>lme()</code> and <code>nlme()</code>. Slower than lme4 but supports <strong>correlation structures</strong> — AR(1), exchangeable, compound symmetry — which matter for longitudinal data. The textbook Pinheiro & Bates 2000 <em>Mixed-Effects Models in S and S-PLUS</em> remains the canonical reference.</p></div>
+</div>
+<div class="card"><h4>🧪 <span data-zh="REML vs ML" data-en="REML vs ML">REML vs ML</span></h4>
+<div data-lang="zh"><p><strong>REML (Restricted Maximum Likelihood)</strong>：預設，估變異成分時<strong>無偏</strong>（unbiased），是推論變異 / ICC 的正確方法。<br><strong>ML (Maximum Likelihood)</strong>：估變異會略微低估，但<strong>當你要比較固定效應結構不同的兩個模型</strong>（用 likelihood ratio test, LRT），必須改成 ML。<br>實務：<code>lmer(..., REML=TRUE)</code> 報告變異；<code>REML=FALSE</code> 跑 LRT 比模型。</p></div>
+<div data-lang="en"><p><strong>REML</strong>: default; produces <strong>unbiased</strong> variance estimates and is the right choice for inferring variance components / ICC.<br><strong>ML</strong>: slightly biased variance, but <strong>required when comparing two models that differ in fixed effects</strong> via a likelihood ratio test.<br>Rule: <code>lmer(..., REML=TRUE)</code> to report; <code>REML=FALSE</code> for LRTs on fixed effects.</p></div>
+</div>
+<div class="card"><h4>🔢 <span data-zh="Satterthwaite vs Kenward-Roger df" data-en="Satterthwaite vs Kenward-Roger df">Satterthwaite vs Kenward-Roger</span></h4>
+<div data-lang="zh"><p>lmer 不直接給 p 值，因為自由度 (df) 在混合模型下沒有清晰定義。<strong>近似方案</strong>：(1) <code>lmerTest</code> 套件用 <strong>Satterthwaite</strong> 近似（速度快、適合中大樣本）；(2) <code>pbkrtest</code> 套件用 <strong>Kenward-Roger</strong>（小樣本最準確，是 Luke 2017 J Memory Lang 強力推薦的方法）。<strong>小 n 一律用 KR</strong>。</p></div>
+<div data-lang="en"><p>lmer doesn't print p-values because df is not cleanly defined for mixed models. <strong>Approximations</strong>: (1) <code>lmerTest</code> uses <strong>Satterthwaite</strong> (fast, fine for medium/large samples); (2) <code>pbkrtest</code> uses <strong>Kenward-Roger</strong> (most accurate at small n, recommended by Luke 2017 J Memory Lang). <strong>Always prefer KR when n is small.</strong></p></div>
+</div>
+<div class="card"><h4>🎁 <span data-zh="BLUP 隨機效應預測" data-en="BLUPs">BLUPs</span></h4>
+<div data-lang="zh"><p><strong>Best Linear Unbiased Predictor</strong>：每個隨機效應 level 的「最佳預測值」。<code>ranef(fit)</code> 取出每隻小鼠的截距偏移。BLUPs 比 group-wise mean 更穩定，因為它向總平均「收縮」（shrinkage）——這是 James-Stein 估計子的近親，也是 Bayesian 視角下的後驗 mode。</p></div>
+<div data-lang="en"><p><strong>Best Linear Unbiased Predictor</strong>: the best predicted value for each random-effect level. <code>ranef(fit)</code> returns per-mouse intercept offsets. BLUPs are more stable than per-group means because they <strong>shrink</strong> toward the grand mean — a cousin of the James-Stein estimator, and the posterior mode in a Bayesian view.</p></div>
+</div>
+<div class="card"><h4>🔁 <span data-zh="GLMM 廣義線性混合模型" data-en="GLMM">GLMM</span></h4>
+<div data-lang="zh"><p>當反應變數不是常態（binary outcome、count）時，用 <code>glmer(y ~ x + (1|cluster), family=binomial)</code>。例：cluster-randomised trial 的二分結果、神經元 spike count（Poisson）、過度離散計數（negative binomial）。算法用 Laplace 近似或 adaptive Gauss-Hermite quadrature。</p></div>
+<div data-lang="en"><p>When the response is not Gaussian (binary, count), use <code>glmer(y ~ x + (1|cluster), family=binomial)</code>. Examples: binary outcomes in cluster-RCTs, neuron spike counts (Poisson), overdispersed counts (negative binomial). Fitted with Laplace approximation or adaptive Gauss-Hermite quadrature.</p></div>
+</div>
+<div class="card"><h4>🌐 <span data-zh="GEE 廣義估計方程 (Liang-Zeger 1986)" data-en="GEE (Liang-Zeger 1986)">GEE</span></h4>
+<div data-lang="zh"><p><strong>Generalized Estimating Equations</strong>（Liang & Zeger 1986 Biometrika 73:13）。提供<strong>母體層級（population-average / marginal）</strong>推論——你想知道「整個母體的平均效應」，而不是「給定 cluster 的條件效應」。使用 sandwich estimator，<strong>對 working correlation 的設定有 robust 性質</strong>。GLMM 給 subject-specific 估計、GEE 給 population-average，兩者在非線性連結（logit）下會不同。</p></div>
+<div data-lang="en"><p><strong>Generalized Estimating Equations</strong> (Liang & Zeger 1986 Biometrika 73:13). Provides <strong>population-average (marginal)</strong> inference — "the average effect over the whole population", not the conditional effect given a cluster. Uses a sandwich variance estimator, <strong>robust to misspecified working correlation</strong>. GLMM gives subject-specific, GEE gives population-average estimates; under nonlinear links (logit) the two differ.</p></div>
+</div>
+<div class="card"><h4>🛠 <span data-zh="glmmTMB (Brooks 2017 R J)" data-en="glmmTMB (Brooks 2017 R J)">glmmTMB</span></h4>
+<div data-lang="zh"><p>建立在 Template Model Builder 之上，速度快、支援 lme4 無法處理的家族：<strong>zero-inflated、negative binomial（NB1/NB2）、beta、Tweedie、ordered beta、Conway-Maxwell-Poisson</strong>。當 lme4 收斂困難或需要 ZINB 時，第一個替代品就是 glmmTMB。</p></div>
+<div data-lang="en"><p>Built on TMB; fast and supports families lme4 cannot: <strong>zero-inflated, negative binomial (NB1/NB2), beta, Tweedie, ordered beta, Conway-Maxwell-Poisson</strong>. When lme4 will not converge or you need zero-inflated NB, glmmTMB is the first place to look.</p></div>
+</div>
+<div class="card"><h4>🧠 <span data-zh="Bayesian: brms / MCMCglmm" data-en="Bayesian: brms / MCMCglmm">brms / MCMCglmm</span></h4>
+<div data-lang="zh"><p><strong>brms</strong>（Bürkner 2017 J Stat Softw 80:1）是 R 對 Stan 的封裝，公式語法和 lme4 幾乎一致：<code>brm(y ~ x + (1|mouse))</code>，背後是 NUTS-HMC。<strong>當隨機效應 level 很少（&lt; 5）</strong>，lme4 容易給 singular fit / 邊界估計，這時 weakly informative prior 的 Bayesian 模型（brms / MCMCglmm Hadfield 2010）給的後驗區間更可靠。也支援 missing data 與複雜似然。</p></div>
+<div data-lang="en"><p><strong>brms</strong> (Bürkner 2017 J Stat Softw 80:1) wraps Stan in lme4-style syntax: <code>brm(y ~ x + (1|mouse))</code>, fitted with NUTS-HMC. <strong>When the number of random-effect levels is small (&lt; 5)</strong>, lme4 often returns singular fits / boundary estimates; a Bayesian fit (brms / MCMCglmm, Hadfield 2010) with weakly informative priors gives more reliable posterior intervals. Also handles missing data and complex likelihoods.</p></div>
+</div>
+</div>
+
+<div class="idea">
+<span data-lang="zh"><strong>「Three-of-them」實務口訣：</strong>(1) <code>lmer + lmerTest</code> + Kenward-Roger 是 80% 場合的最佳組合；(2) 二分／計數結果改 <code>glmer</code> 或 <code>glmmTMB</code>；(3) 隨機效應 level &lt; 5 或 singular fit → 直接上 <code>brms</code>。記住 Gelman-Hill 2006 的名言：「<em>If you have fewer than 5 levels, partial pooling will help you most</em>.」</span>
+<span data-lang="en"><strong>The "three-of-them" rule:</strong> (1) <code>lmer + lmerTest</code> with Kenward-Roger covers 80% of cases; (2) binary / count outcomes → <code>glmer</code> or <code>glmmTMB</code>; (3) fewer than 5 random-effect levels, or a singular fit → go straight to <code>brms</code>. Remember Gelman & Hill 2006: "If you have fewer than 5 levels, partial pooling helps you the most."</span>
+</div>
+</section>
+
+<!-- ===== Section 5: Interactive sim 2 — ICC vs design effect ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="ICC 與設計效應：cluster 越大、ICC 越高，樣本需求飆升" data-en="ICC and design effect: sample-size needs explode with cluster size and ICC">ICC 與設計效應：cluster 越大、ICC 越高，樣本需求飆升</h2>
+<div data-lang="zh"><p>在 cluster-randomised trial（醫院 / 班級 / 動物欄）中，<strong>實際所需樣本 = 標稱 n × Design Effect</strong>，其中 <span class="math">DE = 1 + (m − 1) · ICC</span>，m = 每 cluster 觀察數。當 ICC = 0.05、m = 20，DE ≈ 1.95——你需要<strong>兩倍</strong>樣本才能達到原本獨立樣本的 power。Donner & Klar 2000 是 cluster-RCT 設計的標準參考。</p></div>
+<div data-lang="en"><p>In a cluster-randomised trial (hospital, classroom, animal-pen unit), <strong>required sample = nominal n × Design Effect</strong>, where <span class="math">DE = 1 + (m − 1) · ICC</span> and m = observations per cluster. With ICC = 0.05 and m = 20, DE ≈ 1.95 — you need <strong>twice</strong> the sample for the same power as an independent design. Donner & Klar 2000 is the standard reference for cluster-RCT design.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label>ICC <span id="vIcc2">0.05</span></label><input type="range" id="sIcc2" min="0" max="0.5" value="0.05" step="0.01"></div>
+<div class="slider-group"><label><span data-zh="每 cluster 觀察數 m" data-en="m per cluster">每 cluster 觀察數 m</span> <span id="vM2">20</span></label><input type="range" id="sM2" min="2" max="100" value="20" step="1"></div>
+<div class="slider-group"><label><span data-zh="標稱樣本 n_nominal" data-en="nominal n">標稱 n</span> <span id="vN2">200</span></label><input type="range" id="sN2" min="50" max="2000" value="200" step="10"></div>
+<div id="iccStats" style="font-size:.88rem;color:var(--c-ink-light);margin:10px 0;padding:12px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:220px;"><canvas id="iccChart"></canvas></div>
+</div>
+<div class="callout danger"><span class="callout-icon">🚨</span><div>
+<span data-lang="zh"><strong>給 clinical trial 設計者：</strong>計算 cluster-RCT 樣本時，<strong>必須先估計 ICC</strong>。常見值：學校層級教育介入 ICC ≈ 0.01–0.10；醫院層級照護品質研究 ICC ≈ 0.01–0.05（Adams et al. 2004）；動物欄 cage effect ICC 可達 0.1–0.3。若忽略 cluster 結構，研究會嚴重 underpowered。</span>
+<span data-lang="en"><strong>For trialists:</strong> when sizing a cluster-RCT, <strong>estimate ICC first</strong>. Typical values: school-level education interventions ICC ≈ 0.01–0.10; hospital-level quality studies ICC ≈ 0.01–0.05 (Adams et al. 2004); animal-cage effects ICC ≈ 0.1–0.3. Ignoring the cluster structure leaves your study badly underpowered.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 6: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="三、Fixed / Random / GEE / Bayesian——怎麼選？" data-en="III. Fixed / Random / GEE / Bayesian — how to choose">三、Fixed / Random / GEE / Bayesian——怎麼選？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="混合模型方法選擇樹" data-en="Mixed-model method selection tree">混合模型方法選擇樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>觀察值彼此獨立嗎？<span class="dt-arrow">→ 是 →</span> 用普通 OLS / t-test / GLM 即可，不需要混合模型。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>分群變數的 level 是研究中<strong>關心的全部</strong>（如 2 種藥）嗎？<span class="dt-arrow">→ 是 →</span> <strong>fixed effect</strong>。若 level 是<strong>更大母體的樣本</strong>（病人 ID、實驗批次）<span class="dt-arrow">→</span> <strong>random effect</strong>。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>反應變數是常態？<span class="dt-arrow">→ 是 →</span> <code>lmer</code>（lme4）+ lmerTest / pbkrtest 取得 p 值。<span class="dt-arrow">→ 否 →</span> <code>glmer</code> / <code>glmmTMB</code>。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>你關心「母體平均效應」而非「條件效應」（如公衛政策評估）？<span class="dt-arrow">→ 是 →</span> <strong>GEE</strong>（geepack / statsmodels GEE）+ exchangeable 或 AR(1) working correlation。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>隨機效應 level &lt; 5、或 lmer 報 singular fit、或樣本極小？<span class="dt-arrow">→ 是 →</span> <strong>Bayesian</strong>（brms / MCMCglmm），用 weakly informative prior 穩定變異成分。</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>縱貫資料，且時間點間相關隨距離衰減？<span class="dt-arrow">→ 是 →</span> 用 <strong>nlme::lme</strong> 加 <code>correlation = corAR1()</code>，或 glmmTMB 的 <code>ar1()</code> 結構。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Are observations independent? <span class="dt-arrow">→ Yes →</span> plain OLS / t-test / GLM — no mixed model needed.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Are the levels of a grouping variable <strong>all of interest</strong> (e.g. 2 drugs)? <span class="dt-arrow">→ Yes →</span> <strong>fixed effect</strong>. If levels are a <strong>sample from a larger population</strong> (patient ID, batch) <span class="dt-arrow">→</span> <strong>random effect</strong>.</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Gaussian response? <span class="dt-arrow">→ Yes →</span> <code>lmer</code> (lme4) + lmerTest / pbkrtest for p-values. <span class="dt-arrow">→ No →</span> <code>glmer</code> / <code>glmmTMB</code>.</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>You want the <strong>population-average effect</strong> rather than conditional (e.g. public-health policy)? <span class="dt-arrow">→ Yes →</span> <strong>GEE</strong> (geepack / statsmodels GEE) with exchangeable or AR(1) working correlation.</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Fewer than 5 random-effect levels, singular fit, or very small n? <span class="dt-arrow">→ Yes →</span> <strong>Bayesian</strong> (brms / MCMCglmm) with weakly informative priors.</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>Longitudinal data with time-distance-decaying correlation? <span class="dt-arrow">→ Yes →</span> use <strong>nlme::lme</strong> with <code>correlation = corAR1()</code>, or glmmTMB's <code>ar1()</code> structure.</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 7: Comparison table ===== -->
+<section class="section">
+<div class="section-label" data-zh="工具比較" data-en="TOOL COMPARISON">工具比較</div>
+<h2 data-zh="四、五大混合模型工具對照" data-en="IV. Five mixed-model engines side by side">四、五大工具對照</h2>
+<table class="comp-table">
+<thead><tr>
+<th data-zh="套件 / 工具" data-en="Package">套件</th>
+<th data-zh="語言" data-en="Language">語言</th>
+<th data-zh="強項" data-en="Strengths">強項</th>
+<th data-zh="弱項" data-en="Weaknesses">弱項</th>
+<th data-zh="典型場景" data-en="Typical use">典型場景</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>lme4</strong><br><small>Bates 2015</small></td><td>R</td><td data-lang="zh">速度、交叉隨機效應、生態系大</td><td data-lang="zh">不直接給 p 值；非常態家族有限</td><td data-lang="zh">linear / logistic / Poisson 混合模型主力</td><td data-lang="en">Fast, crossed random effects, huge ecosystem</td><td data-lang="en">No p-values out of the box; limited non-Gaussian</td><td data-lang="en">Workhorse for linear / logistic / Poisson mixed</td></tr>
+<tr><td><strong>nlme</strong><br><small>Pinheiro-Bates 2000</small></td><td>R</td><td data-lang="zh">支援 correlation structures（AR1、CS、UN）</td><td data-lang="zh">速度慢；不支援交叉隨機效應</td><td data-lang="zh">縱貫資料、藥動力學 (PK/PD)</td><td data-lang="en">Supports correlation structures (AR1, CS, UN)</td><td data-lang="en">Slow; no crossed random effects</td><td data-lang="en">Longitudinal, PK/PD modelling</td></tr>
+<tr><td><strong>statsmodels MixedLM</strong></td><td>Python</td><td data-lang="zh">Python 原生、整合 pandas</td><td data-lang="zh">功能比 lme4 少；速度較慢；GLMM 較弱</td><td data-lang="zh">Python pipeline 簡單混合模型</td><td data-lang="en">Native Python, pandas integration</td><td data-lang="en">Fewer features than lme4; slower; weak GLMM</td><td data-lang="en">Simple mixed models in a Python pipeline</td></tr>
+<tr><td><strong>glmmTMB</strong><br><small>Brooks 2017</small></td><td>R</td><td data-lang="zh">Zero-inflated、NB、beta、Tweedie；速度快</td><td data-lang="zh">學習曲線略陡；診斷工具較少</td><td data-lang="zh">過度離散計數、零膨脹資料</td><td data-lang="en">Zero-inflated, NB, beta, Tweedie; fast</td><td data-lang="en">Steeper learning curve; fewer diagnostics</td><td data-lang="en">Overdispersed counts, zero-inflated data</td></tr>
+<tr><td><strong>brms</strong><br><small>Bürkner 2017</small></td><td>R (Stan)</td><td data-lang="zh">任何 likelihood、完整不確定性、小 n 穩定</td><td data-lang="zh">慢（MCMC）；需要 prior 思考</td><td data-lang="zh">小樣本、複雜模型、報告 credible interval</td><td data-lang="en">Any likelihood, full uncertainty, robust at small n</td><td data-lang="en">Slow (MCMC); requires prior thinking</td><td data-lang="en">Small samples, complex models, credible intervals</td></tr>
+</tbody></table>
+</section>
+
+<!-- ===== Section 8: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作範例：lmer、glmer、anova、ranef、MixedLM、GEE" data-en="V. Code: lmer, glmer, anova, ranef, MixedLM, GEE">五、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R / lme4 + lmerTest</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python / statsmodels</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: lme4 + lmerTest + pbkrtest + geepack + brms</span>
+<span class="func">library</span>(lme4); <span class="func">library</span>(lmerTest)      <span class="comment"># Satterthwaite df</span>
+<span class="func">library</span>(pbkrtest)                  <span class="comment"># Kenward-Roger df (small n)</span>
+<span class="func">library</span>(geepack); <span class="func">library</span>(brms)
+
+<span class="comment"># --- Linear mixed model: random intercept ---</span>
+fit1 &lt;- <span class="func">lmer</span>(expr ~ treat + time + (<span class="num">1</span> | mouse), data = df,
+             REML = <span class="kw">TRUE</span>)                    <span class="comment"># REML for variance reporting</span>
+<span class="func">summary</span>(fit1)                            <span class="comment"># lmerTest gives p via Satterthwaite</span>
+<span class="func">anova</span>(fit1, ddf = <span class="str">"Kenward-Roger"</span>)        <span class="comment"># KR df — preferred when n small</span>
+
+<span class="comment"># --- Random slope + intercept ---</span>
+fit2 &lt;- <span class="func">lmer</span>(expr ~ time + (<span class="num">1</span> + time | mouse), data = df)
+<span class="func">VarCorr</span>(fit2)                            <span class="comment"># variance components</span>
+<span class="func">ranef</span>(fit2)$mouse                       <span class="comment"># BLUPs per mouse</span>
+<span class="func">fixef</span>(fit2)                             <span class="comment"># fixed-effect estimates</span>
+
+<span class="comment"># --- Compare fixed-effect structures: USE ML, not REML ---</span>
+m_null &lt;- <span class="func">lmer</span>(expr ~ <span class="num">1</span>     + (<span class="num">1</span>|mouse), data = df, REML = <span class="kw">FALSE</span>)
+m_alt  &lt;- <span class="func">lmer</span>(expr ~ treat + (<span class="num">1</span>|mouse), data = df, REML = <span class="kw">FALSE</span>)
+<span class="func">anova</span>(m_null, m_alt)                     <span class="comment"># likelihood ratio test</span>
+
+<span class="comment"># --- GLMM: binary outcome with random clinic ---</span>
+g &lt;- <span class="func">glmer</span>(recovered ~ drug + age + (<span class="num">1</span>|clinic),
+            data = trial, family = binomial)
+
+<span class="comment"># --- GEE: population-average estimate ---</span>
+gee &lt;- <span class="func">geeglm</span>(recovered ~ drug + age, id = clinic, data = trial,
+              family = binomial, corstr = <span class="str">"exchangeable"</span>)
+
+<span class="comment"># --- ICC from a fitted lmer ---</span>
+v &lt;- <span class="func">as.data.frame</span>(<span class="func">VarCorr</span>(fit1))
+icc &lt;- v$vcov[<span class="num">1</span>] / <span class="func">sum</span>(v$vcov)
+
+<span class="comment"># --- Bayesian fallback for small n / singular fits ---</span>
+fit_b &lt;- <span class="func">brm</span>(expr ~ treat + (<span class="num">1</span>|mouse), data = df,
+             prior = <span class="func">prior</span>(student_t(<span class="num">3</span>, <span class="num">0</span>, <span class="num">2.5</span>), <span class="str">"sd"</span>),
+             chains = <span class="num">4</span>, cores = <span class="num">4</span>)</pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+<span class="kw">import</span> statsmodels.formula.api <span class="kw">as</span> smf
+<span class="kw">from</span> statsmodels.genmod.generalized_estimating_equations <span class="kw">import</span> GEE
+<span class="kw">from</span> statsmodels.genmod.families <span class="kw">import</span> Binomial
+
+<span class="comment"># --- Linear mixed model: random intercept ---</span>
+m = smf.<span class="func">mixedlm</span>(<span class="str">'expr ~ treat + time'</span>, df, groups=df[<span class="str">'mouse'</span>])
+fit = m.<span class="func">fit</span>(reml=<span class="kw">True</span>)
+<span class="func">print</span>(fit.<span class="func">summary</span>())
+
+<span class="comment"># --- Random slope: vc_formula or re_formula ---</span>
+m2 = smf.<span class="func">mixedlm</span>(<span class="str">'expr ~ time'</span>, df, groups=df[<span class="str">'mouse'</span>],
+                   re_formula=<span class="str">'~time'</span>)
+fit2 = m2.<span class="func">fit</span>()
+<span class="func">print</span>(fit2.random_effects)         <span class="comment"># BLUPs per mouse</span>
+<span class="func">print</span>(fit2.fe_params)              <span class="comment"># fixed effects</span>
+
+<span class="comment"># --- ICC ---</span>
+sig2_b = fit.cov_re.iloc[<span class="num">0</span>, <span class="num">0</span>]
+sig2_w = fit.scale
+icc = sig2_b / (sig2_b + sig2_w)
+
+<span class="comment"># --- GLMM: BinomialBayesMixedGLM (limited) ---</span>
+<span class="kw">from</span> statsmodels.genmod.bayes_mixed_glm <span class="kw">import</span> BinomialBayesMixedGLM
+glmm = BinomialBayesMixedGLM.<span class="func">from_formula</span>(
+    <span class="str">'recovered ~ drug + age'</span>, {<span class="str">'clinic'</span>: <span class="str">'0 + C(clinic)'</span>}, trial)
+res = glmm.<span class="func">fit_vb</span>()
+
+<span class="comment"># --- GEE: population-average ---</span>
+gee = GEE.<span class="func">from_formula</span>(<span class="str">'recovered ~ drug + age'</span>, <span class="str">'clinic'</span>, trial,
+                       family=<span class="func">Binomial</span>(),
+                       cov_struct=sm.cov_struct.<span class="func">Exchangeable</span>())
+gee_fit = gee.<span class="func">fit</span>()
+<span class="func">print</span>(gee_fit.<span class="func">summary</span>())</pre></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>實作小撇步：</strong>(1) Always plot <code>residuals(fit)</code> vs fitted——看是否還有殘留結構；(2) <code>ranef</code> 取出 BLUPs 後畫 caterpillar plot（<code>dotplot(ranef(fit))</code>），檢查極端 outlier group；(3) <code>performance::icc()</code> 一行算 conditional 與 marginal ICC（Nakagawa-Schielzeth 2013 Methods Ecol Evol 4:133）。</span>
+<span data-lang="en"><strong>Practical tips:</strong> (1) Always plot <code>residuals(fit)</code> vs fitted to check for leftover structure; (2) pull BLUPs with <code>ranef</code> and draw a caterpillar plot (<code>dotplot(ranef(fit))</code>) to spot outlier groups; (3) <code>performance::icc()</code> gives conditional and marginal ICC in one line (Nakagawa-Schielzeth 2013 Methods Ecol Evol 4:133).</span>
+</div></div>
+</section>
+
+<!-- ===== Section 9: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="六、混合模型的六大陷阱" data-en="VI. Six pitfalls in mixed-model practice">六、六大陷阱</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="假性重複 (Pseudoreplication)" data-en="Pseudoreplication">Pseudoreplication</span></h4>
+<div data-lang="zh"><p><strong>Hurlbert 1984</strong>「假裝相關資料是獨立」是這個領域最古老、最普遍的錯誤。電生理（多細胞 / 單鼠）、組織學（多切片 / 單樣本）、影像（多視野 / 單皿）皆是高風險區。<strong>解方：cluster 變數一律放成 random effect</strong>。Lazic 2010 用一篇 BMC Neurosci 整篇文章證明：神經科學論文中此錯誤普及率高得令人擔憂。</p></div>
+<div data-lang="en"><p><strong>Hurlbert 1984</strong>'s "treating correlated data as independent" remains the oldest and most common offence. High-risk zones: electrophysiology (many cells / one mouse), histology (many slices / one block), imaging (many fields / one dish). <strong>Fix: any clustering variable becomes a random effect</strong>. Lazic 2010 BMC Neurosci showed the problem is widespread in neuroscience papers.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Singular fit / 邊界估計" data-en="Singular fits / boundary estimates">Singular fit</span></h4>
+<div data-lang="zh"><p>lme4 警告 <code>boundary (singular) fit: see ?isSingular</code>，通常表示某個變異成分被估到 0、或隨機斜率與截距完美相關。<strong>常見原因</strong>：random-effect level 太少（&lt; 5）、模型過度複雜（random slope 但每群觀察太少）、資料的真實 ICC 確實接近 0。<strong>解方</strong>：簡化隨機結構，或改用 brms（Bayesian 自然處理邊界）。</p></div>
+<div data-lang="en"><p>lme4 warns <code>boundary (singular) fit: see ?isSingular</code> — usually a variance component estimated at zero or an intercept-slope correlation pinned at ±1. <strong>Causes</strong>: too few random-effect levels (&lt; 5), an over-rich random structure (random slope with few obs per group), or a genuinely tiny ICC. <strong>Fix</strong>: simplify the random structure, or switch to brms (Bayesian handles boundaries naturally).</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="比較固定效應時用了 REML" data-en="Using REML to compare fixed effects">REML 比較固定效應</span></h4>
+<div data-lang="zh"><p>REML 的 likelihood 與固定效應設定有關，<strong>用 REML 跑 LRT 比較不同固定效應結構是錯的</strong>。改用 <code>REML = FALSE</code>（ML）來比較固定效應；要報告變異成分時再切回 REML。<code>anova(m_null, m_alt)</code> 在 lme4 中會自動 refit 到 ML，但別忽視這個細節。</p></div>
+<div data-lang="en"><p>The REML likelihood depends on the fixed-effects specification, so <strong>using REML for a LRT across different fixed-effect models is invalid</strong>. Switch to <code>REML = FALSE</code> (ML) for fixed-effects comparisons; switch back to REML when reporting variance components. <code>anova(m_null, m_alt)</code> in lme4 quietly refits to ML — don't ignore the detail.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="lmer 不給 p 值就胡亂報告" data-en="Bare lmer numbers reported as p-values">「lmer 不給 p」</span></h4>
+<div data-lang="zh"><p>原生 lme4 的 <code>summary</code> 不印 p 值——但很多論文卻寫了「p &lt; 0.001」。<strong>必須附上方法</strong>：Satterthwaite (lmerTest) 或 Kenward-Roger (pbkrtest)，或用 LRT、parametric bootstrap、profile CI。Luke 2017 J Memory Lang 強烈推薦 KR 為小樣本黃金標準。</p></div>
+<div data-lang="en"><p>The native <code>summary(lmer)</code> prints no p-values — yet papers cheerfully report "p &lt; 0.001". <strong>State the method</strong>: Satterthwaite (lmerTest), Kenward-Roger (pbkrtest), LRT, parametric bootstrap, or profile CI. Luke 2017 J Memory Lang strongly recommends KR as the small-sample gold standard.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="忽視收斂警告" data-en="Ignoring convergence warnings">收斂警告被忽視</span></h4>
+<div data-lang="zh"><p><code>Model failed to converge</code>、<code>maxfun=2*10^4</code> 警告經常被當「擺著就好」。但這通常代表優化器沒走到 ML/REML 真正的極值，估計值不可靠。<strong>處置</strong>：(1) 換 optimizer：<code>control = lmerControl(optimizer = "bobyqa")</code>；(2) 中心化／標準化 predictor；(3) 簡化隨機結構；(4) 改 brms / glmmTMB。</p></div>
+<div data-lang="en"><p><code>Model failed to converge</code> and <code>maxfun=2*10^4</code> warnings are routinely "left in place". They usually mean the optimiser did not reach the actual ML/REML optimum, so estimates are unreliable. <strong>What to do</strong>: (1) try another optimiser: <code>control = lmerControl(optimizer = "bobyqa")</code>; (2) centre / scale predictors; (3) simplify the random structure; (4) switch to brms / glmmTMB.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="忽略交叉隨機效應" data-en="Ignoring crossed random effects">忽略交叉隨機效應</span></h4>
+<div data-lang="zh"><p>當「受試者」與「項目（item / stimulus）」彼此都重複（如 psycholinguistic 實驗），<strong>必須同時放 random effect</strong>：<code>y ~ x + (1|subject) + (1|item)</code>。Baayen-Davidson-Bates 2008 J Memory Lang 是這個觀念的標誌。多個生物實驗（trial × cell line、reader × image）也適用。lme4 對交叉結構支援良好，nlme 不行。</p></div>
+<div data-lang="en"><p>When "subjects" and "items" both repeat (e.g. psycholinguistics, reader × image, trial × cell line) you must include <strong>both as random effects</strong>: <code>y ~ x + (1|subject) + (1|item)</code>. Baayen, Davidson & Bates 2008 J Memory Lang is the landmark paper. lme4 supports crossed random effects natively; nlme does not.</p></div>
+</div>
+</div>
+<div class="pitfall">
+<span class="pitfall-title" data-zh="陷阱：把 random effect 當成「掩蓋小 n」的萬靈丹" data-en="Pitfall: treating random effects as a magic fix for tiny n">陷阱：random effect 不是萬靈丹</span>
+<span data-lang="zh">「我加了 random effect，所以小 n 沒問題」——錯。隨機效應可以正確處理結構，但<strong>無法憑空產生資訊</strong>。當你只有 3 隻小鼠，混合模型誠實地告訴你「自由度只有 ~2」，這正是它的價值。若連 2 自由度都不夠做你想做的 inference，<strong>真正的答案是再做幾隻小鼠</strong>，不是換另一個模型。</span>
+<span data-lang="en">"I added a random effect, so n=3 is fine" — no. Random effects handle structure correctly, but they <strong>cannot manufacture information</strong>. With three mice, the mixed model honestly tells you "df ≈ 2" — that is its value. If 2 df is not enough for your inference, the <strong>real answer is more mice</strong>, not a different model.</span>
+</div>
+</section>
+
+<!-- ===== Section 10: Real-world examples ===== -->
+<section class="section">
+<div class="section-label" data-zh="真實案例" data-en="REAL CASES">真實案例</div>
+<h2 data-zh="七、四個典型生醫場景" data-en="VII. Four real biomedical scenarios">七、四個典型場景</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>🧬 <span data-zh="縱貫病人測量" data-en="Longitudinal patient measurements">縱貫病人測量</span></h4>
+<div data-lang="zh"><p>50 位糖尿病患者，每位每月測 HbA1c 共 12 個月。<strong>模型</strong>：<code>HbA1c ~ time + treat + time:treat + (1 + time | patient)</code>。time:treat 是「處理改變斜率」的 interaction；random slope 容許每位患者自己的血糖控制軌跡。</p></div>
+<div data-lang="en"><p>50 diabetes patients, HbA1c measured monthly for 12 months. <strong>Model</strong>: <code>HbA1c ~ time + treat + time:treat + (1 + time | patient)</code>. The time:treat interaction captures the treatment effect on the slope; the random slope lets each patient have their own glycaemic trajectory.</p></div>
+</div>
+<div class="card"><h4>🏥 <span data-zh="Cluster RCT (醫院層級隨機化)" data-en="Cluster RCT (clinic-level randomisation)">Cluster RCT</span></h4>
+<div data-lang="zh"><p>20 家診所被隨機分配「新照護模式 vs 標準」，每家 100 位病人。<strong>模型</strong>：<code>outcome ~ arm + age + (1 | clinic)</code>；二分結果用 <code>glmer</code> binomial 或 GEE exchangeable。樣本量計算必須乘以 design effect（見模擬 ②）。</p></div>
+<div data-lang="en"><p>20 clinics randomised to "new care model vs standard", 100 patients per clinic. <strong>Model</strong>: <code>outcome ~ arm + age + (1 | clinic)</code>; binary outcome with <code>glmer</code> binomial or GEE exchangeable. Sample-size calculation must multiply by the design effect (see Sim ②).</p></div>
+</div>
+<div class="card"><h4>🧠 <span data-zh="多電極神經記錄" data-en="Multi-electrode neural recordings">多電極神經記錄</span></h4>
+<div data-lang="zh"><p>5 隻大鼠，每隻 32 通道，每通道記錄 ~200 神經元 spike rate。<strong>三層巢狀</strong>：<code>rate ~ stim + (1 | rat / channel / unit)</code>。完美對應 Aarts 2014 Nat Neurosci 的警告：別把 32 × 200 當 6400 個獨立樣本。</p></div>
+<div data-lang="en"><p>5 rats, 32 channels each, ~200 neuron spike rates per channel. <strong>Three-level nesting</strong>: <code>rate ~ stim + (1 | rat / channel / unit)</code>. Exactly the scenario Aarts et al. 2014 Nat Neurosci warn about — don't treat 32 × 200 as 6,400 independent samples.</p></div>
+</div>
+<div class="card"><h4>🌐 <span data-zh="多地點基因體研究" data-en="Multi-site genomic studies">多地點基因體研究</span></h4>
+<div data-lang="zh"><p>5 個中心，每個中心 200 個樣本，做 RNA-seq 表達量分析。<strong>模型</strong>：<code>expression ~ disease + age + sex + (1 | center)</code>，或把 center 與 batch 雙隨機效應 <code>+ (1 | batch)</code>。這也是消除批次效應 (batch effect) 的補充工具，跟 ComBat / sva 互補。</p></div>
+<div data-lang="en"><p>5 centres, 200 RNA-seq samples each. <strong>Model</strong>: <code>expression ~ disease + age + sex + (1 | center)</code>, or include both centre and batch <code>+ (1 | batch)</code>. Complements ComBat / sva for batch-effect handling.</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 11: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 你用 5 隻小鼠，每隻取 20 顆神經元做電生理。最合適的分析是？</p>
+<p data-lang="en">1. You record 20 neurons each from 5 mice in electrophysiology. The right analysis is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 把 100 顆神經元當獨立樣本做 t 檢定（n = 100）</span><span data-lang="en">A. Pool 100 neurons as independent and run a t-test (n = 100)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 把神經元按 mouse 平均後做 t 檢定（n = 5），其他全部丟掉</span><span data-lang="en">B. Average to per-mouse means and run a t-test (n = 5), discarding the rest</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 用混合模型 <code>y ~ treat + (1 | mouse)</code>，把 mouse 設為隨機效應</span><span data-lang="en">C. Fit a mixed model <code>y ~ treat + (1 | mouse)</code> with mouse as a random effect</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 改用非參數檢定就好</span><span data-lang="en">D. Just switch to a non-parametric test</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">2. 同事用 <code>lmer</code> 跑 <code>y ~ x1 + (1|group)</code> 與 <code>y ~ x1 + x2 + (1|group)</code>，皆用預設 REML，然後 <code>anova()</code> 比較。正確嗎？</p>
+<p data-lang="en">2. A colleague fits <code>y ~ x1 + (1|group)</code> and <code>y ~ x1 + x2 + (1|group)</code> in lmer with default REML, then compares them with <code>anova()</code>. Correct?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 完全正確，REML 是預設</span><span data-lang="en">A. Completely correct, REML is the default</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 不對。比較固定效應應該用 ML（REML = FALSE）；lme4 的 anova 會自動 refit 但要明白為什麼</span><span data-lang="en">B. Wrong. Compare fixed effects under ML (REML = FALSE); lme4's anova refits automatically but you should know why</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 應該用 Bayesian factor</span><span data-lang="en">C. Should use a Bayes factor</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 應該改成 GEE</span><span data-lang="en">D. Should switch to GEE</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">3. ICC = 0.1，每 cluster 21 人。Design effect 與「為了相同 power 所需樣本」的關係是？</p>
+<p data-lang="en">3. ICC = 0.1, 21 per cluster. What's the design effect and its impact on required sample size?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. DE = 1.0，跟獨立樣本一樣</span><span data-lang="en">A. DE = 1.0, same as independent</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. DE = 1.21，輕微增加</span><span data-lang="en">B. DE = 1.21, slight increase</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. DE = 2.10，但對 power 沒影響</span><span data-lang="en">C. DE = 2.10, but no impact on power</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. DE = 1 + 20×0.1 = 3.0，需要 3 倍樣本</span><span data-lang="en">D. DE = 1 + 20×0.1 = 3.0; need 3× the sample</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">4. 在分析 cluster-RCT 的二分結果時，你想要「整體母體的處理效應」而非「條件於 clinic 的效應」。最合適的方法？</p>
+<p data-lang="en">4. Analysing a cluster-RCT binary outcome and you want the "population-average" effect rather than the conditional-on-clinic effect. Best method?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 普通 logistic regression，忽略 clinic</span><span data-lang="en">A. Plain logistic regression, ignoring clinic</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. <code>glmer</code>（GLMM）binomial + 隨機截距</span><span data-lang="en">B. <code>glmer</code> (GLMM) binomial with random intercept</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. GEE，exchangeable working correlation + sandwich SE</span><span data-lang="en">C. GEE with exchangeable working correlation + sandwich SE</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 用 chi-square 檢定即可</span><span data-lang="en">D. A chi-square test will do</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="fdr.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← Previous: FDR</span><span class="nav-title" data-zh="Step 12：FDR 與多重檢定" data-en="Step 12: FDR & Multiple Testing">Step 12：FDR 與多重檢定</span></a><a href="index.html"><span class="nav-dir" data-zh="回首頁 →" data-en="Back to Hub →">Back to Hub →</span><span class="nav-title" data-zh="教學首頁" data-en="Tutorial Hub">教學首頁</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== helpers =====
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+
+// ===== Sim 1: Nested data simulator (OLS vs mixed) =====
+const palette=['#0F766E','#D4A03C','#C0392B','#8E44AD','#2980B9','#16A085','#E67E22','#27AE60','#2C3E50','#E84393','#00CEC9','#FDCB6E','#6C5CE7','#A29BFE','#74B9FF','#55EFC4','#FAB1A0','#FF7675','#81ECEC','#FFEAA7'];
+const nestedChart=new Chart(document.getElementById('nestedChart'),{type:'scatter',data:{datasets:[]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{enabled:false}},scales:{x:{type:'linear',min:-0.5,max:1.5,ticks:{stepSize:1,callback:function(v){return v===0?'Control':(v===1?'Treated':'')}},title:{display:false}},y:{title:{display:true,text:'response y'}}}}});
+
+function simNested(nM,m,sW,sB,beta){
+  const groups=[];const allCells=[];
+  for(let i=0;i<nM;i++){
+    const b_i=randn()*sB;            // mouse-level random intercept offset
+    const ctrl=[],trt=[];
+    for(let j=0;j<m;j++){
+      // half control, half treated within each mouse
+      const treated=(j>=m/2)?1:0;
+      const y=b_i + beta*treated + randn()*sW;
+      const x=treated + (Math.random()-0.5)*0.18;
+      (treated?trt:ctrl).push({x:x,y:y});
+      allCells.push({y:y,treated:treated,mouse:i});
+    }
+    groups.push({ctrl:ctrl,trt:trt,b:b_i});
+  }
+  // OLS estimate beta (cell-level naive)
+  const xs=allCells.map(c=>c.treated),ys=allCells.map(c=>c.y);
+  const xm=xs.reduce((a,b)=>a+b,0)/xs.length,ym=ys.reduce((a,b)=>a+b,0)/ys.length;
+  let num=0,den=0;for(let i=0;i<xs.length;i++){num+=(xs[i]-xm)*(ys[i]-ym);den+=(xs[i]-xm)*(xs[i]-xm);}
+  const bOLS=num/den;
+  // residual SD
+  const res=ys.map((y,i)=>y-(ym-bOLS*xm)-bOLS*xs[i]);
+  const sRes=Math.sqrt(res.reduce((a,b)=>a+b*b,0)/(ys.length-2));
+  const seOLS=sRes/Math.sqrt(den);
+  // Mixed-model approximation via per-mouse mean differences (two-stage MOM)
+  const diffs=[];for(let i=0;i<nM;i++){
+    const c=groups[i].ctrl,t=groups[i].trt;
+    const mc=c.reduce((a,b)=>a+b.y,0)/c.length,mt=t.reduce((a,b)=>a+b.y,0)/t.length;
+    diffs.push(mt-mc);
+  }
+  const bMix=diffs.reduce((a,b)=>a+b,0)/diffs.length;
+  const sdD=Math.sqrt(diffs.reduce((s,v)=>s+(v-bMix)*(v-bMix),0)/(diffs.length-1));
+  const seMix=sdD/Math.sqrt(nM);
+  return {groups,bOLS,seOLS,bMix,seMix};
+}
+
+function upNested(){
+  const nM=+document.getElementById('sNmice').value;
+  const m=+document.getElementById('sMcells').value;
+  const sW=+document.getElementById('sSdW').value;
+  const sB=+document.getElementById('sSdB').value;
+  const beta=+document.getElementById('sBeta').value;
+  document.getElementById('vNmice').textContent=nM;
+  document.getElementById('vMcells').textContent=m;
+  document.getElementById('vSdW').textContent=sW.toFixed(1);
+  document.getElementById('vSdB').textContent=sB.toFixed(1);
+  document.getElementById('vBeta').textContent=beta.toFixed(1);
+  const sim=simNested(nM,m,sW,sB,beta);
+  const ds=[];
+  sim.groups.forEach((g,i)=>{
+    const col=palette[i%palette.length];
+    ds.push({data:g.ctrl,backgroundColor:col,borderColor:col,pointRadius:3,pointHoverRadius:3});
+    ds.push({data:g.trt,backgroundColor:col,borderColor:col,pointRadius:3,pointHoverRadius:3});
+    const mc=g.ctrl.reduce((a,b)=>a+b.y,0)/g.ctrl.length;
+    const mt=g.trt.reduce((a,b)=>a+b.y,0)/g.trt.length;
+    ds.push({data:[{x:-0.18,y:mc},{x:0.18,y:mc}],type:'line',borderColor:col,borderWidth:2,pointRadius:0,showLine:true,fill:false});
+    ds.push({data:[{x:0.82,y:mt},{x:1.18,y:mt}],type:'line',borderColor:col,borderWidth:2,pointRadius:0,showLine:true,fill:false});
+  });
+  nestedChart.data.datasets=ds;nestedChart.update('none');
+  const tOLS=sim.bOLS/sim.seOLS,tMix=sim.bMix/sim.seMix;
+  const ratio=(sim.seMix/sim.seOLS);
+  const icc=(sB*sB)/(sB*sB+sW*sW);
+  const L=I18n.get();
+  document.getElementById('nestedStats').innerHTML=L==='zh'?
+    `<strong>真實 β</strong> = ${beta.toFixed(2)} · <strong>真實 ICC</strong> = ${icc.toFixed(2)}<br>
+     ❌ <strong>OLS (pseudoreplication)</strong>: β̂ = ${sim.bOLS.toFixed(2)} ± ${sim.seOLS.toFixed(3)} · t ≈ ${tOLS.toFixed(2)}<br>
+     ✅ <strong>Mixed model (per-mouse)</strong>: β̂ = ${sim.bMix.toFixed(2)} ± ${sim.seMix.toFixed(3)} · t ≈ ${tMix.toFixed(2)}<br>
+     <strong>SE 比例 (mixed / OLS)</strong> = ${ratio.toFixed(2)}× ${ratio>1.5?'⚠️ OLS 嚴重低估 SE→假陽性風險高':''}`:
+    `<strong>True β</strong> = ${beta.toFixed(2)} · <strong>True ICC</strong> = ${icc.toFixed(2)}<br>
+     ❌ <strong>OLS (pseudoreplication)</strong>: β̂ = ${sim.bOLS.toFixed(2)} ± ${sim.seOLS.toFixed(3)} · t ≈ ${tOLS.toFixed(2)}<br>
+     ✅ <strong>Mixed model (per-mouse)</strong>: β̂ = ${sim.bMix.toFixed(2)} ± ${sim.seMix.toFixed(3)} · t ≈ ${tMix.toFixed(2)}<br>
+     <strong>SE ratio (mixed / OLS)</strong> = ${ratio.toFixed(2)}× ${ratio>1.5?'⚠️ OLS underestimates SE → false-positive risk':''}`;
+}
+['sNmice','sMcells','sSdW','sSdB','sBeta'].forEach(id=>document.getElementById(id).addEventListener('input',upNested));
+document.addEventListener('langchange',upNested);
+upNested();
+
+// ===== Sim 2: ICC × m → design effect, effective n =====
+const iccChart=new Chart(document.getElementById('iccChart'),{type:'bar',data:{labels:[],datasets:[{label:'',data:[],backgroundColor:['rgba(15,118,110,0.6)','rgba(192,57,43,0.6)'],borderColor:['rgba(15,118,110,1)','rgba(192,57,43,1)'],borderWidth:1.5,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},tooltip:{enabled:true}},scales:{x:{title:{display:true,text:'sample size'},beginAtZero:true}}}});
+function upIcc(){
+  const icc=+document.getElementById('sIcc2').value;
+  const m=+document.getElementById('sM2').value;
+  const n=+document.getElementById('sN2').value;
+  document.getElementById('vIcc2').textContent=icc.toFixed(2);
+  document.getElementById('vM2').textContent=m;
+  document.getElementById('vN2').textContent=n;
+  const DE=1+(m-1)*icc;
+  const nEff=n/DE;
+  const nReq=n*DE;
+  const L=I18n.get();
+  iccChart.data.labels=L==='zh'?['標稱 n (假設獨立)','實際所需 n (cluster)']:['Nominal n (assumed indep.)','Required n (cluster)'];
+  iccChart.data.datasets[0].data=[n,nReq];
+  iccChart.update('none');
+  document.getElementById('iccStats').innerHTML=L==='zh'?
+    `<strong>Design Effect</strong> DE = 1 + (m−1)·ICC = 1 + ${(m-1)}×${icc.toFixed(2)} = <strong>${DE.toFixed(2)}</strong><br>
+     <strong>SE 膨脹</strong> √DE = <strong>${Math.sqrt(DE).toFixed(2)}×</strong> · <strong>有效樣本</strong> n_eff = n / DE = <strong>${nEff.toFixed(0)}</strong> (${(100/DE).toFixed(0)}%)<br>
+     若要達到原本 n=${n} 獨立樣本的 power → 需要 <strong>${nReq.toFixed(0)}</strong> 觀察 (cluster RCT)`:
+    `<strong>Design Effect</strong> DE = 1 + (m−1)·ICC = 1 + ${(m-1)}×${icc.toFixed(2)} = <strong>${DE.toFixed(2)}</strong><br>
+     <strong>SE inflation</strong> √DE = <strong>${Math.sqrt(DE).toFixed(2)}×</strong> · <strong>Effective n</strong> = n / DE = <strong>${nEff.toFixed(0)}</strong> (${(100/DE).toFixed(0)}%)<br>
+     To match the power of n=${n} independent observations → need <strong>${nReq.toFixed(0)}</strong> cluster observations`;
+}
+['sIcc2','sM2','sN2'].forEach(id=>document.getElementById(id).addEventListener('input',upIcc));
+document.addEventListener('langchange',upIcc);
+upIcc();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'正解。每隻小鼠是獨立的隨機抽樣單位；mouse 必須以 random effect 進入模型，避免 pseudoreplication。',q1_n:'正確選項已標示——加 (1|mouse) 是處理結構性相關的正規做法。',q2_y:'正解。REML 的 likelihood 依固定效應結構而變，比較固定效應務必改 ML（lme4 anova 會自動 refit，但要理解這個機制）。',q2_n:'正確選項已標示。',q3_y:'正解：DE = 1 + (21−1)×0.1 = 3.0；達到相同 power 需要約 3 倍樣本。',q3_n:'正確選項已標示。',q4_y:'正解。GEE 用 sandwich SE 提供 robust 的 population-average 估計，對 working correlation 設定不敏感。',q4_n:'正確選項已標示——GLMM 給 subject-specific，GEE 給 population-average。'},
+  en:{q1_y:'Correct. Each mouse is the independent sampling unit; mouse must enter as a random effect to avoid pseudoreplication.',q1_n:'Correct option highlighted — (1|mouse) is the standard fix for structural correlation.',q2_y:'Correct. The REML likelihood depends on the fixed-effects spec; for comparing fixed effects, use ML (lme4 anova refits automatically, but understand the reason).',q2_n:'Correct option highlighted.',q3_y:'Correct: DE = 1 + (21−1)×0.1 = 3.0; you need ~3× the sample for the same power.',q3_n:'Correct option highlighted.',q4_y:'Correct. GEE with a sandwich SE delivers robust population-average estimates and tolerates misspecified working correlation.',q4_n:'Correct option highlighted — GLMM gives subject-specific, GEE gives population-average.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>

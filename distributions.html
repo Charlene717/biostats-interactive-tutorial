@@ -1,263 +1,523 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>機率分布 | Biostatistics Tutorial</title>
-  <meta name="description" content="Interactive exploration of common probability distributions including the normal and binomial distributions.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="biostats.js"></script>
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html" class="active">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 2</div>
-      <h1 data-zh="機率分布" data-en="Probability Distributions">機率分布</h1>
-      <p class="subtitle" data-lang="zh">認識常見的分布，如常態分布與二項分布，並透過圖像探索其形狀、平均與變異。</p>
-      <p class="subtitle" data-lang="en">Learn about common distributions such as the normal and binomial distributions and explore their shapes, means and variances through interactive plots.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="常態分布" data-en="Normal Distribution">常態分布</h2>
-      <p data-lang="zh">常態分布是連續、鐘形且對稱的分布，其位置由平均值 μ 決定，寬度由標準差 σ 決定。其機率密度函數為 f(x) = (1/(σ√(2π)))·exp(−(x−μ)²/(2σ²))，稱為高斯曲線，滿足總面積為 1。經驗法則指出資料若近似常態分布，約 68% 落在 μ±σ，95% 落在 μ±2σ。</p>
-      <p data-lang="en">The normal distribution is a continuous, bell‑shaped and symmetric distribution whose location is determined by the mean μ and whose width is determined by the standard deviation σ. Its probability density function f(x) = (1/(σ√(2π)))·exp(−(x−μ)²/(2σ²)) describes the well‑known Gaussian curve, with total area equal to 1. The empirical rule says that about 68% of values lie within μ±σ and 95% within μ±2σ.</p>
-      <h2 data-zh="二項分布" data-en="Binomial Distribution">二項分布</h2>
-      <p data-lang="zh">二項分布描述有限次獨立重複試驗中成功次數的機率，試驗次數為 n，每次成功機率為 p。若 X∼Bin(n,p)，其期望值為 np、變異數為 np(1−p)。當 n 較大且 p 不太接近 0 或 1 時，二項分布的形狀近似常態。</p>
-      <p data-lang="en">The binomial distribution models the probability of a fixed number of successes in n independent and identical trials, each with success probability p. If X∼Bin(n,p), its expected value is np and its variance is np(1−p). When n is large and p is not near 0 or 1, the binomial distribution becomes approximately normal.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="調整參數並查看分布" data-en="Adjust Parameters and View Distribution">調整參數並查看分布</h2>
-      <p data-lang="zh">選擇分布並輸入其參數，圖表將顯示相應的密度或機率。</p>
-      <p data-lang="en">Choose a distribution and enter its parameters; the chart will display the corresponding density or mass function.</p>
-      <div class="interactive-panel">
-        <label><input type="radio" name="distType" value="normal" checked> <span data-zh="常態分布" data-en="Normal">常態分布</span></label>
-        <label style="margin-left:16px"><input type="radio" name="distType" value="binomial"> <span data-zh="二項分布" data-en="Binomial">二項分布</span></label>
-        <div id="normalParams" style="margin-top:12px">
-          <label>μ: <input type="number" id="normalMean" value="0" step="0.1" style="width:80px"></label>
-          <label style="margin-left:12px">σ: <input type="number" id="normalSd" value="1" min="0.1" step="0.1" style="width:80px"></label>
-        </div>
-        <div id="binomParams" style="display:none;margin-top:12px">
-          <label>n: <input type="number" id="binomN" value="10" min="1" step="1" style="width:80px"></label>
-          <label style="margin-left:12px">p: <input type="number" id="binomP" value="0.5" min="0" max="1" step="0.01" style="width:80px"></label>
-        </div>
-        <!-- Use an inline handler so the event fires correctly when loaded via the file:// protocol -->
-        <button id="plotDist" onclick="plotDistribution()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Plot</button>
-        <div class="chart-container"><canvas id="distCanvas"></canvas></div>
-      </div>
-    </section>
-    <!-- Additional educational sections -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
-      <!-- Normal distribution pros/cons -->
-      <h3 data-zh="常態分布" data-en="Normal Distribution">常態分布</h3>
-      <p data-lang="zh"><strong>優點：</strong>常態分布可以描述許多自然與人為過程，計算只需平均數與標準差，並有現成的表與函數方便查表；在樣本量足夠且資料近似連續時，它能提供良好的近似。<strong>缺點與限制：</strong>實際資料不一定完美遵循常態分布，偏態、重尾或離群值會影響平均與標準差的解釋；若資料量太小或不是連續型資料，需要先檢查常態性，必要時考慮其他分布或轉換。<strong>適用條件：</strong>樣本量足夠大、資料為連續型，且檢驗顯示近似常態時，可使用常態分布作為模型基礎。</p>
-      <p data-lang="en"><strong>Advantages:</strong> The normal distribution can describe many natural and manufactured processes, calculations rely only on the mean and standard deviation, and there are tables and built‑in functions for quick lookup; with sufficient data and nearly continuous observations it provides a good approximation. <strong>Drawbacks &amp; limitations:</strong> Real‑world data rarely follow a perfect bell curve; skewness, heavy tails or outliers can distort the mean and standard deviation. When sample sizes are small or the data are not continuous, you should test for normality and consider alternative distributions. <strong>Applicable conditions:</strong> Use the normal model when you have a sufficiently large sample, continuous data and tests indicate the distribution is approximately normal.</p>
-      <!-- Binomial distribution pros/cons -->
-      <h3 data-zh="二項分布" data-en="Binomial Distribution">二項分布</h3>
-      <p data-lang="zh"><strong>優點：</strong>二項分布適用於有固定次數且每次只有成功或失敗兩種結果的試驗，例如投擲硬幣、回答是非題或臨床試驗。它的機率計算簡單，期望值為 np、變異數為 np(1−p)，並且在 n 較大且 p 不太接近 0 或 1 時可以用常態近似。<strong>缺點與限制：</strong>僅能處理二分類結果，假設每次試驗獨立且成功機率固定；若試驗之間存在依賴或概率隨時間改變，則不適用。此外當成功機率極端時，分布會高度偏斜，難以使用常態近似。<strong>適用條件：</strong>有固定次數 n、每次只有兩種結果，且試驗獨立並在相同條件下重複時，可使用二項分布模型。</p>
-      <p data-lang="en"><strong>Advantages:</strong> The binomial distribution applies to experiments with a fixed number of trials and only two outcomes on each trial (success or failure). It is widely used for modelling counts of successes in coin flips, multiple‑choice questions and clinical studies; probabilities are easy to compute and the mean and variance are simple functions of n and p. When n is large and p is not near 0 or 1, the binomial can be approximated by a normal curve. <strong>Drawbacks &amp; limitations:</strong> It only handles binary outcomes and assumes each trial is independent and the success probability remains constant. If trials influence each other or probabilities change over time, the binomial model is invalid. When p is very low or very high the distribution is heavily skewed and the normal approximation fails. <strong>Applicable conditions:</strong> Use the binomial model when there is a fixed number of independent trials conducted under identical conditions, with the probability of success p the same on each trial.</p>
-    </section>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 2: Probability Distributions — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html" class="active">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 2 / 13</div>
+<h1 data-zh="機率分布 (Probability Distributions)" data-en="Probability Distributions">機率分布 (Probability Distributions)</h1>
+<p class="subtitle" data-lang="zh">每一個推論統計都假設你的資料來自某個機率分布——選錯分布，p 值與 CI 都會錯。八個分布、八個生物學故事。</p>
+<p class="subtitle" data-lang="en">Every inferential test assumes a distribution behind your data — pick the wrong one and p-values and CIs go wrong with it. Eight distributions, eight biology stories.</p>
+</header>
+<main class="content-wrap">
 
-    <section class="section">
-      <div class="section-label" data-zh="決策引導與範例" data-en="Decision Guidance &amp; Example">決策引導與範例</div>
-      <p data-lang="zh">判斷應使用哪種分布時，可先確認資料類型和試驗設計。例如，若研究學生期末考成績，分數可取連續值且由許多小影響累積而成，常以常態分布近似；若研究投擲 10 次硬幣出現正面次數，此為固定次數的二元事件，適合用二項分布。實務上，若成功機率固定且試驗獨立，可選擇二項分布；反之，若變量為連續且受眾多隨機因素影響，則考慮常態分布。</p>
-      <p data-lang="en">When deciding which distribution to use, start by identifying the data type and experiment design. Exam scores, which take on continuous values and result from many small influences, are often approximated by a normal distribution. The number of heads in ten coin flips is a fixed number of binary trials, so the binomial distribution is appropriate. In general, choose a binomial model when you have independent trials with a constant probability of success; choose a normal model for continuous measurements shaped by many random influences.</p>
-    </section>
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="為什麼分布會「決定」你的統計檢定？" data-en="Why the distribution decides your test">為什麼分布會「決定」你的統計檢定？</h2>
+<div data-lang="zh">
+<p>機率分布是你資料的「生成模型」——當你寫下 <code>t.test()</code>，背後假設兩組資料來自同變異數的常態分布；當你跑 DESeq2 的 RNA-seq 差異分析，背後是 <strong>Negative Binomial GLM</strong>（Love 2014）。<strong>分布選錯，p 值與 CI 全部失真</strong>：用常態近似計數資料會低估變異；忽略 RNA-seq 的 overdispersion 會把 Type I error 衝到 50%。</p>
+<p>本章帶你走過生統的「八個工作分布」：四連續（Normal、t、F、χ²、log-normal）、三離散（Binomial、Poisson、Negative Binomial）。每個分布都有一段生物學起源故事，與一個必須認得的「踩雷時刻」。</p>
+</div>
+<div data-lang="en">
+<p>A probability distribution is the <em>generative model</em> behind your data. When you call <code>t.test()</code>, you assume two samples from normals with equal variance; when you run DESeq2 for RNA-seq, you are fitting a <strong>Negative Binomial GLM</strong> (Love 2014). <strong>Choose the wrong distribution and the p-value and CI lie to you</strong>: normal-approximating count data underestimates variance; ignoring RNA-seq overdispersion can push Type I error past 50%.</p>
+<p>This chapter walks through the eight workhorse distributions of biostatistics — five continuous (Normal, t, F, χ², log-normal) and three discrete (Binomial, Poisson, Negative Binomial). Each has a biological origin story and a "trap" you have to recognise.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>背一條哲學：</strong>分布來自<strong>產生資料的機制</strong>，不是你選擇的「樣式」。問題不是「我的資料看起來像哪個分布？」而是「<strong>產生我資料的過程</strong>是計數？是比例？是兩個變異數的比？」——機制決定分布，分布決定檢定。</span>
+<span data-lang="en"><strong>One slogan to remember:</strong> a distribution comes from the <strong>process that generated the data</strong>, not from what the data "looks like". Don't ask "which distribution does my data resemble?"; ask "<strong>what process</strong> produced it — a count? a proportion? a ratio of variances?" The mechanism dictates the distribution, and the distribution dictates the test.</span>
+</div></div>
+</section>
 
-    <section class="section">
-      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
-      <p data-lang="zh">假設你想要模擬 20 次投擲硬幣出現正面次數的分布，應使用哪個分布？</p>
-      <p data-lang="en">Suppose you want to model the distribution of the number of heads in 20 coin tosses. Which distribution should you use?</p>
-      <form id="distQuizForm">
-        <label style="display:block;margin:4px 0"><input type="radio" name="quizDist" value="normal"> <span data-zh="常態分布" data-en="Normal Distribution">常態分布</span></label>
-        <label style="display:block;margin:4px 0"><input type="radio" name="quizDist" value="binomial"> <span data-zh="二項分布" data-en="Binomial Distribution">二項分布</span></label>
-        <button type="button" onclick="checkDistQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer"><span data-zh="提交" data-en="Submit">提交</span></button>
-        <p id="distQuizFeedback" class="quiz-feedback" style="margin-top:8px;"></p>
-      </form>
-    </section>
+<!-- ===== Section 2: PMF vs PDF vs CDF ===== -->
+<section class="section">
+<div class="section-label" data-zh="基本詞彙" data-en="FOUNDATIONS">基本詞彙</div>
+<h2 data-zh="一、PMF、PDF、CDF——三個你必須分清的符號" data-en="I. PMF, PDF, CDF — three symbols you must keep apart">一、PMF、PDF、CDF</h2>
+<div data-lang="zh"><p>機率分布有兩種「描述方式」與一個「累積版本」，總共三個函數，分別給離散資料與連續資料用。混用是論文最常見的初級錯誤。</p></div>
+<div data-lang="en"><p>A distribution offers two "descriptions" plus a cumulative one, totalling three functions — one set for discrete data, one for continuous. Mixing them is among the most common rookie errors in print.</p></div>
 
-    <section class="section">
-      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
-      <p data-lang="zh">下方提供 R 與 Python 程式碼示範，展示如何產生常態密度函數與二項分布機率質量函數，並繪製對應圖形。點擊複製按鈕即可複製程式碼。</p>
-      <p data-lang="en">Below are R and Python code examples showing how to generate the normal density and binomial probability mass functions and plot them. Click the copy icon to copy the code.</p>
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(this, 'dist-code-r')">R</button>
-          <button class="code-tab-btn" onclick="switchTab(this, 'dist-code-python')">Python</button>
-        </div>
-        <div class="code-tab-content active" id="dist-code-r">
-          <button class="copy-btn" onclick="copyCode('dist-r-code', this)">📋</button>
-          <pre><code id="dist-r-code" class="language-r"><span class="comment"># 計算並繪製常態密度與二項機率質量函數</span>
-<span class="func">x</span> &lt;- <span class="func">seq</span>(<span class="num">-4</span>, <span class="num">4</span>, length.out = <span class="num">100</span>)
-<span class="comment"># 常態分布密度 (均值 0，標準差 1)</span>
-<span class="func">y_norm</span> &lt;- <span class="func">dnorm</span>(x, mean = <span class="num">0</span>, sd = <span class="num">1</span>)
-<span class="comment"># 二項分布機率 (n = 10, p = 0.5)</span>
-<span class="func">k</span> &lt;- <span class="num">0</span>:<span class="num">10</span>
-<span class="func">y_binom</span> &lt;- <span class="func">dbinom</span>(k, size = <span class="num">10</span>, prob = <span class="num">0.5</span>)
-<span class="func">print</span>(y_binom)
-<span class="comment"># 繪製常態密度曲線</span>
-<span class="func">plot</span>(x, y_norm, type = <span class="str">'l'</span>, main = <span class="str">'Normal PDF'</span>, xlab = <span class="str">'x'</span>, ylab = <span class="str">'Density'</span>)
-<span class="comment"># 繪製二項分布柱狀圖</span>
-<span class="func">barplot</span>(y_binom, names.arg = k, main = <span class="str">'Binomial PMF'</span>, xlab = <span class="str">'k'</span>, ylab = <span class="str">'P(X = k)'</span>)</code></pre>
-        </div>
-        <div class="code-tab-content" id="dist-code-python">
-          <button class="copy-btn" onclick="copyCode('dist-python-code', this)">📋</button>
-          <pre><code id="dist-python-code" class="language-python"><span class="comment"># compute and plot normal density and binomial PMF</span>
-<span class="kw">import</span> numpy <span class="kw">as</span> np
-<span class="kw">from</span> scipy.stats <span class="kw">import</span> norm, binom
-<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
-<span class="comment"># Normal PDF (mean=0, sd=1)</span>
-x = np.<span class="func">linspace</span>(<span class="num">-4</span>, <span class="num">4</span>, <span class="num">100</span>)
-<span class="func">y_norm</span> = norm.<span class="func">pdf</span>(x, loc=<span class="num">0</span>, scale=<span class="num">1</span>)
-<span class="comment"># Binomial PMF (n=10, p=0.5)</span>
-k = np.<span class="func">arange</span>(<span class="num">0</span>, <span class="num">11</span>)
-<span class="func">y_binom</span> = binom.<span class="func">pmf</span>(k, n=<span class="num">10</span>, p=<span class="num">0.5</span>)
-<span class="func">print</span>(y_binom)
-<span class="comment"># Plot normal density</span>
-plt.<span class="func">plot</span>(x, y_norm)
-plt.<span class="func">xlabel</span>(<span class="str">'x'</span>); plt.<span class="func">ylabel</span>(<span class="str">'Density'</span>); plt.<span class="func">title</span>(<span class="str">'Normal PDF'</span>)
-plt.<span class="func">show</span>()
-<span class="comment"># Plot binomial PMF</span>
-plt.<span class="func">bar</span>(k, y_binom)
-plt.<span class="func">xlabel</span>(<span class="str">'k'</span>); plt.<span class="func">ylabel</span>(<span class="str">'P(X=k)'</span>); plt.<span class="func">title</span>(<span class="str">'Binomial PMF'</span>)
-plt.<span class="func">show</span>()</code></pre>
-        </div>
-      </div>
-    </section>
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="PMF（離散）" data-en="PMF (discrete)">PMF（離散）</h4>
+<div data-lang="zh"><p><span class="kt">機率質量函數</span> <span class="math">P(X=k)</span>：對<strong>離散</strong>變數，直接給出取某值的機率。例：擲 10 次硬幣中 3 次正面 <span class="math">P(X=3) = C(10,3)·0.5¹⁰</span>。</p><p>性質：<span class="math">Σ P(X=k) = 1</span>，每個 P(X=k) ∈ [0, 1]。</p></div>
+<div data-lang="en"><p><span class="kt">Probability mass function</span> <span class="math">P(X=k)</span> — for <strong>discrete</strong> variables, gives the probability of exactly value k. Example: 3 heads in 10 flips, <span class="math">P(X=3) = C(10,3)·0.5¹⁰</span>.</p><p>Properties: <span class="math">Σ P(X=k) = 1</span>; each P(X=k) ∈ [0, 1].</p></div>
+</div>
+<div class="card"><div class="card-icon">📐</div><h4 data-zh="PDF（連續）" data-en="PDF (continuous)">PDF（連續）</h4>
+<div data-lang="zh"><p><span class="kt">機率密度函數</span> <span class="math">f(x)</span>：對<strong>連續</strong>變數，f(x) 是「密度」不是機率——<strong>單點機率為 0</strong>，必須積分區間才有機率：<span class="math">P(a&lt;X&lt;b) = ∫f(x)dx</span>。</p><p>性質：<span class="math">∫ f(x)dx = 1</span>，f(x) ≥ 0（但可以 &gt; 1）。</p></div>
+<div data-lang="en"><p><span class="kt">Probability density function</span> <span class="math">f(x)</span> — for <strong>continuous</strong> variables, f(x) is a <em>density</em>, not a probability. <strong>The probability of a single point is 0</strong>; you need to integrate over an interval: <span class="math">P(a&lt;X&lt;b) = ∫f(x)dx</span>.</p><p>Properties: <span class="math">∫ f(x)dx = 1</span>; f(x) ≥ 0 (but may exceed 1).</p></div>
+</div>
+<div class="card"><div class="card-icon">📈</div><h4 data-zh="CDF（兩者皆有）" data-en="CDF (both)">CDF（兩者皆有）</h4>
+<div data-lang="zh"><p><span class="kt">累積分布函數</span> <span class="math">F(x) = P(X ≤ x)</span>：永遠從 0 單調遞增至 1。CDF 的反函數叫 <strong>分位函數</strong> Q(p)——這就是 R 的 <code>qnorm(0.975)=1.96</code> 在做的事。</p><p>用途：算 p 值（CDF 尾巴）、求臨界值（Q）、QQ-plot 比對。</p></div>
+<div data-lang="en"><p><span class="kt">Cumulative distribution function</span> <span class="math">F(x) = P(X ≤ x)</span> — always non-decreasing from 0 to 1. Its inverse is the <strong>quantile function</strong> Q(p) — that is exactly what <code>qnorm(0.975)=1.96</code> computes.</p><p>Uses: p-values (CDF tails), critical values (Q), QQ-plots.</p></div>
+</div>
+</div>
 
-    <div class="page-nav">
-      <a href="descriptive.html">
-        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
-        <span class="nav-title" data-zh="描述統計" data-en="Descriptive">描述統計</span>
-      </a>
-      <a href="sampling.html">
-        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
-        <span class="nav-title" data-zh="抽樣與中心極限定理" data-en="Sampling & CLT">抽樣與中心極限定理</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    // Use globally attached functions from biostats.js
-    let distChart;
-    // Show/hide parameter panels based on distribution selection
-    document.querySelectorAll('input[name="distType"]').forEach(el => {
-      el.addEventListener('change', () => {
-        if (el.value === 'normal' && el.checked) {
-          document.getElementById('normalParams').style.display = '';
-          document.getElementById('binomParams').style.display = 'none';
-        } else if (el.value === 'binomial' && el.checked) {
-          document.getElementById('normalParams').style.display = 'none';
-          document.getElementById('binomParams').style.display = '';
-        }
-      });
-    });
-    // Inline call for plotting distribution
-    function plotDistribution() {
-      const type = document.querySelector('input[name="distType"]:checked').value;
-      const ctx = document.getElementById('distCanvas').getContext('2d');
-      if (distChart) distChart.destroy();
-      if (type === 'normal') {
-        const mean = parseFloat(document.getElementById('normalMean').value);
-        const sd = parseFloat(document.getElementById('normalSd').value);
-        const { xs, ys } = window.normalPdf(mean, sd, 120);
-        distChart = window.drawLineChart(ctx, xs.map(x => x.toFixed(2)), ys, 'Normal PDF');
-      } else {
-        const n = parseInt(document.getElementById('binomN').value);
-        const p = parseFloat(document.getElementById('binomP').value);
-        const { xs, ys } = window.binomialPmf(n, p);
-        distChart = new Chart(ctx, {
-          type: 'bar',
-          data: { labels: xs.map(x => x.toString()), datasets: [{ label: 'PMF', data: ys, backgroundColor: 'rgba(26,107,90,0.6)', borderColor:'rgba(26,107,90,1)', borderWidth:1 }] },
-          options: { scales: { x:{ title:{display:true,text:'k'} }, y:{ beginAtZero:true,title:{display:true,text:'P(X=k)'} } }, responsive:true, plugins:{ legend:{ display:false } } }
-        });
-      }
-    }
-    // Expose to global scope for the onclick attribute
-    window.plotDistribution = plotDistribution;
+<div class="formula">
+<span data-lang="zh">⌜ 離散 PMF：<em>P(X=k)</em> · 連續 PDF：<em>f(x)</em> · CDF：<em>F(x) = P(X ≤ x)</em> · 分位：<em>Q(p) = F⁻¹(p)</em> ⌝
+<span class="fnote">在 R 中：d* = density/PMF、p* = CDF、q* = quantile、r* = random sample（如 <code>dnorm/pnorm/qnorm/rnorm</code>）。在 Python (scipy.stats)：<code>.pdf/.pmf</code>、<code>.cdf</code>、<code>.ppf</code>、<code>.rvs</code>。</span></span>
+<span data-lang="en">⌜ Discrete PMF: <em>P(X=k)</em> · Continuous PDF: <em>f(x)</em> · CDF: <em>F(x) = P(X ≤ x)</em> · Quantile: <em>Q(p) = F⁻¹(p)</em> ⌝
+<span class="fnote">In R: d* = density/PMF, p* = CDF, q* = quantile, r* = random sample (<code>dnorm/pnorm/qnorm/rnorm</code>). In Python (scipy.stats): <code>.pdf/.pmf</code>, <code>.cdf</code>, <code>.ppf</code>, <code>.rvs</code>.</span></span>
+</div>
 
-    // Quiz grading function for the distribution quiz.  Reads the selected
-    // radio value and displays feedback in the appropriate language.  The
-    // correct answer is the binomial distribution for modelling the number
-    // of heads in repeated coin tosses.  Attached to the global scope so
-    // it can be called from the inline onclick handler.
-    function checkDistQuiz() {
-      const opts = document.getElementsByName('quizDist');
-      let val = '';
-      for (const opt of opts) {
-        if (opt.checked) { val = opt.value; break; }
-      }
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      let msg;
-      if (!val) {
-        msg = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
-      } else if (val === 'binomial') {
-        msg = lang === 'zh'
-          ? '答對了！固定次數的硬幣正面數符合二項分布。'
-          : 'Correct! The number of heads in a fixed number of coin flips follows a binomial distribution.';
-      } else {
-        msg = lang === 'zh'
-          ? '不正確，再試試看吧。'
-          : 'Incorrect, try again.';
-      }
-      const fb = document.getElementById('distQuizFeedback');
-      if (fb) fb.textContent = msg;
-    }
-    window.checkDistQuiz = checkDistQuiz;
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>常見混淆：</strong>PDF 值不是機率。<code>dnorm(0)≈0.399</code>——但常態分布在 x=0 的「機率」是 0；0.399 是密度，需乘上微小區間 dx 才會逼近機率。<strong>沒有所謂「P(身高 = 170.000 cm)」</strong>，只有 P(169.5 &lt; 身高 &lt; 170.5)。</span>
+<span data-lang="en"><strong>Common confusion:</strong> a PDF value is not a probability. <code>dnorm(0)≈0.399</code> — but the "probability" of x = 0 under a normal is 0; 0.399 is a density that must be multiplied by an infinitesimal dx to approach probability. <strong>"P(height = 170.000 cm)" does not exist</strong> — only P(169.5 &lt; height &lt; 170.5) does.</span>
+</div></div>
+</section>
 
-    // Code tab switching logic shared across pages.  Activates the clicked
-    // tab and corresponding content panel.  Exposed globally so inline
-    // onclick handlers can call it.
-    function switchTab(btn, id) {
-      const tabs = btn.closest('.code-tabs');
-      if (!tabs) return;
-      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
-      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
-      btn.classList.add('active');
-      const panel = document.getElementById(id);
-      if (panel) panel.classList.add('active');
-    }
-    window.switchTab = switchTab;
+<!-- ===== Section 3: Interactive sim 1 — distribution playground ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="分布形狀遊樂場" data-en="Distribution shape playground">分布形狀遊樂場</h2>
+<div data-lang="zh"><p>切換不同分布，拖動關鍵參數，觀察形狀如何改變。下方即時計算 <strong>mean、variance、skewness</strong>，並顯示 P(X ≤ x)（CDF）值——這就是 p 值計算背後的機制。</p></div>
+<div data-lang="en"><p>Pick a distribution, drag its key parameter, watch the shape morph. The panel below recomputes <strong>mean, variance, skewness</strong> live and shows P(X ≤ x) (the CDF) — the same machinery your p-value calculations rely on.</p></div>
+<div class="interactive-panel">
+<div class="slider-group" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:14px;">
+  <label style="margin-right:8px;"><span data-zh="分布類型" data-en="Distribution">分布類型：</span></label>
+  <button class="code-tab-btn active" data-dist="normal" onclick="setDist(this,'normal')">Normal</button>
+  <button class="code-tab-btn" data-dist="binom" onclick="setDist(this,'binom')">Binomial</button>
+  <button class="code-tab-btn" data-dist="pois" onclick="setDist(this,'pois')">Poisson</button>
+  <button class="code-tab-btn" data-dist="t" onclick="setDist(this,'t')">t</button>
+  <button class="code-tab-btn" data-dist="chi2" onclick="setDist(this,'chi2')">Chi²</button>
+</div>
+<div class="slider-group" id="p1Row"><label><span id="p1Lbl">µ</span> <span id="p1Val">0</span></label><input type="range" id="p1" min="-3" max="3" value="0" step="0.1"></div>
+<div class="slider-group" id="p2Row"><label><span id="p2Lbl">σ</span> <span id="p2Val">1</span></label><input type="range" id="p2" min="0.2" max="3" value="1" step="0.1"></div>
+<div id="distStats" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:280px;"><canvas id="distChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">綠色 = PDF/PMF · 橘色虛線 = CDF · 紅線 = mean</span><span data-lang="en">Green = PDF/PMF · orange dashed = CDF · red = mean</span></p>
+</div>
+</section>
 
-    // Copy the contents of a code block to the clipboard.  Provides
-    // immediate visual feedback by temporarily changing the button text.
-    function copyCode(codeId, btn) {
-      const el = document.getElementById(codeId);
-      if (!el) return;
-      const text = el.innerText;
-      const original = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      navigator.clipboard.writeText(text).catch(() => {});
-      setTimeout(() => {
-        btn.textContent = '📋';
-        btn.classList.remove('copied');
-      }, 1200);
-    }
-    window.copyCode = copyCode;
-  </script>
-</body>
-</html>
+<!-- ===== Section 4: Detailed dive — Continuous ===== -->
+<section class="section">
+<div class="section-label" data-zh="連續分布巡禮" data-en="CONTINUOUS DEEP DIVE">連續分布巡禮</div>
+<h2 data-zh="二、五個連續分布：Normal、t、F、χ²、log-normal" data-en="II. Five continuous distributions: Normal, t, F, χ², log-normal">二、五個連續分布</h2>
+
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">🔔</div><h4 data-zh="Normal N(µ, σ²)" data-en="Normal N(µ, σ²)">Normal N(µ, σ²)</h4>
+<div data-lang="zh"><p><strong>形狀：</strong>對稱鐘形；µ 控制中心，σ 控制寬度。<strong>68-95-99.7 法則</strong>（Galton 1886）：±1σ 含 68.27%、±2σ 含 95.45%、±3σ 含 99.73%。</p>
+<p><strong>為何到處都是常態？</strong>中心極限定理（CLT，Step 3）——任何<strong>多個小效應相加</strong>的結果都會收斂到常態。所以人的身高、實驗誤差、聚合的免疫染色強度，都接近常態。</p>
+<p><strong>生物例：</strong>成年男性身高（µ≈175 cm, σ≈7）、HbA1c、Z-score 用的標準化。</p></div>
+<div data-lang="en"><p><strong>Shape:</strong> symmetric bell; µ sets the centre, σ the width. The <strong>68-95-99.7 rule</strong> (Galton 1886): ±1σ holds 68.27%, ±2σ 95.45%, ±3σ 99.73%.</p>
+<p><strong>Why is it everywhere?</strong> The central limit theorem (Step 3): <strong>any sum of many small effects</strong> converges to normality. Human height, instrument noise, summed immunostain intensity — all approximately normal.</p>
+<p><strong>Biology:</strong> adult male height (µ≈175 cm, σ≈7), HbA1c, the Z-score normalisation step.</p></div>
+</div>
+
+<div class="card"><div class="card-icon">📏</div><h4 data-zh="Student's t (df)" data-en="Student's t (df)">Student's t (df)</h4>
+<div data-lang="zh"><p><strong>來源：</strong>Gosset（1908 筆名 "Student"）在 Guinness 啤酒廠處理小樣本（n &lt; 30）時，發現用 s 取代 σ 後分布不再是常態——尾巴更厚，這就是 t 分布。</p>
+<p><strong>形狀：</strong>對稱、零均值、比常態厚尾。<strong>df → ∞ 時 t → N(0,1)</strong>；df = 30 時兩者實務上已難分辨。</p>
+<p><strong>生物例：</strong>所有小樣本 mean 差異檢定（兩組老鼠的腫瘤體積、配對比較），都建立在 t 分布上（Step 5）。</p></div>
+<div data-lang="en"><p><strong>Origin:</strong> Gosset (1908, pen name "Student") at Guinness needed small-sample inference (n &lt; 30). Replacing σ with s broadens the tails — born is the t distribution.</p>
+<p><strong>Shape:</strong> symmetric, zero-mean, heavier tails than normal. <strong>As df → ∞, t → N(0,1)</strong>; by df = 30 the two are practically indistinguishable.</p>
+<p><strong>Biology:</strong> every small-sample mean-difference test (tumour volumes in two mouse groups, paired comparisons) rides on t (Step 5).</p></div>
+</div>
+
+<div class="card"><div class="card-icon">⚖️</div><h4 data-zh="F (df₁, df₂)" data-en="F (df₁, df₂)">F (df₁, df₂)</h4>
+<div data-lang="zh"><p><strong>來源：</strong>R.A. Fisher 1924——兩個獨立卡方除以自由度的比值。Snedecor 1934 命名為 F 紀念 Fisher。</p>
+<p><strong>用途：</strong>變異數比（ANOVA, Step 7）；F = MS<sub>between</sub> / MS<sub>within</sub>。永遠 ≥ 0、右偏，df₁=df₂=∞ 時形狀塌縮為 1。</p>
+<p><strong>生物例：</strong>多組劑量比較（5 個治療組老鼠）、多因子實驗（基因型 × 飲食）。F 大代表「組間差異 ≫ 組內變異」。</p></div>
+<div data-lang="en"><p><strong>Origin:</strong> R.A. Fisher 1924 — the ratio of two independent chi-squares each divided by their df. Snedecor (1934) named it "F" for Fisher.</p>
+<p><strong>Use:</strong> variance ratios (ANOVA, Step 7); F = MS<sub>between</sub> / MS<sub>within</sub>. Always ≥ 0, right-skewed; with df₁ = df₂ = ∞ it collapses to 1.</p>
+<p><strong>Biology:</strong> multi-dose comparisons (5 treatment arms in mice), factorial designs (genotype × diet). A large F means "between &gt; within".</p></div>
+</div>
+
+<div class="card"><div class="card-icon">📐</div><h4 data-zh="Chi-square χ²(df)" data-en="Chi-square χ²(df)">Chi-square χ²(df)</h4>
+<div data-lang="zh"><p><strong>定義：</strong>df 個獨立 N(0,1) 變數平方和。對<strong>df = 1, 2</strong> 高度右偏；df → ∞ 趨近常態。</p>
+<p><strong>用途：</strong>(1) 類別資料 goodness-of-fit / 列聯表獨立性（Step 6）；(2) 變異數的信賴區間：<span class="math">(n−1)s² / σ² ~ χ²(n−1)</span>；(3) 概似比檢定（LRT）的標準漸近分布（Wilks 1938）。</p>
+<p><strong>生物例：</strong>Hardy-Weinberg 平衡檢定、基因型 vs 表型的 2×3 列聯表、GWAS 中的 LRT。</p></div>
+<div data-lang="en"><p><strong>Definition:</strong> sum of df squared independent N(0,1) variables. Highly right-skewed for <strong>df = 1, 2</strong>; normalises as df → ∞.</p>
+<p><strong>Use:</strong> (1) categorical goodness-of-fit / contingency tables (Step 6); (2) CI for variance: <span class="math">(n−1)s² / σ² ~ χ²(n−1)</span>; (3) the asymptotic distribution of likelihood-ratio tests (Wilks 1938).</p>
+<p><strong>Biology:</strong> Hardy-Weinberg equilibrium tests, 2×3 genotype × phenotype tables, LRTs across GWAS.</p></div>
+</div>
+
+<div class="card"><div class="card-icon">🌋</div><h4 data-zh="Log-normal" data-en="Log-normal">Log-normal</h4>
+<div data-lang="zh"><p><strong>定義：</strong>X 是 log-normal ⟺ <strong>ln(X) ~ Normal</strong>。形狀：永遠正值、右偏。</p>
+<p><strong>為何到處都是？</strong>當資料來自<strong>多個因子相乘</strong>（每一步以比例增長），對數會把乘法變加法 → CLT → log-normal。Limpert 等（2001 BioScience）證實生醫資料絕大多數天然是 log-normal 而非 normal。</p>
+<p><strong>生物例：</strong>血液中細胞激素濃度、CRP、IgE、抗體效價、單細胞 RNA-seq 表現量、細菌 CFU 計數。</p>
+<p><strong>處理：</strong>分析前 log-transform（或在 GLM 用 log link）；報告時 mean(log X) → 反 log 是 <strong>geometric mean</strong>。</p></div>
+<div data-lang="en"><p><strong>Definition:</strong> X is log-normal ⟺ <strong>ln(X) ~ Normal</strong>. Strictly positive, right-skewed.</p>
+<p><strong>Why so common?</strong> When the data result from <strong>multiplicative factors</strong> (each step a percentage change), log converts multiplication to addition → CLT → log-normal. Limpert et al. (2001 BioScience) showed most biomedical readouts are natively log-normal, not normal.</p>
+<p><strong>Biology:</strong> blood cytokine levels, CRP, IgE, antibody titres, single-cell RNA-seq counts, bacterial CFU.</p>
+<p><strong>Handling:</strong> log-transform before analysis (or use a log link in a GLM); reporting: back-transforming mean(log X) gives the <strong>geometric mean</strong>.</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 5: Detailed dive — Discrete ===== -->
+<section class="section">
+<div class="section-label" data-zh="離散分布巡禮" data-en="DISCRETE DEEP DIVE">離散分布巡禮</div>
+<h2 data-zh="三、三個離散分布：Binomial、Poisson、Negative Binomial" data-en="III. Three discrete distributions: Binomial, Poisson, Negative Binomial">三、三個離散分布</h2>
+
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🪙</div><h4 data-zh="Binomial Bin(n, p)" data-en="Binomial Bin(n, p)">Binomial Bin(n, p)</h4>
+<div data-lang="zh"><p><strong>故事：</strong>n 次獨立 Bernoulli 試驗，每次成功機率 p，數成功次數 X ∈ {0,...,n}。</p>
+<p><strong>均值/變異：</strong><span class="math">E[X] = np</span>, <span class="math">Var[X] = np(1−p)</span>。</p>
+<p><strong>常態近似：</strong>當 <span class="math">np ≥ 5</span> 且 <span class="math">n(1−p) ≥ 5</span> 時，Bin ≈ N(np, np(1−p))，可改用 Z 檢定。</p>
+<p><strong>生物例：</strong>癌篩陽性率（n 人中 X 陽性）、PCR 成功率、基因型頻率、CRISPR 編輯效率。</p></div>
+<div data-lang="en"><p><strong>Story:</strong> n independent Bernoulli trials with success probability p; X ∈ {0,...,n}.</p>
+<p><strong>Mean / variance:</strong> <span class="math">E[X] = np</span>, <span class="math">Var[X] = np(1−p)</span>.</p>
+<p><strong>Normal approximation:</strong> when <span class="math">np ≥ 5</span> and <span class="math">n(1−p) ≥ 5</span>, Bin ≈ N(np, np(1−p)) — a Z-test becomes feasible.</p>
+<p><strong>Biology:</strong> cancer-screening positive rate (X positives in n people), PCR success rate, allele frequency, CRISPR editing efficiency.</p></div>
+</div>
+
+<div class="card"><div class="card-icon">⚡</div><h4 data-zh="Poisson Pois(λ)" data-en="Poisson Pois(λ)">Poisson Pois(λ)</h4>
+<div data-lang="zh"><p><strong>故事：</strong>單位時間 / 空間中事件發生數，事件彼此<strong>獨立</strong>且發生率恆定 λ。</p>
+<p><strong>關鍵：</strong><span class="math">E[X] = Var[X] = λ</span>——這是 Poisson 的「身份證」。</p>
+<p><strong>歷史：</strong>Luria & Delbrück 1943 用 Poisson 證明<strong>細菌突變是預先存在</strong>而非誘發（Nobel 1969）；Bortkiewicz 1898 用普魯士騎兵被馬踢死人數驗證。</p>
+<p><strong>生物例：</strong>單位時間細胞分裂事件、RNA-seq 中<strong>低表達基因</strong>計數（高表達基因常已 overdispersed→NB）、PCR 模板數、放射衰變、photon count。</p></div>
+<div data-lang="en"><p><strong>Story:</strong> count of events per unit time/space when events are <strong>independent</strong> and the rate λ is constant.</p>
+<p><strong>Key:</strong> <span class="math">E[X] = Var[X] = λ</span> — the Poisson "ID badge".</p>
+<p><strong>History:</strong> Luria &amp; Delbrück 1943 used Poisson to prove that <strong>bacterial mutations are pre-existing</strong>, not induced (Nobel 1969); Bortkiewicz 1898 validated it on Prussian soldiers kicked to death by horses.</p>
+<p><strong>Biology:</strong> cell divisions per unit time, <strong>low-expression RNA-seq counts</strong> (high-expression genes are typically overdispersed → NB), PCR template numbers, radioactive decay, photon counts.</p></div>
+</div>
+
+<div class="card"><div class="card-icon">📊</div><h4 data-zh="Negative Binomial NB(µ, α)" data-en="Negative Binomial NB(µ, α)">Negative Binomial</h4>
+<div data-lang="zh"><p><strong>故事：</strong>Poisson 的「鬆綁版」——當資料變異<strong>大於</strong>均值（overdispersion）時用 NB。可解讀為「λ 本身來自 Gamma 分布的混合 Poisson」（Gamma-Poisson mixture）。</p>
+<p><strong>關鍵：</strong><span class="math">Var[X] = µ + αµ²</span>，α &gt; 0 是 dispersion 參數；α → 0 時退化為 Poisson。</p>
+<p><strong>為何是 RNA-seq 的工作分布？</strong>跨樣本生物變異 + 技術變異 = Var ≫ Mean。<strong>edgeR</strong>（Robinson 2010）與 <strong>DESeq2</strong>（Love 2014 Genome Biology）都以 NB GLM 為核心；用 Poisson 會大幅膨脹假陽性。</p>
+<p><strong>生物例：</strong>bulk RNA-seq、ATAC-seq、ChIP-seq peak count、單細胞 UMI count（也常用 NB 或 ZINB）。</p></div>
+<div data-lang="en"><p><strong>Story:</strong> the loosened Poisson — used when the variance <strong>exceeds</strong> the mean (overdispersion). Interpretable as a Gamma-Poisson mixture (λ itself is Gamma-distributed).</p>
+<p><strong>Key:</strong> <span class="math">Var[X] = µ + αµ²</span>; α &gt; 0 is the dispersion; α → 0 reverts to Poisson.</p>
+<p><strong>Why the workhorse of RNA-seq?</strong> Biological + technical variation across samples drive Var ≫ Mean. <strong>edgeR</strong> (Robinson 2010) and <strong>DESeq2</strong> (Love 2014 Genome Biology) both rest on NB GLMs; using Poisson dramatically inflates false positives.</p>
+<p><strong>Biology:</strong> bulk RNA-seq, ATAC-seq, ChIP-seq peak counts, single-cell UMI counts (often NB or ZINB).</p></div>
+</div>
+</div>
+
+<div class="formula">
+<span data-lang="zh">⌜ Bin: <em>P(X=k) = C(n,k) pᵏ (1−p)ⁿ⁻ᵏ</em> &nbsp; · &nbsp; Pois: <em>P(X=k) = λᵏe⁻ᵏ/k!</em> &nbsp; · &nbsp; NB: <em>Var = µ + αµ²</em> ⌝
+<span class="fnote">三者的關係：Bin(n, p) 在 n→∞ 且 np→λ 固定時 → Pois(λ)；Pois 加入個體變異 → NB。這是離散分布的「家族樹」。</span></span>
+<span data-lang="en">⌜ Bin: <em>P(X=k) = C(n,k) pᵏ (1−p)ⁿ⁻ᵏ</em> &nbsp; · &nbsp; Pois: <em>P(X=k) = λᵏe⁻ᵏ/k!</em> &nbsp; · &nbsp; NB: <em>Var = µ + αµ²</em> ⌝
+<span class="fnote">Family tree: Bin(n, p) → Pois(λ) as n→∞ with np→λ fixed; Pois + extra-individual variance → NB. That is the discrete-distribution lineage.</span></span>
+</div>
+</section>
+
+<!-- ===== Section 6: Interactive sim 2 — overdispersion lab ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="過離散實驗室：Poisson vs Negative Binomial" data-en="Overdispersion lab: Poisson vs NB">過離散實驗室</h2>
+<div data-lang="zh"><p>同樣的均值 µ，<strong>Poisson 的變異固定 = µ</strong>，而 NB 的變異 <span class="math">= µ + αµ²</span> 可以遠大於 µ。拖動 α 觀察 NB 如何「胖過」Poisson——這就是為何 DESeq2 / edgeR 不用 Poisson 而用 NB 來分析 RNA-seq。下方數字顯示 sample variance / mean ratio：<strong>&gt;1.5 通常代表你需要 NB</strong>。</p></div>
+<div data-lang="en"><p>For the same mean µ, <strong>Poisson has variance fixed at µ</strong>, but NB has variance <span class="math">µ + αµ²</span> — potentially far larger. Drag α and watch NB "fatten" past Poisson — exactly why DESeq2 / edgeR pick NB, not Poisson, for RNA-seq. The panel reports the sample variance/mean ratio: <strong>&gt;1.5 typically means you need NB</strong>.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="均值 µ" data-en="Mean µ">均值 µ</span> <span id="valMu2">10</span></label><input type="range" id="sliderMu2" min="1" max="50" value="10" step="1"></div>
+<div class="slider-group"><label><span data-zh="過離散參數 α" data-en="Dispersion α">過離散 α</span> <span id="valAlpha">0.5</span></label><input type="range" id="sliderAlpha" min="0" max="2" value="0.5" step="0.05"></div>
+<div id="odStats" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:280px;"><canvas id="odChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">綠 = Poisson · 橘 = NB（同 µ）</span><span data-lang="en">Green = Poisson · Orange = NB (same µ)</span></p>
+</div>
+
+<div class="pitfall">
+<span class="pitfall-title" data-zh="陷阱：對 RNA-seq 計數用 Poisson" data-en="Pitfall: Poisson on RNA-seq counts">陷阱：對 RNA-seq 計數用 Poisson</span>
+<span data-lang="zh">早期工具（如 2010 年前的 DEGseq）用 Poisson 模擬 RNA-seq，結果<strong>假陽性率高達 30–50%</strong>。Robinson &amp; Smyth 2008、Anders &amp; Huber 2010、Love 2014 都證實：跨生物樣本的變異遠大於 Poisson 允許。<strong>實務原則：</strong>原始 count 用 NB（DESeq2 / edgeR）；TPM / FPKM 不適合差異分析（已經正規化），請用原始 count。</span>
+<span data-lang="en">Pre-2010 tools (e.g. DEGseq) modelled RNA-seq with Poisson, yielding <strong>false-positive rates of 30–50%</strong>. Robinson &amp; Smyth 2008, Anders &amp; Huber 2010, and Love 2014 all show biological variation between samples far exceeds Poisson's budget. <strong>Rule:</strong> raw counts → NB (DESeq2 / edgeR); TPM / FPKM are unsuitable for DE (already normalised) — feed raw counts in.</span>
+</div>
+</section>
+
+<!-- ===== Section 7: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="四、我的資料該選哪個分布？" data-en="IV. Which distribution fits my data?">四、選哪個分布？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="分布選擇決策樹" data-en="Distribution selection tree">分布選擇決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>資料是<strong>連續</strong>還是<strong>離散計數</strong>？<span class="dt-arrow">→ 連續 →</span> 進 Q2；<span class="dt-arrow">→ 計數 →</span> 進 Q5。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>連續資料對稱嗎？<span class="dt-arrow">→ 是 →</span> <strong>Normal</strong>（若是兩組均值比較且 n &lt; 30 用 <strong>t</strong>；變異數比較用 <strong>F</strong>）。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>右偏且皆為正值？（濃度、效價、表達量）<span class="dt-arrow">→ 是 →</span> <strong>Log-normal</strong>，log 轉換後當常態處理。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>變異數估計 / 類別資料 goodness-of-fit？<span class="dt-arrow">→ 是 →</span> <strong>Chi-square χ²</strong>。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>計數有「上限 n」（n 個個體中 X 個陽性）？<span class="dt-arrow">→ 是 →</span> <strong>Binomial</strong>。</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>無上限的事件計數（單位時間 / 區間）？檢查 Var/Mean 比：<span class="dt-arrow">→ ≈ 1 →</span> <strong>Poisson</strong>；<span class="dt-arrow">→ &gt; 1.5 →</span> <strong>Negative Binomial</strong>。</div></div>
+<div class="dt-node"><span class="dt-q">Q7:</span><div>有大量 0（如 scRNA-seq dropout）？<span class="dt-arrow">→ 是 →</span> <strong>Zero-Inflated NB (ZINB)</strong> 或 hurdle 模型。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Continuous or discrete count? <span class="dt-arrow">→ continuous →</span> Q2; <span class="dt-arrow">→ count →</span> Q5.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Continuous and symmetric? <span class="dt-arrow">→ Yes →</span> <strong>Normal</strong> (use <strong>t</strong> for two-mean tests with n &lt; 30; <strong>F</strong> for variance ratios).</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Right-skewed and strictly positive? (concentration, titres, expression) <span class="dt-arrow">→ Yes →</span> <strong>Log-normal</strong>; log-transform and treat as normal.</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Variance estimation / categorical goodness-of-fit? <span class="dt-arrow">→ Yes →</span> <strong>Chi-square χ²</strong>.</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Count with an upper bound n (X positives out of n)? <span class="dt-arrow">→ Yes →</span> <strong>Binomial</strong>.</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>Unbounded event counts (per unit time/region)? Check Var/Mean: <span class="dt-arrow">→ ≈ 1 →</span> <strong>Poisson</strong>; <span class="dt-arrow">→ &gt; 1.5 →</span> <strong>Negative Binomial</strong>.</div></div>
+<div class="dt-node"><span class="dt-q">Q7:</span><div>Excess zeros (scRNA-seq dropout)? <span class="dt-arrow">→ Yes →</span> <strong>Zero-Inflated NB (ZINB)</strong> or hurdle model.</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 8: Comparison table ===== -->
+<section class="section">
+<div class="section-label" data-zh="總表速查" data-en="QUICK REFERENCE">總表速查</div>
+<h2 data-zh="五、八大分布並排速查" data-en="V. Eight distributions side-by-side">五、八大分布並排</h2>
+<table class="comp-table">
+<thead><tr>
+<th data-zh="分布" data-en="Distribution">分布</th>
+<th data-zh="類型" data-en="Type">類型</th>
+<th data-zh="參數" data-en="Parameters">參數</th>
+<th data-zh="均值 / 變異" data-en="Mean / Var">均值/變異</th>
+<th data-zh="典型生物用途" data-en="Typical use">典型用途</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>Normal</strong></td><td data-lang="zh">連續</td><td>µ, σ</td><td><span class="math">µ / σ²</span></td><td data-lang="zh">CLT 後的彙總、Z-score、t/ANOVA 的母體假設</td><td data-lang="en">Continuous</td><td data-lang="en">Post-CLT summaries, Z-score, population assumption for t/ANOVA</td></tr>
+<tr><td><strong>t (df)</strong></td><td data-lang="zh">連續</td><td>df</td><td><span class="math">0 / df/(df−2)</span></td><td data-lang="zh">小樣本均值差異、迴歸係數檢定</td><td data-lang="en">Continuous</td><td data-lang="en">Small-sample mean diffs, regression coefficient tests</td></tr>
+<tr><td><strong>F (df₁, df₂)</strong></td><td data-lang="zh">連續</td><td>df₁, df₂</td><td><span class="math">df₂/(df₂−2)</span></td><td data-lang="zh">ANOVA 變異數比、混合模型</td><td data-lang="en">Continuous</td><td data-lang="en">ANOVA variance ratios, mixed models</td></tr>
+<tr><td><strong>Chi² (df)</strong></td><td data-lang="zh">連續</td><td>df</td><td><span class="math">df / 2df</span></td><td data-lang="zh">類別資料、變異數 CI、LRT</td><td data-lang="en">Continuous</td><td data-lang="en">Categorical data, variance CI, LRT</td></tr>
+<tr><td><strong>Log-normal</strong></td><td data-lang="zh">連續</td><td>µ_log, σ_log</td><td><span class="math">e^(µ+σ²/2)</span></td><td data-lang="zh">濃度、抗體效價、CFU、scRNA 表現</td><td data-lang="en">Continuous</td><td data-lang="en">Concentrations, titres, CFU, scRNA expression</td></tr>
+<tr><td><strong>Binomial</strong></td><td data-lang="zh">離散</td><td>n, p</td><td><span class="math">np / np(1−p)</span></td><td data-lang="zh">陽性率、編輯效率、基因型頻率</td><td data-lang="en">Discrete</td><td data-lang="en">Positive rate, editing efficiency, allele frequency</td></tr>
+<tr><td><strong>Poisson</strong></td><td data-lang="zh">離散</td><td>λ</td><td><span class="math">λ / λ</span></td><td data-lang="zh">罕見事件計數、突變、photon、低表達基因</td><td data-lang="en">Discrete</td><td data-lang="en">Rare event counts, mutations, photons, low-expression genes</td></tr>
+<tr><td><strong>Neg. Binomial</strong></td><td data-lang="zh">離散</td><td>µ, α</td><td><span class="math">µ / µ+αµ²</span></td><td data-lang="zh">RNA-seq / ATAC / ChIP（DESeq2、edgeR）</td><td data-lang="en">Discrete</td><td data-lang="en">RNA-seq / ATAC / ChIP (DESeq2, edgeR)</td></tr>
+</tbody></table>
+
+<div class="idea">
+<span data-lang="zh"><strong>四個收斂事實要背熟：</strong>(1) Binomial(n, p) → Poisson(λ=np) 當 n 大、p 小；(2) Poisson(λ) → Normal(λ, λ) 當 λ 大（&gt; 30）；(3) t(df) → Normal(0,1) 當 df 大（&gt; 30）；(4) χ²(df) → Normal 當 df 大。<strong>這些「正常化」是 CLT 的本質</strong>——下一章 Step 3 會深入。</span>
+<span data-lang="en"><strong>Four convergence facts to memorise:</strong> (1) Binomial(n, p) → Poisson(λ = np) for large n and small p; (2) Poisson(λ) → Normal(λ, λ) for large λ (&gt; 30); (3) t(df) → N(0,1) for large df (&gt; 30); (4) χ²(df) → Normal for large df. <strong>These "normalisations" are the CLT in action</strong> — Step 3 unpacks them.</span>
+</div>
+</section>
+
+<!-- ===== Section 9: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="六、實作範例" data-en="VI. Code examples">六、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: d* = density/PMF, p* = CDF, q* = quantile, r* = random</span>
+<span class="comment"># --- Normal ---</span>
+<span class="func">dnorm</span>(<span class="num">1.96</span>); <span class="func">pnorm</span>(<span class="num">1.96</span>)        <span class="comment"># 0.0584 ; 0.975</span>
+<span class="func">qnorm</span>(<span class="num">0.975</span>); <span class="func">rnorm</span>(<span class="num">5</span>, <span class="num">0</span>, <span class="num">1</span>)     <span class="comment"># 1.96 ; sample</span>
+
+<span class="comment"># --- Binomial: P(X = 7) when n=10, p=0.5 ---</span>
+<span class="func">dbinom</span>(<span class="num">7</span>, size=<span class="num">10</span>, prob=<span class="num">0.5</span>)
+<span class="func">pbinom</span>(<span class="num">7</span>, <span class="num">10</span>, <span class="num">0.5</span>)               <span class="comment"># P(X &le; 7)</span>
+
+<span class="comment"># --- Poisson: lambda = 3 mutations / generation ---</span>
+<span class="func">dpois</span>(<span class="num">2</span>, lambda=<span class="num">3</span>); <span class="func">ppois</span>(<span class="num">2</span>, <span class="num">3</span>)
+
+<span class="comment"># --- t (df = 10) ---</span>
+<span class="func">qt</span>(<span class="num">0.975</span>, df=<span class="num">10</span>)                <span class="comment"># critical value 2.228</span>
+
+<span class="comment"># --- Chi-square &amp; F critical values ---</span>
+<span class="func">qchisq</span>(<span class="num">0.95</span>, df=<span class="num">3</span>); <span class="func">qf</span>(<span class="num">0.95</span>, df1=<span class="num">2</span>, df2=<span class="num">20</span>)
+
+<span class="comment"># --- Fit a negative binomial to RNA-seq counts ---</span>
+<span class="func">library</span>(MASS)
+counts &lt;- <span class="func">rnbinom</span>(n=<span class="num">200</span>, mu=<span class="num">10</span>, size=<span class="num">2</span>)   <span class="comment"># size = 1/alpha</span>
+fit &lt;- MASS::<span class="func">fitdistr</span>(counts, <span class="str">"negative binomial"</span>)
+fit$estimate                                <span class="comment"># mu and size</span>
+
+<span class="comment"># --- Goodness-of-fit: chi-square ---</span>
+obs &lt;- <span class="func">c</span>(<span class="num">120</span>, <span class="num">230</span>, <span class="num">150</span>); exp &lt;- <span class="func">c</span>(<span class="num">100</span>, <span class="num">250</span>, <span class="num">150</span>)
+<span class="func">chisq.test</span>(obs, p=exp/<span class="func">sum</span>(exp))
+
+<span class="comment"># --- DESeq2 idiom: NB GLM behind the curtain ---</span>
+<span class="comment"># dds &lt;- DESeqDataSetFromMatrix(counts, coldata, ~ condition)</span>
+<span class="comment"># dds &lt;- DESeq(dds)   # fits NB with shrinkage (Love 2014)</span></pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="comment"># --- Normal ---</span>
+stats.norm.<span class="func">pdf</span>(<span class="num">1.96</span>); stats.norm.<span class="func">cdf</span>(<span class="num">1.96</span>)   <span class="comment"># 0.0584 ; 0.975</span>
+stats.norm.<span class="func">ppf</span>(<span class="num">0.975</span>); stats.norm.<span class="func">rvs</span>(size=<span class="num">5</span>)
+
+<span class="comment"># --- Binomial ---</span>
+stats.binom.<span class="func">pmf</span>(<span class="num">7</span>, n=<span class="num">10</span>, p=<span class="num">0.5</span>)
+stats.binom.<span class="func">cdf</span>(<span class="num">7</span>, <span class="num">10</span>, <span class="num">0.5</span>)
+
+<span class="comment"># --- Poisson ---</span>
+stats.poisson.<span class="func">pmf</span>(<span class="num">2</span>, mu=<span class="num">3</span>); stats.poisson.<span class="func">cdf</span>(<span class="num">2</span>, <span class="num">3</span>)
+
+<span class="comment"># --- t / Chi² / F critical values ---</span>
+stats.t.<span class="func">ppf</span>(<span class="num">0.975</span>, df=<span class="num">10</span>)                     <span class="comment"># 2.228</span>
+stats.chi2.<span class="func">ppf</span>(<span class="num">0.95</span>, df=<span class="num">3</span>)
+stats.f.<span class="func">ppf</span>(<span class="num">0.95</span>, dfn=<span class="num">2</span>, dfd=<span class="num">20</span>)
+
+<span class="comment"># --- Fit NB to counts (statsmodels) ---</span>
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+counts = stats.nbinom.<span class="func">rvs</span>(n=<span class="num">2</span>, p=<span class="num">2</span>/(<span class="num">2</span>+<span class="num">10</span>), size=<span class="num">200</span>)
+res = sm.NegativeBinomial(counts, np.<span class="func">ones</span>(<span class="num">200</span>)).<span class="func">fit</span>(disp=<span class="num">0</span>)
+res.params  <span class="comment"># intercept (log mu) + alpha</span>
+
+<span class="comment"># --- Goodness-of-fit chi-square ---</span>
+stats.<span class="func">chisquare</span>([<span class="num">120</span>,<span class="num">230</span>,<span class="num">150</span>], f_exp=[<span class="num">100</span>,<span class="num">250</span>,<span class="num">150</span>])
+
+<span class="comment"># --- pyDESeq2 idiom (NB GLM for RNA-seq DE) ---</span>
+<span class="comment"># from pydeseq2.dds import DeseqDataSet</span>
+<span class="comment"># dds = DeseqDataSet(counts=counts_df, metadata=meta, design_factors="condition")</span>
+<span class="comment"># dds.deseq2()   # NB with empirical Bayes shrinkage</span></pre></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>實作小撇步：</strong>遇到計數資料，先跑「Var/Mean 比」：R 用 <code>var(x)/mean(x)</code>，Python 用 <code>x.var()/x.mean()</code>。&gt; 1.5 直接走 NB；近 1 用 Poisson；若有大量 0 還要看 ZINB（<code>pscl::zeroinfl()</code>）。</span>
+<span data-lang="en"><strong>Quick recipe:</strong> for any count data, compute the variance-to-mean ratio first: R <code>var(x)/mean(x)</code>, Python <code>x.var()/x.mean()</code>. &gt; 1.5 → go NB; near 1 → Poisson; many zeros → consider ZINB (<code>pscl::zeroinfl()</code>).</span>
+</div></div>
+</section>
+
+<!-- ===== Section 10: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="七、五個會毀掉你 p 值的分布錯誤" data-en="VII. Five distribution mistakes that wreck your p-value">七、五個分布錯誤</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="計數資料用 t 檢定 / Normal" data-en="Counts via t / Normal">計數資料用 t-test</span></h4>
+<div data-lang="zh"><p>把細胞分裂次數、CFU、reads count 當常態做 t 檢定——當均值小（λ &lt; 5）時，常態近似失效，<strong>Type I error 顯著膨脹</strong>。改用 Poisson GLM 或 NB GLM；或先 log/√ 轉換再用 t。</p></div>
+<div data-lang="en"><p>Treating cell divisions, CFU, or read counts as normal in a t-test breaks down when the mean is small (λ &lt; 5) — <strong>Type I error inflates noticeably</strong>. Use a Poisson or NB GLM, or apply a log/√ transform before t.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Poisson 處理過離散 RNA-seq" data-en="Poisson on overdispersed RNA-seq">RNA-seq 用 Poisson</span></h4>
+<div data-lang="zh"><p>跨樣本的生物變異使 Var ≫ Mean，用 Poisson 的 p 值<strong>嚴重偏小</strong>。一個基因 Var/Mean = 5 卻被當 Poisson 分析，假陽性率可從 5% 衝到 40%。<strong>用 DESeq2 / edgeR 的 NB GLM</strong>。</p></div>
+<div data-lang="en"><p>Cross-sample biological variation gives Var ≫ Mean; Poisson p-values become <strong>far too small</strong>. A gene with Var/Mean = 5 analysed as Poisson can see FPR jump from 5% to 40%. <strong>Use the NB GLM in DESeq2 / edgeR</strong>.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Binomial vs Poisson 混淆" data-en="Binomial vs Poisson mix-up">Binomial vs Poisson</span></h4>
+<div data-lang="zh"><p>「100 人中 X 人陽性」是 <strong>Binomial</strong>（有上限 n）；「某基因 1 kb 區段內突變 X 次」是 <strong>Poisson</strong>（無上限）。混淆會把分母（樣本數）與曝險（時間/長度）算錯，CI 全錯。</p></div>
+<div data-lang="en"><p>"X positives in 100 people" is <strong>Binomial</strong> (bounded by n); "X mutations in a 1 kb region" is <strong>Poisson</strong> (unbounded). Mixing them swaps denominator (sample size) and exposure (time/length); CIs go off.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="比例資料當常態" data-en="Proportions as normal">比例資料硬塞常態</span></h4>
+<div data-lang="zh"><p>把陽性率 p̂ 直接當 N(p̂, p̂(1−p̂)/n) 算 95% CI——當 p̂ 接近 0 或 1 時，<strong>CI 會超出 [0, 1] 範圍</strong>。改用 Wilson 或 Clopper-Pearson CI（<code>binom::binom.confint()</code>、<code>statsmodels.proportion_confint()</code>）。</p></div>
+<div data-lang="en"><p>Treating p̂ as N(p̂, p̂(1−p̂)/n) for a 95% CI fails near 0 or 1 — <strong>the CI can leak outside [0, 1]</strong>. Use Wilson or Clopper-Pearson intervals (<code>binom::binom.confint()</code>, <code>statsmodels.proportion_confint()</code>).</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="log-normal 沒 log 就做 t" data-en="log-normal without log">Log-normal 不 log</span></h4>
+<div data-lang="zh"><p>細胞激素濃度、抗體效價在原尺度上強烈右偏。直接做 t-test 會被尾巴主導，<strong>檢力 (power) 大幅下降</strong>。先 log 再 t，或用 Mann-Whitney U（不假設形狀）。</p></div>
+<div data-lang="en"><p>Cytokine levels and antibody titres are strongly right-skewed on the raw scale. Running t straight away lets the tail dominate and <strong>power drops sharply</strong>. Log first, then t — or use Mann-Whitney U (no shape assumption).</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="把 SD 套到離散分布" data-en="SD on discrete distributions">離散分布報 mean ± SD</span></h4>
+<div data-lang="zh"><p>Poisson 的 SD = √λ，Binomial 的 SD = √(np(1−p))——但「mean ± SD」對離散資料常常包含負數，無意義。改用 95% CI（Wilson for Binomial、exact Poisson CI）。</p></div>
+<div data-lang="en"><p>Poisson SD = √λ, Binomial SD = √(np(1−p)) — but "mean ± SD" on discrete data often crosses zero, which is meaningless. Use a 95% CI instead (Wilson for Binomial, exact Poisson CI).</p></div>
+</div>
+</div>
+
+<div class="callout danger"><span class="callout-icon">🚨</span><div>
+<span data-lang="zh"><strong>一句話總結：</strong>沒有「萬用分布」，只有「適合產生機制的分布」。看到資料先問三件事：<strong>(1) 連續還是計數？(2) 有沒有上限？(3) Var/Mean 比是多少？</strong>——三題答完，分布幾乎已定。</span>
+<span data-lang="en"><strong>One-liner:</strong> there is no universal distribution — only the one that matches the generative mechanism. When data lands on your desk ask three things: <strong>(1) continuous or count? (2) bounded or unbounded? (3) variance-to-mean ratio?</strong> Three answers narrow the distribution down to one.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 11: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 你做 RNA-seq 差異分析，看到某基因的 sample variance / mean ≈ 6。下列何者最合適？</p>
+<p data-lang="en">1. In an RNA-seq DE analysis, a gene's sample variance / mean ≈ 6. What's most appropriate?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 用 Poisson GLM——畢竟是計數資料</span><span data-lang="en">A. Use a Poisson GLM — it's count data</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 把 count 當常態做 t-test</span><span data-lang="en">B. Treat counts as normal and run t-test</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 用 Negative Binomial GLM（DESeq2 / edgeR）</span><span data-lang="en">C. Use a Negative Binomial GLM (DESeq2 / edgeR)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 取 TPM 後算相關係數</span><span data-lang="en">D. Compute TPM and look at correlation</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">2. 對於連續變數 X，下列何者正確？</p>
+<p data-lang="en">2. For a continuous variable X, which is correct?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. PDF 值就是 P(X = x) 的機率</span><span data-lang="en">A. The PDF value equals P(X = x)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. P(X = x) = 0；機率要靠對區間積分 PDF 得到</span><span data-lang="en">B. P(X = x) = 0; probabilities come from integrating the PDF over an interval</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. PDF 永遠 ≤ 1</span><span data-lang="en">C. The PDF is always ≤ 1</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. CDF 可能大於 1</span><span data-lang="en">D. The CDF can exceed 1</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">3. 「篩檢 200 人，問 X 名陽性的機率分布」與「在 1 kb 染色體區段中 X 個 SNV」分別屬於？</p>
+<p data-lang="en">3. "X positives out of 200 screened" vs "X SNVs in a 1 kb region" — what distributions?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 兩者都是 Poisson</span><span data-lang="en">A. Both Poisson</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 兩者都是 Binomial</span><span data-lang="en">B. Both Binomial</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 前者 Poisson、後者 Binomial</span><span data-lang="en">C. First Poisson, second Binomial</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 前者 Binomial（有上限 n=200）、後者 Poisson（無上限的事件計數）</span><span data-lang="en">D. First Binomial (bounded by n=200), second Poisson (unbounded events)</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">4. 你有 n=8 隻老鼠的腫瘤體積要做兩組比較，最適合的<strong>抽樣分布</strong>（用來算 p 值）是？</p>
+<p data-lang="en">4. Two-group comparison on n=8 mice tumour volumes — the most appropriate <strong>sampling distribution</strong> for the p-value is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 標準常態 N(0,1)</span><span data-lang="en">A. Standard normal N(0,1)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. Chi-square</span><span data-lang="en">B. Chi-square</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Student's t（小樣本，df 控制尾巴厚度）</span><span data-lang="en">C. Student's t (small sample, df controls tails)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. Binomial</span><span data-lang="en">D. Binomial</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="descriptive.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="Step 1：描述統計" data-en="Step 1: Descriptive">Step 1：描述統計</span></a><a href="sampling.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 3：抽樣與 CLT" data-en="Step 3: Sampling & CLT">Step 3：抽樣與 CLT</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ====== Math helpers ======
+function logGamma(z){const g=7;const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];if(z<0.5)return Math.log(Math.PI/Math.sin(Math.PI*z))-logGamma(1-z);z-=1;let x=c[0];for(let i=1;i<g+2;i++)x+=c[i]/(z+i);const t=z+g+0.5;return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);}
+function logFact(n){return logGamma(n+1);}
+function logChoose(n,k){return logFact(n)-logFact(k)-logFact(n-k);}
+function normPdf(x,mu,sg){return Math.exp(-(x-mu)*(x-mu)/(2*sg*sg))/(sg*Math.sqrt(2*Math.PI));}
+function normCdf(x,mu,sg){const z=(x-mu)/sg;const t=1/(1+0.2316419*Math.abs(z));const d=0.3989422804014327*Math.exp(-z*z/2);const p=1-d*t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+1.330274429*t))));return z>=0?p:1-p;}
+function binomPmf(k,n,p){if(k<0||k>n)return 0;return Math.exp(logChoose(n,k)+k*Math.log(p)+(n-k)*Math.log(1-p));}
+function poisPmf(k,lam){if(k<0)return 0;return Math.exp(-lam+k*Math.log(lam)-logFact(k));}
+function tPdf(x,df){const c=Math.exp(logGamma((df+1)/2)-logGamma(df/2))/Math.sqrt(df*Math.PI);return c*Math.pow(1+x*x/df,-(df+1)/2);}
+function chi2Pdf(x,df){if(x<=0)return 0;return Math.exp((df/2-1)*Math.log(x)-x/2-(df/2)*Math.log(2)-logGamma(df/2));}
+// negative binomial PMF in (mu, size=1/alpha) parameterisation: size=r, p=r/(r+mu)
+function nbPmf(k,mu,alpha){if(k<0)return 0;if(alpha<=1e-6)return poisPmf(k,mu);const r=1/alpha;const p=r/(r+mu);return Math.exp(logGamma(k+r)-logGamma(r)-logFact(k)+r*Math.log(p)+k*Math.log(1-p));}
+
+// ====== Sim 1: Distribution playground ======
+let curDist='normal';
+const distChart=new Chart(document.getElementById('distChart'),{type:'bar',data:{labels:[],datasets:[{type:'bar',label:'pdf',data:[],backgroundColor:'rgba(15,118,110,0.55)',borderColor:'rgba(15,118,110,1)',borderWidth:1,yAxisID:'y'},{type:'line',label:'cdf',data:[],borderColor:'rgba(217,119,6,0.9)',backgroundColor:'transparent',borderDash:[6,4],pointRadius:0,borderWidth:2,yAxisID:'y1'}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'x / k'}},y:{title:{display:true,text:'density / mass'},position:'left'},y1:{title:{display:true,text:'CDF'},position:'right',min:0,max:1,grid:{drawOnChartArea:false}}}}});
+function setDist(btn,d){document.querySelectorAll('[data-dist]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');curDist=d;
+  const p1=document.getElementById('p1'),p2=document.getElementById('p2'),p1L=document.getElementById('p1Lbl'),p2L=document.getElementById('p2Lbl'),p2R=document.getElementById('p2Row');
+  if(d==='normal'){p1L.textContent='µ';p1.min=-3;p1.max=3;p1.step=0.1;p1.value=0;p2R.style.display='';p2L.textContent='σ';p2.min=0.2;p2.max=3;p2.step=0.1;p2.value=1;}
+  if(d==='binom'){p1L.textContent='n';p1.min=5;p1.max=50;p1.step=1;p1.value=20;p2R.style.display='';p2L.textContent='p';p2.min=0.05;p2.max=0.95;p2.step=0.01;p2.value=0.4;}
+  if(d==='pois'){p1L.textContent='λ';p1.min=0.5;p1.max=30;p1.step=0.5;p1.value=3;p2R.style.display='none';}
+  if(d==='t'){p1L.textContent='df';p1.min=1;p1.max=50;p1.step=1;p1.value=5;p2R.style.display='none';}
+  if(d==='chi2'){p1L.textContent='df';p1.min=1;p1.max=30;p1.step=1;p1.value=4;p2R.style.display='none';}
+  upDist();
+}
+function upDist(){const a=+document.getElementById('p1').value;const b=+document.getElementById('p2').value;document.getElementById('p1Val').textContent=a;document.getElementById('p2Val').textContent=b;
+  let labels=[],pdf=[],cdf=[],mean=0,vari=0,skew=0;
+  if(curDist==='normal'){for(let i=0;i<=80;i++){const x=a-4*b+i*(8*b/80);labels.push(x.toFixed(2));pdf.push(normPdf(x,a,b));cdf.push(normCdf(x,a,b));}mean=a;vari=b*b;skew=0;}
+  if(curDist==='binom'){const n=Math.round(a),p=b;let c=0;for(let k=0;k<=n;k++){const v=binomPmf(k,n,p);labels.push(k);pdf.push(v);c+=v;cdf.push(c);}mean=n*p;vari=n*p*(1-p);skew=(1-2*p)/Math.sqrt(n*p*(1-p));}
+  if(curDist==='pois'){const lam=a;const K=Math.max(20,Math.ceil(lam+5*Math.sqrt(lam)));let c=0;for(let k=0;k<=K;k++){const v=poisPmf(k,lam);labels.push(k);pdf.push(v);c+=v;cdf.push(c);}mean=lam;vari=lam;skew=1/Math.sqrt(lam);}
+  if(curDist==='t'){const df=a;let c=0;const step=0.1;for(let i=0;i<=80;i++){const x=-6+i*12/80;labels.push(x.toFixed(2));pdf.push(tPdf(x,df));c+=tPdf(x,df)*(12/80);cdf.push(Math.min(c,1));}mean=0;vari=df>2?df/(df-2):Infinity;skew=0;}
+  if(curDist==='chi2'){const df=a;const K=Math.max(20,df*3);let c=0;const step=K/80;for(let i=0;i<=80;i++){const x=i*step;labels.push(x.toFixed(1));pdf.push(chi2Pdf(x,df));c+=chi2Pdf(x,df)*step;cdf.push(Math.min(c,1));}mean=df;vari=2*df;skew=Math.sqrt(8/df);}
+  distChart.data.labels=labels;distChart.data.datasets[0].data=pdf;distChart.data.datasets[1].data=cdf;
+  // highlight mean bin
+  const meanIdx=Math.round(((mean)-(+labels[0]))/((+labels[1]-(+labels[0]))||1));
+  const colors=pdf.map((_,i)=>i===meanIdx?'rgba(192,57,43,0.95)':'rgba(15,118,110,0.55)');
+  distChart.data.datasets[0].backgroundColor=colors;
+  distChart.update('none');
+  const L=I18n.get();
+  const skewS=isFinite(skew)?skew.toFixed(2):'—';
+  const varS=isFinite(vari)?vari.toFixed(2):'∞';
+  document.getElementById('distStats').innerHTML=L==='zh'?
+    `<strong>分布</strong> = ${curDist} · <strong>Mean</strong> = ${mean.toFixed(2)} · <strong>Variance</strong> = ${varS} · <strong>Skewness γ₁</strong> = ${skewS}<br>${curDist==='pois'?'⚠️ Poisson 的「身分證」：Var = Mean = λ':''}${curDist==='t'?(a<5?'⚠️ 小 df，t 比常態厚尾甚明顯':'·df 大→趨近 N(0,1)'):''}${curDist==='chi2'?'· df 大時形狀趨近常態':''}`:
+    `<strong>Distribution</strong> = ${curDist} · <strong>Mean</strong> = ${mean.toFixed(2)} · <strong>Variance</strong> = ${varS} · <strong>Skewness γ₁</strong> = ${skewS}<br>${curDist==='pois'?'⚠️ Poisson identity: Var = Mean = λ':''}${curDist==='t'?(a<5?'⚠️ small df → much heavier tails than normal':'· large df → approaches N(0,1)'):''}${curDist==='chi2'?'· large df → approximately normal':''}`;
+}
+document.getElementById('p1').addEventListener('input',upDist);
+document.getElementById('p2').addEventListener('input',upDist);
+document.addEventListener('langchange',upDist);
+upDist();
+
+// ====== Sim 2: Overdispersion lab ======
+const odChart=new Chart(document.getElementById('odChart'),{type:'bar',data:{labels:[],datasets:[
+  {label:'Poisson',data:[],backgroundColor:'rgba(15,118,110,0.55)',borderColor:'rgba(15,118,110,1)',borderWidth:1},
+  {label:'NB',data:[],backgroundColor:'rgba(217,119,6,0.55)',borderColor:'rgba(217,119,6,1)',borderWidth:1}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,position:'top'}},scales:{x:{title:{display:true,text:'count k'}},y:{title:{display:true,text:'P(X=k)'}}}}});
+function upOd(){const mu=+document.getElementById('sliderMu2').value;const al=+document.getElementById('sliderAlpha').value;
+  document.getElementById('valMu2').textContent=mu;document.getElementById('valAlpha').textContent=al.toFixed(2);
+  const K=Math.max(20,Math.ceil(mu+6*Math.sqrt(mu+al*mu*mu)));
+  const labels=[],poiP=[],nbP=[];for(let k=0;k<=K;k++){labels.push(k);poiP.push(poisPmf(k,mu));nbP.push(nbPmf(k,mu,al));}
+  odChart.data.labels=labels;odChart.data.datasets[0].data=poiP;odChart.data.datasets[1].data=nbP;odChart.update('none');
+  const poiVar=mu;const nbVar=mu+al*mu*mu;const ratio=nbVar/mu;
+  const L=I18n.get();
+  document.getElementById('odStats').innerHTML=L==='zh'?
+    `<strong>µ</strong> = ${mu} · <strong>α</strong> = ${al.toFixed(2)}<br><strong>Poisson Var</strong> = ${poiVar.toFixed(2)} (=µ) · <strong>NB Var</strong> = ${nbVar.toFixed(2)} (=µ+αµ²)<br><strong>Var/Mean ratio</strong> = ${ratio.toFixed(2)} ${ratio>1.5?'⚠️ 高過離散——應該用 NB 而非 Poisson':(ratio>1.1?'· 輕度過離散':'· ≈ Poisson')}`:
+    `<strong>µ</strong> = ${mu} · <strong>α</strong> = ${al.toFixed(2)}<br><strong>Poisson Var</strong> = ${poiVar.toFixed(2)} (= µ) · <strong>NB Var</strong> = ${nbVar.toFixed(2)} (= µ + αµ²)<br><strong>Var/Mean ratio</strong> = ${ratio.toFixed(2)} ${ratio>1.5?'⚠️ Strong overdispersion — pick NB over Poisson':(ratio>1.1?'· mild overdispersion':'· essentially Poisson')}`;
+}
+document.getElementById('sliderMu2').addEventListener('input',upOd);
+document.getElementById('sliderAlpha').addEventListener('input',upOd);
+document.addEventListener('langchange',upOd);
+upOd();
+
+// ====== Quiz ======
+const QF={
+  zh:{q1_y:'Var/Mean ≈ 6 是典型 overdispersion——NB GLM（DESeq2 / edgeR）才是正解。',q1_n:'正確選項已標示。',q2_y:'連續變數的 P(X=x)=0；機率來自對區間積分 PDF。',q2_n:'正確選項已標示。',q3_y:'有上限 n 是 Binomial；無上限的事件計數是 Poisson。',q3_n:'正確選項已標示。',q4_y:'小樣本（n=8）下，sample SD 取代 σ 後分布為 t（df=n₁+n₂−2）。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'Var/Mean ≈ 6 is classic overdispersion — NB GLM (DESeq2 / edgeR) is the right choice.',q1_n:'Correct option highlighted.',q2_y:'For continuous variables, P(X=x)=0; probabilities come from integrating the PDF.',q2_n:'Correct option highlighted.',q3_y:'Bounded n → Binomial; unbounded event counts → Poisson.',q3_n:'Correct option highlighted.',q4_y:'With n=8, replacing σ by sample SD makes the test statistic t-distributed (df=n₁+n₂−2).',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>

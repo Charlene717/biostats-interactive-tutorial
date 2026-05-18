@@ -1,223 +1,524 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>卡方檢定 | Biostatistics Tutorial</title>
-  <meta name="description" content="Learn about the chi-square distribution and test of independence with an interactive contingency table.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html" class="active">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 6</div>
-      <h1 data-zh="卡方檢定" data-en="Chi‑Square Test">卡方檢定</h1>
-      <p class="subtitle" data-lang="zh">用於檢驗分類變數之間的關聯性。了解卡方分布及其檢定步驟，並透過 2×2 表格演練。</p>
-      <p class="subtitle" data-lang="en">Used to test associations between categorical variables. Learn the chi‑square distribution and testing procedure with a 2×2 table example.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="卡方分布與檢定" data-en="Chi‑Square Distribution and Test">卡方分布與檢定</h2>
-      <p data-lang="zh">卡方分布是一種只取正值且右偏的分布，其形狀由自由度決定。卡方檢定比較觀察次數與期望次數的差異，評估差異是否足夠大到拒絕零假設，常用於類別資料的獨立性或適合度檢定。</p>
-      <p data-lang="en">The chi‑square distribution is a right‑skewed distribution that only takes positive values and whose shape is determined by the degrees of freedom. A chi‑square test compares observed and expected counts to see if the differences are large enough to reject the null hypothesis and is commonly used for independence or goodness‑of‑fit tests with categorical data.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="2×2 卡方檢定" data-en="2×2 Chi‑Square Test">2×2 卡方檢定</h2>
-      <p data-lang="zh">輸入 2×2 交叉表格的四個觀察值，計算期望值與卡方統計量。</p>
-      <p data-lang="en">Enter the four observed values of a 2×2 contingency table to compute expected counts and the chi‑square statistic.</p>
-      <div class="interactive-panel">
-        <table style="margin-bottom:8px">
-          <tr>
-            <td></td>
-            <td><input type="number" id="obs11" value="20" min="0" style="width:60px"></td>
-            <td><input type="number" id="obs12" value="30" min="0" style="width:60px"></td>
-          </tr>
-          <tr>
-            <td></td>
-            <td><input type="number" id="obs21" value="15" min="0" style="width:60px"></td>
-            <td><input type="number" id="obs22" value="35" min="0" style="width:60px"></td>
-          </tr>
-        </table>
-        <!-- Use inline handler so click events work in local file contexts -->
-        <button id="chiBtn" onclick="computeChi()" style="background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Compute</button>
-        <div id="chiOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
-      </div>
-    </section>
-    <!-- Added sections for strengths/weaknesses, decision guidance, quiz and code examples -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons & Limitations">優缺點與限制</div>
-      <h2 data-zh="卡方檢定的利弊" data-en="Strengths & Weaknesses of the Chi‑Square Test">卡方檢定的利弊</h2>
-      <p data-lang="zh">卡方檢定是一種非參數方法，優點是計算容易，適用於類別或順序資料，且不要求母體常態或方差齊性；它可處理兩組或多組分類資料，並提供各分類對差異貢獻的詳細訊息。這種檢定廣泛用於獨立性和適合度檢定，可在不符合參數假設時替代 t 或 F 檢定。缺點包括需要足夠大的樣本，通常建議每格期望值至少 5；當樣本過小或表格格數過多時檢定不可靠。資料必須是互斥的計數，每個觀察只能落在一個類別，且觀察彼此獨立。卡方檢定僅提供是否存在關聯的顯著性，無法衡量關聯強度，且對於配對樣本或比例極端失衡時不適合使用。</p>
-      <p data-lang="en">The chi‑square test is a non‑parametric method. Its advantages include ease of computation, applicability to nominal or ordinal data, and no requirement of normality or equal variances. It can handle two or more categorical groups and provides detailed information about which cells contribute to differences. It is widely used for independence and goodness‑of‑fit tests and serves as an alternative to t or F tests when parametric assumptions are violated. Limitations include the need for a sufficiently large sample; each expected count should typically be at least 5. With small samples or many categories, results may be unreliable. Data must be mutually exclusive counts with each observation falling into only one category, and observations must be independent. The chi‑square test only indicates whether an association exists and does not measure its strength, and it is not suitable for paired samples or highly unbalanced tables.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance & Example">決策指引與範例</div>
-      <h2 data-zh="何時使用卡方檢定" data-en="When to Use the Chi‑Square Test">何時使用卡方檢定</h2>
-      <p data-lang="zh">在選擇卡方檢定時，首先確認變數為類別或已分組的順序資料。若欲檢驗兩分類變數的獨立性或某變數的分布是否符合理論比例，可使用卡方檢定。應確保每一樣本單位僅屬於一個類別且樣本來自隨機抽樣；若資料是配對或重複測量則不適用，應改用 McNemar 檢定或其他方法。當任何格子期望值低於 5 或總樣本量少於 50 時，建議改用 Fisher 精確檢定或合併類別以增加期望值。此外，卡方檢定只能判斷是否有顯著關聯，若要衡量關聯強度可另計算 Cramer’s V 或 Phi 係數。範例：研究者想知道吸菸習慣與是否罹患某疾病是否有關，收集 120 名受試者後得到 2×2 表格；使用卡方檢定計算 χ² 值和 p 值，若 p &lt; 0.05，則表示吸菸與疾病有統計上的關聯。</p>
-      <p data-lang="en">To decide when to use a chi‑square test, confirm that your variables are categorical or binned ordinal. Use the test to examine whether two categorical variables are independent or whether an observed distribution matches a theoretical one. Ensure that each subject belongs to only one category and that observations are from a random sample; for paired or repeated measures data, use the McNemar test or other alternatives. If any expected count is less than 5 or the total sample size is below about 50, consider Fisher’s exact test or combining categories to increase expected counts. Remember that the chi‑square test only indicates whether an association exists; to quantify the strength of association you can compute Cramer’s V or the Phi coefficient. Example: a researcher wants to assess whether smoking status is associated with a disease. After collecting data from 120 individuals, they create a 2×2 contingency table. A chi‑square test yields a χ² statistic and p‑value; if p < 0.05, smoking and disease occurrence are considered statistically associated.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動測驗" data-en="Quiz">互動測驗</div>
-      <h2 data-zh="測驗你的理解" data-en="Check Your Understanding">測驗你的理解</h2>
-      <p data-lang="zh">請選擇下列關於卡方檢定假設的正確敘述：</p>
-      <p data-lang="en">Select the statement below that is a key assumption of the chi‑square test:</p>
-      <div class="interactive-panel">
-        <form id="chiQuizForm">
-          <label><input type="radio" name="chiQuiz" value="a"> <span data-zh="資料必須為連續且服從常態分布" data-en="Data must be continuous and normally distributed">資料必須為連續且服從常態分布</span></label><br>
-          <label><input type="radio" name="chiQuiz" value="b"> <span data-zh="每個期望次數應至少為 5" data-en="Each expected count should be at least 5">每個期望次數應至少為 5</span></label><br>
-          <label><input type="radio" name="chiQuiz" value="c"> <span data-zh="可用於配對樣本資料" data-en="Can be used for paired samples">可用於配對樣本資料</span></label><br>
-          <button type="button" onclick="checkChiQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
-        </form>
-        <div id="chiQuizFeedback" style="margin-top:8px;font-size:0.9rem;color:var(--c-ink)"></div>
-      </div>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
-      <h2 data-zh="使用 R 與 Python 進行卡方檢定" data-en="Chi‑Square Test in R and Python">使用 R 與 Python 進行卡方檢定</h2>
-      <p data-lang="zh">以下程式碼示範如何在 R 和 Python 中建立 2×2 交叉表格、計算卡方統計量與期望值。若表格期望次數過小，R 會建議使用 <code>fisher.test()</code>，Python 可使用 <code>stats.fisher_exact()</code>。你可以切換標籤查看不同語言，並點擊複製按鈕取得程式碼。</p>
-      <p data-lang="en">The following code shows how to construct a 2×2 contingency table in R and Python, compute the chi‑square statistic and expected counts. If expected counts are too small, R suggests using <code>fisher.test()</code> and Python has <code>stats.fisher_exact()</code>. Use the tabs to switch languages and click the copy button to copy the code.</p>
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(this, 'rchisq')">R</button>
-          <button class="code-tab-btn" onclick="switchTab(this, 'pychisq')">Python</button>
-        </div>
-        <div id="rchisq" class="code-tab-content active">
-          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-          <pre><span class="comment"># 產生 2×2 交叉表格</span>
-tab &lt;- matrix(c(20, 30, 15, 35), nrow = 2, byrow = TRUE)
-colnames(tab) &lt;- c("Yes", "No")
-rownames(tab) &lt;- c("Group1", "Group2")
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 6: Chi-Square & Categorical Data — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html" class="active">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 6 / 13</div>
+<h1 data-zh="卡方檢定與類別資料 (Chi-Square)" data-en="Chi-Square & Categorical Data">卡方檢定與類別資料 (Chi-Square)</h1>
+<p class="subtitle" data-lang="zh">類別資料的核心工具——獨立性 / 適合度 / 同質性、何時改用 Fisher's exact、OR vs RR vs RD 的本質差別。</p>
+<p class="subtitle" data-lang="en">The toolkit for categorical data — independence / goodness-of-fit / homogeneity, when to switch to Fisher's exact, and the real distinction between OR, RR, and RD.</p>
+</header>
+<main class="content-wrap">
 
-<span class="comment"># 執行卡方檢定（不使用連續性校正）</span>
-  chisq.test(tab, correct = FALSE)
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="為什麼類別資料需要自己的一章？" data-en="Why categorical data deserves its own chapter">為什麼類別資料需要自己的一章？</h2>
+<div data-lang="zh">
+<p>連續資料用 t / ANOVA，但臨床、流病、遺傳學的核心問題往往是<strong>「比例 / 計數」</strong>：用藥組 vs 對照組的死亡比例、基因型 AA/Aa/aa 的疾病頻率、Mendel 9:3:3:1 的子代分配。對這些資料用 t 檢定不只是「精度差」——是<strong>本質錯誤</strong>，因為 t 檢定假設常態 + 等變異，但二元變數的變異與平均直接綁定（Var = p(1−p)）。</p>
+<p>類別資料的故事從 <strong>Karl Pearson 1900</strong> 開始：他在 <em>Philosophical Magazine</em> 提出「χ² 適合度檢定」，把「觀察 vs 期望」轉化為一個可加的距離總和。1922 年 <strong>R. A. Fisher</strong> 修正了自由度（df = (r−1)(c−1) 而非 rc−1），同年提出 Fisher's exact test 處理小樣本。1947 McNemar 解決「同一受試者前後」的配對問題，1959 Mantel-Haenszel 處理「分層 2×2 表」。整個類別資料分析的骨架由 1900-1959 這 60 年構築完成。</p>
+</div>
+<div data-lang="en">
+<p>Continuous data go through t-tests and ANOVA, but the central questions in clinical, epidemiologic, and genetic research are often about <strong>proportions and counts</strong>: mortality in treatment vs control, disease frequency among AA / Aa / aa genotypes, Mendel's 9:3:3:1 offspring split. Running a t-test on data like these isn't merely "imprecise" — it's <strong>conceptually wrong</strong>: t-tests assume normality and constant variance, but for a binary variable the variance is locked to the mean (Var = p(1−p)).</p>
+<p>The story starts with <strong>Karl Pearson 1900</strong> in <em>Philosophical Magazine</em>, who turned "observed vs expected" into a single additive distance — the χ² goodness-of-fit test. <strong>R. A. Fisher 1922</strong> fixed the degrees of freedom (df = (r−1)(c−1), not rc−1) and, in the same year, introduced Fisher's exact test for small samples. McNemar (1947) handled before/after pairing in the same subjects; Mantel-Haenszel (1959) handled stratified 2×2 tables. The whole skeleton of categorical-data analysis was built between 1900 and 1959.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>一句話記住：</strong>類別資料分析的核心是「<strong>觀察次數 O</strong>」與「<strong>在虛無假設下的期望次數 E</strong>」之間的距離。卡方統計量 χ² = Σ(O−E)²/E 把這個距離標準化、可加，並在大樣本下逼近卡方分布。Agresti（2018）<em>Categorical Data Analysis</em> 是這個領域的標準教科書。</span>
+<span data-lang="en"><strong>One-line summary:</strong> categorical-data analysis hinges on the distance between <strong>observed counts O</strong> and <strong>expected counts E under H₀</strong>. The chi-square statistic χ² = Σ(O−E)²/E standardizes and aggregates that distance, and is approximately chi-square distributed in large samples. Agresti's <em>Categorical Data Analysis</em> (3rd ed., 2018) is the standard textbook.</span>
+</div></div>
+</section>
 
-<span class="comment"># 取得期望值與統計量</span>
-  chi_res &lt;- chisq.test(tab, correct = FALSE)
-  chi_res$expected
-  chi_res$statistic</pre>
-        </div>
-        <div id="pychisq" class="code-tab-content">
-          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-          <pre><span class="comment"># Import packages</span>
-import numpy as np
-from scipy import stats
+<!-- ===== Section 2: Core concepts ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心概念" data-en="CORE CONCEPTS">核心概念</div>
+<h2 data-zh="一、列聯表、期望值、卡方統計量" data-en="I. Contingency tables, expected counts, the chi-square statistic">一、列聯表、期望值、卡方統計量</h2>
+<div data-lang="zh"><p>把資料攤成 r × c 的<strong>列聯表（contingency table）</strong>：行是一個類別變數（如 treatment / control），列是另一個（如 event / no event）。在「兩變數獨立」的虛無假設下，每一格的期望次數等於<strong>邊際機率乘積 × N</strong>：</p></div>
+<div data-lang="en"><p>Lay the data out as an r × c <strong>contingency table</strong>: rows are one categorical variable (treatment / control), columns are another (event / no event). Under the null hypothesis of independence, the expected count in each cell equals <strong>the product of the marginal probabilities times N</strong>:</p></div>
 
-<span class="comment"># Create 2×2 contingency table</span>
-obs = np.array([[20, 30], [15, 35]])
+<div class="formula">
+<span data-lang="zh">⌜ <em>E<sub>ij</sub></em> = (row<sub>i</sub> total × col<sub>j</sub> total) / N &nbsp; · &nbsp; <em>χ²</em> = Σ<sub>i,j</sub> (<em>O<sub>ij</sub></em> − <em>E<sub>ij</sub></em>)² / <em>E<sub>ij</sub></em> &nbsp; · &nbsp; df = (r−1)(c−1) ⌝
+<span class="fnote">Pearson 1900 提出卡方統計量；Fisher 1922 修正了 r×c 表的自由度公式（早期 Pearson 把 df 寫成 rc−1）。對 2×2 表，df = 1。</span></span>
+<span data-lang="en">⌜ <em>E<sub>ij</sub></em> = (row<sub>i</sub> total × col<sub>j</sub> total) / N &nbsp; · &nbsp; <em>χ²</em> = Σ<sub>i,j</sub> (<em>O<sub>ij</sub></em> − <em>E<sub>ij</sub></em>)² / <em>E<sub>ij</sub></em> &nbsp; · &nbsp; df = (r−1)(c−1) ⌝
+<span class="fnote">Pearson (1900) introduced χ²; Fisher (1922) corrected the degrees of freedom for an r×c table (Pearson originally wrote rc−1). For a 2×2 table, df = 1.</span></span>
+</div>
 
-<span class="comment"># Chi‑square test without Yates' correction</span>
-  chi2, p_val, dof, expected = stats.chi2_contingency(obs, correction=False)
-  expected
-  chi2
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🔢</div><h4 data-zh="獨立性檢定 (Independence)" data-en="Independence">獨立性</h4>
+<div data-lang="zh"><p>兩個類別變數是否相關？例如：<span class="kt">藥物 × 結果</span>、<span class="kt">基因型 × 疾病</span>、<span class="kt">吸菸 × 肺癌</span>。<strong>H₀：兩變數獨立</strong>；E 由邊際分布計算。</p></div>
+<div data-lang="en"><p>Are two categorical variables associated? Example: <span class="kt">drug × outcome</span>, <span class="kt">genotype × disease</span>, <span class="kt">smoking × lung cancer</span>. <strong>H₀: the two variables are independent</strong>; E is computed from the marginals.</p></div>
+</div>
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="適合度檢定 (Goodness-of-fit)" data-en="Goodness-of-fit">適合度</h4>
+<div data-lang="zh"><p>觀察的計數是否符合某個理論分布？例如：<span class="kt">Mendel 9:3:3:1</span>、<span class="kt">Hardy-Weinberg p², 2pq, q²</span>、<span class="kt">均勻分布（骰子是否公平）</span>。E 由理論機率 × N。df = k − 1 − m（m = 估計的參數個數）。</p></div>
+<div data-lang="en"><p>Do observed counts match a theoretical distribution? Example: <span class="kt">Mendel 9:3:3:1</span>, <span class="kt">Hardy-Weinberg p², 2pq, q²</span>, <span class="kt">uniform (is the die fair?)</span>. E = theoretical probability × N. df = k − 1 − m (m = number of parameters estimated from the data).</p></div>
+</div>
+<div class="card"><div class="card-icon">🔁</div><h4 data-zh="同質性檢定 (Homogeneity)" data-en="Homogeneity">同質性</h4>
+<div data-lang="zh"><p>多個獨立樣本是否來自同一母體？數學形式與獨立性檢定相同（同一 χ² 公式），差別只在<strong>取樣設計</strong>：homogeneity 是行邊際固定（從每組抽固定 n），independence 是總和 N 固定。Agresti 2018 Ch.2。</p></div>
+<div data-lang="en"><p>Do multiple independent samples come from the same population? Mathematically identical to the independence test (same χ² formula), the difference is purely in <strong>sampling design</strong>: homogeneity fixes the row margins (sample fixed n from each group), independence fixes only the total N. Agresti 2018 Ch.2.</p></div>
+</div>
+</div>
 
-<span class="comment"># If expected counts are small, use Fisher’s exact test</span>
-  oddsratio, p_exact = stats.fisher_exact(obs)
-  p_exact</pre>
-        </div>
-      </div>
-    </section>
-    <!-- Page navigation -->
-    <div class="page-nav">
-      <a href="t-tests.html">
-        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
-        <span class="nav-title" data-zh="t 檢定與 CI" data-en="t‑Tests & CI">t 檢定與 CI</span>
-      </a>
-      <a href="anova.html">
-        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
-        <span class="nav-title" data-zh="變異數分析" data-en="ANOVA">變異數分析</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    function computeChi() {
-      const a = parseFloat(document.getElementById('obs11').value);
-      const b = parseFloat(document.getElementById('obs12').value);
-      const c = parseFloat(document.getElementById('obs21').value);
-      const d = parseFloat(document.getElementById('obs22').value);
-      const row1 = a + b;
-      const row2 = c + d;
-      const col1 = a + c;
-      const col2 = b + d;
-      const total = row1 + row2;
-      const e11 = row1 * col1 / total;
-      const e12 = row1 * col2 / total;
-      const e21 = row2 * col1 / total;
-      const e22 = row2 * col2 / total;
-      const chi = (a - e11) * (a - e11) / e11 + (b - e12) * (b - e12) / e12 + (c - e21) * (c - e21) / e21 + (d - e22) * (d - e22) / e22;
-      const out = document.getElementById('chiOutput');
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      out.innerHTML = `<p><strong>χ²:</strong> ${chi.toFixed(3)}, df=1</p>` +
-        `<p>${lang === 'zh' ? '期望值' : 'Expected counts'}: [${e11.toFixed(1)}, ${e12.toFixed(1)}; ${e21.toFixed(1)}, ${e22.toFixed(1)}]</p>`;
-    }
-    window.computeChi = computeChi;
-    // Quiz evaluation for Chi-square understanding
-    function checkChiQuiz() {
-      const form = document.getElementById('chiQuizForm');
-      const selected = form.querySelector('input[name="chiQuiz"]:checked');
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      let msg;
-      if (!selected) {
-        msg = lang === 'zh' ? '請選擇一個答案。' : 'Please select an answer.';
-      } else if (selected.value === 'b') {
-        msg = lang === 'zh' ? '答對了！卡方檢定要求每格的期望值應足夠大。' : 'Correct! The chi‑square test requires sufficiently large expected counts.';
-      } else {
-        msg = lang === 'zh' ? '不正確。正確假設是每個期望次數應至少為 5。' : 'Not quite. The correct assumption is that each expected count should be at least 5.';
-      }
-      document.getElementById('chiQuizFeedback').textContent = msg;
-    }
-    window.checkChiQuiz = checkChiQuiz;
+<div class="idea">
+<span data-lang="zh"><strong>直覺：</strong>O = E 時 χ² = 0；O 偏離 E 越遠，χ² 越大。為什麼除以 E？因為「次數 100 與期望 100 差 5」遠比「次數 5 與期望 5 差 5」溫和——除以 E 等於把絕對差距標準化成「相對於期望規模」。這也是 Poisson 計數資料的 variance ≈ mean 性質的直接反映。</span>
+<span data-lang="en"><strong>Intuition:</strong> χ² = 0 when O = E; χ² grows as O drifts from E. Why divide by E? "Observed 100 vs expected 100 differing by 5" is far milder than "observed 5 vs expected 5 differing by 5" — dividing by E rescales the absolute gap by the expected magnitude. This mirrors the Poisson property variance ≈ mean for count data.</span>
+</div>
+</section>
 
-    // Code tab switching function for Chi-square page
-    function switchTab(btn, id) {
-      const container = btn.closest('.code-tabs');
-      const buttons = container.querySelectorAll('.code-tab-btn');
-      const contents = container.querySelectorAll('.code-tab-content');
-      buttons.forEach(b => b.classList.remove('active'));
-      contents.forEach(c => c.classList.remove('active'));
-      btn.classList.add('active');
-      container.querySelector('#' + id).classList.add('active');
-    }
-    window.switchTab = switchTab;
+<!-- ===== Section 3: Interactive sim 1 ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="2×2 列聯表計算器：O、E、χ²、Fisher、OR、RR、RD" data-en="2×2 contingency table builder: O, E, χ², Fisher, OR, RR, RD">2×2 列聯表計算器</h2>
+<div data-lang="zh"><p>輸入四格次數——左上 a（treatment + event）、右上 b（treatment + no event）、左下 c（control + event）、右下 d（control + no event）。下面同步顯示<strong>期望值 E</strong>、<strong>χ² 統計量</strong>（含 Yates 校正版本）、<strong>p 值</strong>、<strong>Fisher's exact p</strong>、以及三大效應量 <strong>OR / RR / RD</strong> 連同 95% 信賴區間。最小期望值 &lt; 5 時，介面會跳警告，建議切換到 Fisher。</p></div>
+<div data-lang="en"><p>Enter four counts — top-left a (treatment + event), top-right b (treatment + no event), bottom-left c (control + event), bottom-right d (control + no event). The panel shows <strong>expected counts E</strong>, <strong>χ² statistic</strong> (with and without Yates), <strong>p value</strong>, <strong>Fisher's exact p</strong>, and the three effect sizes <strong>OR / RR / RD</strong> with 95% CIs. If any expected cell &lt; 5, a warning appears recommending Fisher's exact.</p></div>
+<div class="interactive-panel">
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;">
+<div class="slider-group"><label>a <span style="font-size:.78rem;color:var(--c-ink-muted)" data-zh="(處理+, 事件+)" data-en="(treat+, event+)">(處理+, 事件+)</span> <span id="vA">40</span></label><input type="number" id="inA" min="0" max="500" value="40" style="width:100%;padding:6px;border:1px solid var(--c-border);border-radius:4px;"></div>
+<div class="slider-group"><label>b <span style="font-size:.78rem;color:var(--c-ink-muted)" data-zh="(處理+, 事件−)" data-en="(treat+, event−)">(處理+, 事件−)</span> <span id="vB">60</span></label><input type="number" id="inB" min="0" max="500" value="60" style="width:100%;padding:6px;border:1px solid var(--c-border);border-radius:4px;"></div>
+<div class="slider-group"><label>c <span style="font-size:.78rem;color:var(--c-ink-muted)" data-zh="(控制−, 事件+)" data-en="(control, event+)">(控制−, 事件+)</span> <span id="vC">20</span></label><input type="number" id="inC" min="0" max="500" value="20" style="width:100%;padding:6px;border:1px solid var(--c-border);border-radius:4px;"></div>
+<div class="slider-group"><label>d <span style="font-size:.78rem;color:var(--c-ink-muted)" data-zh="(控制−, 事件−)" data-en="(control, event−)">(控制−, 事件−)</span> <span id="vD">80</span></label><input type="number" id="inD" min="0" max="500" value="80" style="width:100%;padding:6px;border:1px solid var(--c-border);border-radius:4px;"></div>
+</div>
+<div id="chiOut" style="font-size:.92rem;color:var(--c-ink-light);margin:10px 0;padding:12px;background:var(--c-bg-alt);border-radius:6px;line-height:1.85;"></div>
+<div class="chart-container" style="height:240px;"><canvas id="chiBarChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">深色＝觀察 O · 淺色＝期望 E</span><span data-lang="en">Dark = Observed O · Light = Expected E</span></p>
+</div>
+</section>
 
-    // Copy code to clipboard function for Chi-square page
-    function copyCode(btn) {
-      const pre = btn.parentElement.querySelector('pre');
-      const text = pre.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        const original = btn.textContent;
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = original; }, 1500);
-      }).catch(() => {
-        const original = btn.textContent;
-        btn.textContent = 'Copied!';
-        setTimeout(() => { btn.textContent = original; }, 1500);
-      });
-    }
-    window.copyCode = copyCode;
-  </script>
-</body>
-</html>
+<!-- ===== Section 4: Deep dive — variants ===== -->
+<section class="section">
+<div class="section-label" data-zh="進階家族" data-en="THE FAMILY">進階家族</div>
+<h2 data-zh="二、Fisher / Yates / McNemar / Mantel-Haenszel" data-en="II. Fisher / Yates / McNemar / Mantel-Haenszel">二、四個必須認得的變體</h2>
+
+<div class="card-grid cols-2">
+<div class="card"><h4>🎲 <span data-zh="Fisher's exact test (1922)" data-en="Fisher's exact test (1922)">Fisher's exact</span></h4>
+<div data-lang="zh"><p>當任一期望次數 &lt; 5，卡方近似失準（<strong>Cochran 1954</strong> 經典準則：所有 E ≥ 5，或 ≥ 80% 的格子 E ≥ 5）。Fisher 用<strong>超幾何分布</strong>（hypergeometric）枚舉所有「邊際固定」下比觀察更極端的表格。</p>
+<p>常用於：小樣本臨床試驗、稀有突變的 GWAS 子集、單細胞 cluster vs marker overlap（<code>fisher.test</code> 是 Seurat <code>FindAllMarkers</code> 的選項之一）。</p></div>
+<div data-lang="en"><p>When any expected cell &lt; 5, the chi-square approximation breaks down (<strong>Cochran 1954</strong> rule: all E ≥ 5, or ≥ 80% of cells have E ≥ 5). Fisher uses the <strong>hypergeometric distribution</strong> to enumerate every table at least as extreme as the observed one, conditional on fixed margins.</p>
+<p>Used for: small clinical trials, rare-variant GWAS subsets, single-cell cluster-vs-marker overlap (<code>fisher.test</code> is one of the options in Seurat's <code>FindAllMarkers</code>).</p></div>
+</div>
+<div class="card"><h4>⚙️ <span data-zh="Yates 連續性校正 (1934)" data-en="Yates continuity correction (1934)">Yates correction</span></h4>
+<div data-lang="zh"><p>2×2 表：每個 |O−E| 先扣 0.5 再平方。動機：χ² 是連續分布，但計數是整數，校正可以「平滑掉」這個誤差。</p>
+<p><strong>現代評價：過度保守。</strong>Camilli & Hopkins (1979)、<strong>Camilli 1995 Psychol Bull</strong>、Sokal & Rohlf (2012) 的模擬都顯示 Yates 校正讓 Type I error 顯著低於名義 α。<strong>R 預設 <code>correct = TRUE</code>——強烈建議改成 <code>FALSE</code></strong>，或直接用 Fisher's exact。</p></div>
+<div data-lang="en"><p>For 2×2 tables: subtract 0.5 from each |O−E| before squaring. Motivation: χ² is continuous but counts are integers; the correction "smooths" the discreteness gap.</p>
+<p><strong>Modern verdict: over-conservative.</strong> Camilli & Hopkins (1979), <strong>Camilli 1995 <em>Psychol Bull</em></strong>, and Sokal & Rohlf (2012) all show Yates depresses Type I error far below nominal α. <strong>R defaults <code>correct = TRUE</code> — set it to <code>FALSE</code></strong>, or just switch to Fisher's exact.</p></div>
+</div>
+<div class="card"><h4>🔄 <span data-zh="McNemar 檢定 (1947)" data-en="McNemar test (1947)">McNemar — 配對二元</span></h4>
+<div data-lang="zh"><p><strong>同一受試者前後</strong>的二元結果，或<strong>配對病例對照</strong>。表的格子是 (前+/後+, 前+/後−, 前−/後+, 前−/後−)；只看「不一致」的兩格 b 與 c：</p>
+<p class="math">χ²<sub>McN</sub> = (b − c)² / (b + c) · df = 1</p>
+<p>例：100 人服藥前後高血壓狀態。直接用一般卡方會把配對結構視為獨立——錯。Bennett 2017 BMJ：「配對資料用 unpaired test 就是 SD/√n 的浪費。」</p></div>
+<div data-lang="en"><p>Binary outcomes <strong>before vs after on the same subjects</strong>, or <strong>matched case-control</strong>. The table is (pre+/post+, pre+/post−, pre−/post+, pre−/post−); only the two discordant cells b and c matter:</p>
+<p class="math">χ²<sub>McN</sub> = (b − c)² / (b + c) · df = 1</p>
+<p>Example: hypertension status in 100 patients before vs after a drug. Running a vanilla chi-square treats paired data as independent — wrong. Bennett (2017 BMJ): "Using an unpaired test on paired data throws away SD/√n of power."</p></div>
+</div>
+<div class="card"><h4>🧭 <span data-zh="Cochran-Mantel-Haenszel (1959)" data-en="Cochran-Mantel-Haenszel (1959)">CMH — 分層 2×2</span></h4>
+<div data-lang="zh"><p>把 2×2 表按「混淆變數」（confounder, 如年齡層、性別、研究中心）分層，再合併估計共同 OR。可同時：(1) 控制混淆，(2) 用 Breslow-Day 檢定 OR 是否跨層恆定（若 OR 隨層改變 → 有交互作用，CMH 不合適）。</p>
+<p>例：多中心臨床試驗、流病分層分析。<strong>處理 Simpson's paradox 的標準工具</strong>。</p></div>
+<div data-lang="en"><p>Stratify 2×2 tables by a confounder (age band, sex, study site) and pool a common OR. CMH lets you (1) control for the confounder and (2) test, via Breslow-Day, whether the OR is constant across strata (if OR varies → interaction, CMH inappropriate).</p>
+<p>Example: multi-center trials, stratified epidemiology. <strong>The standard antidote to Simpson's paradox.</strong></p></div>
+</div>
+</div>
+
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>Cochran 1954 規則細節：</strong>對 r×c 表（r ≥ 2 或 c ≥ 2），規則是<strong>「沒有任何 E &lt; 1，且不超過 20% 的格子 E &lt; 5」</strong>。對 2×2 表規則嚴格——所有 4 格的 E 都需 ≥ 5。違反時：r×c 可考慮合併類別或 Fisher-Freeman-Halton exact；2×2 直接 Fisher's exact。</span>
+<span data-lang="en"><strong>The Cochran 1954 rule in detail:</strong> for r×c tables, "<strong>no cell with E &lt; 1, and at most 20% of cells with E &lt; 5</strong>." For 2×2, the rule is strict — all four cells must have E ≥ 5. Otherwise: r×c → collapse categories or use Fisher-Freeman-Halton exact; 2×2 → go straight to Fisher's exact.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 5: Interactive sim 2 ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="OR vs RR vs RD：基準風險如何撕裂這三個效應量" data-en="OR vs RR vs RD: how baseline risk tears the three apart">OR vs RR vs RD 比較器</h2>
+<div data-lang="zh"><p>選定一個「相對風險 RR」（如 2 倍風險），然後拖動<strong>基準風險 p₀</strong>從 0.01 到 0.5。觀察：當 p₀ 小（&lt; 10%）時，<strong>OR ≈ RR</strong>；但當 p₀ 變大，<strong>OR 急遽膨脹</strong>，遠超過 RR——這就是<strong>「common outcome bias of OR」</strong>。流病 / 臨床期刊建議：罕見結果（&lt; 10%）報 OR 可，常見結果（≥ 10%）<strong>請改報 RR 或 RD</strong>（Zhang & Yu 1998 JAMA、Pearce 2024 Int J Epidemiol）。</p></div>
+<div data-lang="en"><p>Pick a "relative risk" (say RR = 2) and drag <strong>baseline risk p₀</strong> from 0.01 to 0.5. Notice: at low p₀ (&lt; 10%), <strong>OR ≈ RR</strong>; but as p₀ grows, <strong>OR balloons</strong> far past RR — the famous <strong>"common outcome bias of OR"</strong>. Epidemiology and clinical journals advise: rare outcomes (&lt; 10%) can be reported as OR, common outcomes (≥ 10%) <strong>should be reported as RR or RD</strong> (Zhang &amp; Yu 1998 JAMA, Pearce 2024 IJE).</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="目標相對風險 RR" data-en="Target relative risk RR">目標 RR</span> <span id="vRR">2.0</span></label><input type="range" id="slRR" min="1.1" max="5" value="2" step="0.1"></div>
+<div id="effOut" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:280px;"><canvas id="effChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">橫軸＝基準風險 p₀ · 紅＝OR · 藍＝RR · 綠＝RD</span><span data-lang="en">x = baseline risk p₀ · red = OR · blue = RR · green = RD</span></p>
+</div>
+<div class="pitfall">
+<span class="pitfall-title" data-zh="陷阱：把 OR 唸成「風險是 X 倍」" data-en="Pitfall: reading OR as 'X-fold risk'">陷阱：把 OR 唸成「風險是 X 倍」</span>
+<span data-lang="zh">記者常把「OR = 3.0」翻成「風險增加 3 倍」——只有結果很罕見時才接近正確。當 p₀ = 30%，OR = 3 對應的 RR 大約只有 1.85。這個誤譯出現在無數新聞與低品質期刊中。Greenland 1987 Am J Epidemiol、Schmidt & Kohlmann 2008 Int J Public Health 都點名警告。</span>
+<span data-lang="en">Journalists routinely read "OR = 3.0" as "three-fold increase in risk" — only true when the outcome is rare. At p₀ = 30%, OR = 3 corresponds to RR ≈ 1.85. This mistranslation pollutes news coverage and low-tier journals; Greenland (1987 AJE) and Schmidt &amp; Kohlmann (2008 IJPH) both call it out.</span>
+</div>
+</section>
+
+<!-- ===== Section 6: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="三、χ² / Fisher / McNemar / CMH 怎麼選？" data-en="III. χ² / Fisher / McNemar / CMH — how to choose">三、怎麼選？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="類別資料檢定決策樹" data-en="Categorical-data test decision tree">類別資料檢定決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>是「同一受試者前後 / 配對」的二元資料？<span class="dt-arrow">→ 是 →</span> <strong>McNemar test</strong>（看 b 與 c 兩個不一致格）。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>有需要控制的<strong>混淆變數</strong>（年齡層、性別、中心）？<span class="dt-arrow">→ 是 →</span> <strong>Cochran-Mantel-Haenszel</strong>；先用 Breslow-Day 確認跨層 OR 無顯著異質。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>所有期望次數 E ≥ 5（2×2）或 ≥ 80% 格子 E ≥ 5（r×c）？<span class="dt-arrow">→ 是 →</span> <strong>Pearson χ²</strong>（2×2 別加 Yates 校正）。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>期望次數不夠？<span class="dt-arrow">→ 是 →</span> 2×2 用 <strong>Fisher's exact</strong>；r×c 用 <strong>Fisher-Freeman-Halton exact</strong>（R: <code>fisher.test(simulate.p.value=TRUE)</code>）。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>不只想要 p 值，還要「<strong>校正多個 covariates</strong>」？<span class="dt-arrow">→ 是 →</span> 跳到 Step 9 <strong>logistic regression</strong>（χ² / CMH 的多變量版本）。</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>是「觀察 vs 理論分布」？（Mendel、HWE、骰子）<span class="dt-arrow">→ 是 →</span> <strong>χ² goodness-of-fit</strong>，df = k − 1 − (估計參數數)。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Paired binary data (same subject pre/post, matched case-control)? <span class="dt-arrow">→ Yes →</span> <strong>McNemar test</strong> (looks only at the two discordant cells b and c).</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Need to control a <strong>confounder</strong> (age band, sex, site)? <span class="dt-arrow">→ Yes →</span> <strong>Cochran-Mantel-Haenszel</strong>; check the Breslow-Day homogeneity test first.</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>All expected E ≥ 5 (2×2) or ≥ 80% of cells with E ≥ 5 (r×c)? <span class="dt-arrow">→ Yes →</span> <strong>Pearson χ²</strong> (and skip Yates on 2×2).</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Expected counts too small? <span class="dt-arrow">→ Yes →</span> 2×2 → <strong>Fisher's exact</strong>; r×c → <strong>Fisher-Freeman-Halton</strong> (R: <code>fisher.test(simulate.p.value=TRUE)</code>).</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Not just a p-value — need to adjust for <strong>multiple covariates</strong>? <span class="dt-arrow">→ Yes →</span> go to Step 9 <strong>logistic regression</strong> (the multivariate analogue of χ² / CMH).</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>Observed vs theoretical distribution (Mendel, HWE, fair die)? <span class="dt-arrow">→ Yes →</span> <strong>χ² goodness-of-fit</strong>, df = k − 1 − (parameters estimated).</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 7: Effect-size comparison table ===== -->
+<section class="section">
+<div class="section-label" data-zh="效應量比較" data-en="EFFECT SIZES">效應量比較</div>
+<h2 data-zh="四、OR / RR / RD 的特性與適用場景" data-en="IV. OR / RR / RD — properties and when to use which">四、OR / RR / RD 的特性</h2>
+
+<table class="comp-table">
+<thead><tr>
+<th data-zh="效應量" data-en="Effect size">效應量</th>
+<th data-zh="公式" data-en="Formula">公式</th>
+<th data-zh="範圍" data-en="Range">範圍</th>
+<th data-zh="適合的研究設計" data-en="Best study design">適合設計</th>
+<th data-zh="可加性 / 可乘性" data-en="Additive / multiplicative">加 / 乘</th>
+<th data-zh="陷阱" data-en="Pitfall">陷阱</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>OR</strong> <span data-zh="(Odds Ratio)" data-en="(Odds Ratio)">Odds Ratio</span></td><td><span class="math">ad / bc</span></td><td>(0, ∞)</td>
+<td data-lang="zh">case-control、logistic 回歸、罕見結果</td>
+<td data-lang="zh">乘法（log(OR) 可加）</td>
+<td data-lang="zh">常見結果時嚴重高估 RR</td>
+<td data-lang="en">case-control, logistic regression, rare outcomes</td>
+<td data-lang="en">multiplicative (log OR additive)</td>
+<td data-lang="en">overstates RR when outcome is common</td></tr>
+<tr><td><strong>RR</strong> <span data-zh="(Relative Risk)" data-en="(Relative Risk)">Relative Risk</span></td><td><span class="math">[a/(a+b)] / [c/(c+d)]</span></td><td>(0, ∞)</td>
+<td data-lang="zh">cohort、RCT、流病追蹤</td>
+<td data-lang="zh">乘法（log RR 可加）</td>
+<td data-lang="zh">case-control 不能直接算（無分母）</td>
+<td data-lang="en">cohort, RCT, prospective epi</td>
+<td data-lang="en">multiplicative (log RR additive)</td>
+<td data-lang="en">undefined in case-control (no denominator)</td></tr>
+<tr><td><strong>RD</strong> <span data-zh="(Risk Difference)" data-en="(Risk Difference)">Risk Difference</span></td><td><span class="math">a/(a+b) − c/(c+d)</span></td><td>(−1, 1)</td>
+<td data-lang="zh">RCT、絕對風險溝通、NNT 計算</td>
+<td data-lang="zh">加法（直接相減）</td>
+<td data-lang="zh">基準風險很小或很大時不夠敏感</td>
+<td data-lang="en">RCT, absolute-risk communication, NNT</td>
+<td data-lang="en">additive (direct subtraction)</td>
+<td data-lang="en">insensitive at very low / very high p₀</td></tr>
+<tr><td><strong>NNT</strong> <span data-zh="(Number Needed to Treat)" data-en="(Number Needed to Treat)">NNT</span></td><td><span class="math">1 / |RD|</span></td><td>[1, ∞)</td>
+<td data-lang="zh">RCT 臨床決策溝通</td>
+<td data-lang="zh">（衍生量）</td>
+<td data-lang="zh">RD 跨 0 時 NNT 無意義；建議報 RD 與 95% CI</td>
+<td data-lang="en">RCT clinical decision communication</td>
+<td data-lang="en">(derived)</td>
+<td data-lang="en">undefined when RD spans 0; report RD + 95% CI instead</td></tr>
+</tbody></table>
+
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>95% CI 公式（log 尺度）：</strong>OR 與 RR 的分布在原尺度高度偏態，要在 log 尺度算 CI 再 exp 回去。<br>· log(OR) ± 1.96 × √(1/a + 1/b + 1/c + 1/d)<br>· log(RR) ± 1.96 × √[(1/a − 1/(a+b)) + (1/c − 1/(c+d))]<br>· RD ± 1.96 × √[p₁(1−p₁)/n₁ + p₂(1−p₂)/n₂]（直接在原尺度）。<br>R: <code>epitools::oddsratio(tab)</code>、<code>epitools::riskratio(tab)</code> 都會給 Wald / Taylor 兩種 CI。</span>
+<span data-lang="en"><strong>95% CIs (on the log scale):</strong> OR and RR are heavily skewed on the raw scale; compute CIs on the log scale, then exponentiate.<br>· log(OR) ± 1.96 × √(1/a + 1/b + 1/c + 1/d)<br>· log(RR) ± 1.96 × √[(1/a − 1/(a+b)) + (1/c − 1/(c+d))]<br>· RD ± 1.96 × √[p₁(1−p₁)/n₁ + p₂(1−p₂)/n₂] (raw scale).<br>R: <code>epitools::oddsratio(tab)</code> and <code>epitools::riskratio(tab)</code> output both Wald and Taylor CIs.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 8: Goodness-of-fit deep dive ===== -->
+<section class="section">
+<div class="section-label" data-zh="適合度應用" data-en="GOODNESS-OF-FIT">適合度應用</div>
+<h2 data-zh="五、Mendel、Hardy-Weinberg、GWAS——遺傳學的卡方傳統" data-en="V. Mendel, Hardy-Weinberg, GWAS — the genetic chi-square tradition">五、遺傳學的卡方傳統</h2>
+
+<div class="split">
+<div>
+<h5 data-zh="Mendel 9:3:3:1（豌豆雙因子雜交）" data-en="Mendel 9:3:3:1 (dihybrid cross)">Mendel 9:3:3:1</h5>
+<div data-lang="zh"><p>F₂ 觀察數（皺/黃, 圓/黃, 皺/綠, 圓/綠）= 32, 101, 108, 315；總 N = 556。理論期望比 9:3:3:1：</p>
+<p>E = (556 × 9/16, 556 × 3/16, 556 × 3/16, 556 × 1/16) = 312.75, 104.25, 104.25, 34.75。</p>
+<p>χ² = Σ(O−E)²/E ≈ 0.47, df = 3, p ≈ 0.93——資料與理論一致。<strong>Fisher 1936</strong> 著名爭議：Mendel 的卡方總和「太合適」（過多接近期望），暗示資料可能被修飾。這是「太好的擬合」反成質疑的經典案例。</p></div>
+<div data-lang="en"><p>F₂ counts (wrinkled/yellow, round/yellow, wrinkled/green, round/green) = 32, 101, 108, 315; total N = 556. Expected under 9:3:3:1:</p>
+<p>E = (556 × 9/16, 556 × 3/16, 556 × 3/16, 556 × 1/16) = 312.75, 104.25, 104.25, 34.75.</p>
+<p>χ² ≈ 0.47, df = 3, p ≈ 0.93 — observed agrees with theory. The famous <strong>Fisher 1936</strong> reanalysis: Mendel's aggregated χ² is "<em>too</em> good a fit" (suspiciously close to expectation), suggesting the data may have been polished. A classic case where the fit is too good to be true.</p></div>
+</div>
+<div>
+<h5 data-zh="Hardy-Weinberg 平衡 (HWE)" data-en="Hardy-Weinberg equilibrium (HWE)">HWE 檢定</h5>
+<div data-lang="zh"><p>SNP 三個基因型 AA, Aa, aa 在 HWE 下期望比例為 p², 2pq, q²（p = 等位頻率 A）。從觀察數估 p̂，計算 E，再算 χ²。<strong>df = 1</strong>（k = 3 個類別 − 1 − 1 個估計參數 p̂）。</p>
+<p><strong>GWAS QC 標準</strong>：對照組 HWE p &lt; 1e−6 通常剔除（疾病組偏離 HWE 可能是真訊號）。<strong>Wigginton et al. 2005 AJHG</strong> 提供 exact HWE 檢定（避免低 MAF 時卡方近似失準）——PLINK 的 <code>--hardy</code> 預設用 exact。</p></div>
+<div data-lang="en"><p>For an SNP with genotypes AA, Aa, aa, HWE expects proportions p², 2pq, q² (p = A allele frequency). Estimate p̂ from the data, compute E, then χ². <strong>df = 1</strong> (k = 3 genotypes − 1 − 1 estimated parameter).</p>
+<p><strong>GWAS QC convention:</strong> SNPs with control HWE p &lt; 1e−6 are typically dropped (case-group deviation from HWE can be real signal). <strong>Wigginton et al. 2005 AJHG</strong> introduced an exact HWE test (avoids χ² approximation failure at low MAF) — PLINK's <code>--hardy</code> uses exact by default.</p></div>
+</div>
+</div>
+
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>GWAS 中的卡方傳統：</strong>每個 SNP 的「allelic test」就是一個 2×2 χ² 表（allele × case/control）。基因型測試（genotypic test）是 2×3，trend test（Cochran-Armitage 1955）是 2×3 加上劑量效應假設（df = 1）。對 SNP × disease 跑百萬個卡方時，記得 Bonferroni / FDR（見 Step 12）。</span>
+<span data-lang="en"><strong>The χ² heritage in GWAS:</strong> the "allelic test" for each SNP is a 2×2 χ² (allele × case/control). The genotypic test is 2×3; the Cochran-Armitage trend test (1955) is a 2×3 with a dosage assumption (df = 1). When running millions of χ² across SNP × disease, never forget Bonferroni / FDR (see Step 12).</span>
+</div></div>
+</section>
+
+<!-- ===== Section 9: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="六、實作範例" data-en="VI. Code examples">六、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: chi-square family + effect sizes</span>
+<span class="func">library</span>(epitools)   <span class="comment"># oddsratio(), riskratio(), riskdiff()</span>
+<span class="func">library</span>(vcd)        <span class="comment"># mosaic plots, assocstats()</span>
+
+<span class="comment"># --- 2x2 table: drug vs outcome ---</span>
+tab <- <span class="func">matrix</span>(<span class="func">c</span>(<span class="num">40</span>, <span class="num">60</span>, <span class="num">20</span>, <span class="num">80</span>),
+              nrow = <span class="num">2</span>, byrow = <span class="kw">TRUE</span>,
+              dimnames = <span class="func">list</span>(treat = <span class="func">c</span>(<span class="str">"drug"</span>, <span class="str">"placebo"</span>),
+                              event = <span class="func">c</span>(<span class="str">"yes"</span>, <span class="str">"no"</span>)))
+
+<span class="comment"># Pearson chi-square — turn OFF Yates by default</span>
+<span class="func">chisq.test</span>(tab, correct = <span class="kw">FALSE</span>)
+<span class="func">chisq.test</span>(tab)$expected      <span class="comment"># inspect E_ij</span>
+
+<span class="comment"># Fisher's exact (any expected < 5, or just safer at small n)</span>
+<span class="func">fisher.test</span>(tab)
+
+<span class="comment"># Effect sizes with 95% CI</span>
+epitools::<span class="func">oddsratio</span>(tab)$measure       <span class="comment"># OR + Wald CI</span>
+epitools::<span class="func">riskratio</span>(tab)$measure       <span class="comment"># RR + Wald CI</span>
+epitools::<span class="func">riskdiff</span>(tab)               <span class="comment"># RD + CI</span>
+
+<span class="comment"># --- McNemar: paired binary (before/after) ---</span>
+paired <- <span class="func">matrix</span>(<span class="func">c</span>(<span class="num">30</span>, <span class="num">12</span>, <span class="num">25</span>, <span class="num">33</span>), <span class="num">2</span>,
+                 dimnames = <span class="func">list</span>(pre = <span class="func">c</span>(<span class="str">"+"</span>, <span class="str">"-"</span>),
+                                 post = <span class="func">c</span>(<span class="str">"+"</span>, <span class="str">"-"</span>)))
+<span class="func">mcnemar.test</span>(paired, correct = <span class="kw">FALSE</span>)
+
+<span class="comment"># --- Cochran-Mantel-Haenszel: stratify by age band ---</span>
+<span class="func">data</span>(UCBAdmissions)             <span class="comment"># classic Simpson's paradox</span>
+<span class="func">mantelhaen.test</span>(UCBAdmissions)  <span class="comment"># pools OR across departments</span>
+
+<span class="comment"># --- Goodness-of-fit: Mendel 9:3:3:1 ---</span>
+obs <- <span class="func">c</span>(<span class="num">315</span>, <span class="num">108</span>, <span class="num">101</span>, <span class="num">32</span>)
+<span class="func">chisq.test</span>(obs, p = <span class="func">c</span>(<span class="num">9</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">1</span>) / <span class="num">16</span>)
+
+<span class="comment"># --- HWE exact via HardyWeinberg pkg ---</span>
+<span class="comment"># HardyWeinberg::HWExact(c(AA=298, Aa=489, aa=213))</span></pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">from</span> statsmodels.stats.contingency_tables <span class="kw">import</span> Table2x2, mcnemar, StratifiedTable
+
+<span class="comment"># --- 2x2 table ---</span>
+tab = np.array([[<span class="num">40</span>, <span class="num">60</span>],
+                [<span class="num">20</span>, <span class="num">80</span>]])
+
+<span class="comment"># Pearson chi-square (scipy's correction=False)</span>
+chi2, p, dof, expected = stats.<span class="func">chi2_contingency</span>(tab, correction=<span class="kw">False</span>)
+
+<span class="comment"># Fisher's exact (one-sided / two-sided)</span>
+stats.<span class="func">fisher_exact</span>(tab, alternative=<span class="str">"two-sided"</span>)
+
+<span class="comment"># Effect sizes + 95% CI from statsmodels</span>
+t = Table2x2(tab)
+t.<span class="func">odds_ratio</span>(), t.<span class="func">oddsratio_confint</span>()
+t.<span class="func">riskratio</span>(), t.<span class="func">riskratio_confint</span>()
+<span class="comment"># risk difference: t.summary() returns everything</span>
+<span class="func">print</span>(t.<span class="func">summary</span>())
+
+<span class="comment"># --- McNemar paired ---</span>
+paired = np.array([[<span class="num">30</span>, <span class="num">12</span>], [<span class="num">25</span>, <span class="num">33</span>]])
+<span class="func">mcnemar</span>(paired, exact=<span class="kw">False</span>, correction=<span class="kw">False</span>)
+
+<span class="comment"># --- Cochran-Mantel-Haenszel: 3D array (layers x 2 x 2) ---</span>
+strata = np.array([[[<span class="num">12</span>, <span class="num">88</span>], [<span class="num">5</span>, <span class="num">95</span>]],
+                   [[<span class="num">28</span>, <span class="num">72</span>], [<span class="num">15</span>, <span class="num">85</span>]],
+                   [[<span class="num">35</span>, <span class="num">65</span>], [<span class="num">20</span>, <span class="num">80</span>]]])
+st = StratifiedTable(strata)
+st.<span class="func">test_null_odds</span>()              <span class="comment"># CMH null test</span>
+st.<span class="func">test_equal_odds</span>()             <span class="comment"># Breslow-Day homogeneity</span>
+st.<span class="func">oddsratio_pooled</span>, st.<span class="func">oddsratio_pooled_confint</span>()
+
+<span class="comment"># --- Goodness-of-fit: Mendel 9:3:3:1 ---</span>
+obs = np.array([<span class="num">315</span>, <span class="num">108</span>, <span class="num">101</span>, <span class="num">32</span>])
+exp = obs.<span class="func">sum</span>() * np.array([<span class="num">9</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">1</span>]) / <span class="num">16</span>
+stats.<span class="func">chisquare</span>(obs, exp)</pre></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>關鍵小細節：</strong>R 的 <code>chisq.test()</code> 對 2×2 表預設 <code>correct = TRUE</code>（Yates）——大多數情況請設成 <code>FALSE</code>。Python 的 <code>scipy.stats.chi2_contingency</code> 預設 <code>correction = True</code>，同樣請改成 <code>False</code>。兩個語言都同一個陷阱。</span>
+<span data-lang="en"><strong>One detail that bites everyone:</strong> R's <code>chisq.test()</code> defaults to <code>correct = TRUE</code> on 2×2 (Yates) — set to <code>FALSE</code> in most cases. Python's <code>scipy.stats.chi2_contingency</code> defaults to <code>correction = True</code> — same fix. Both languages, same trap.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 10: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="七、論文最常見的六個錯誤" data-en="VII. Six recurring reporting errors">七、論文最常見的六個錯誤</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="Yates 校正預設打開" data-en="Yates correction on by default">Yates 預設誤用</span></h4>
+<div data-lang="zh"><p>R 的 <code>chisq.test(2×2)</code> 預設加 Yates，導致 p 值<strong>系統性高估</strong>。Camilli (1995) 與 Sokal-Rohlf (2012) 都建議關閉。實務：寫 <code>chisq.test(tab, correct = FALSE)</code>，或乾脆用 Fisher's exact。</p></div>
+<div data-lang="en"><p>R's <code>chisq.test(2×2)</code> applies Yates by default, <strong>systematically inflating p</strong>. Camilli (1995) and Sokal-Rohlf (2012) both recommend turning it off. Practical fix: <code>chisq.test(tab, correct = FALSE)</code>, or just use Fisher's exact.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="OR 唸成「X 倍風險」" data-en="OR read as 'X-fold risk'">OR 誤譯為 RR</span></h4>
+<div data-lang="zh"><p>當結果常見（&gt; 10–20%）時，OR 大幅高估 RR。Greenland (1987 AJE)、Zhang &amp; Yu (1998 JAMA)。臨床溝通請用 RR 或 RD + NNT，並在 Methods 報告兩者。</p></div>
+<div data-lang="en"><p>When the outcome is common (&gt; 10–20%), OR overstates RR substantially. Greenland (1987 AJE), Zhang &amp; Yu (1998 JAMA). For clinical communication, report RR or RD + NNT and disclose both in Methods.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="期望值 &lt; 5 還跑卡方" data-en="Chi-square with expected < 5">E &lt; 5 仍跑 χ²</span></h4>
+<div data-lang="zh"><p>違反 Cochran 1954 的近似條件 → 卡方分布近似失準（特別在邊緣 p 值，0.01–0.10 區）。<strong>R / Python 多半會顯示「Chi-squared approximation may be incorrect」警告</strong>——別忽略，改用 Fisher's exact。</p></div>
+<div data-lang="en"><p>Violating Cochran (1954) → poor χ² approximation, especially near the borderline p (0.01–0.10). <strong>R / Python both warn "Chi-squared approximation may be incorrect"</strong> — don't ignore it; switch to Fisher's exact.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="忽略 Simpson's paradox" data-en="Ignoring Simpson's paradox">Simpson 悖論</span></h4>
+<div data-lang="zh"><p><strong>Simpson 1951 JRSS-B</strong>：合併資料的關係方向，可能在分層後逆轉。經典例：UC Berkeley 1973 招生（合併看女性入學率較低，分系後反而較高）。<strong>解方：CMH + Breslow-Day</strong> 或 logistic 回歸把混淆變數放進模型。</p></div>
+<div data-lang="en"><p><strong>Simpson 1951 JRSS-B:</strong> the direction of association in pooled data can flip after stratification. Classic case: UC Berkeley 1973 admissions (lower female admission overall, higher within most departments). <strong>Fix: CMH + Breslow-Day</strong>, or logistic regression with confounders as covariates.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="配對資料用 unpaired χ²" data-en="Unpaired χ² on paired data">配對資料用獨立檢定</span></h4>
+<div data-lang="zh"><p>同一受試者前後 / 配對病例對照→必須用 McNemar。把配對視為獨立會嚴重<strong>低估配對相關</strong>，浪費功效。Bennett 2017 BMJ。</p></div>
+<div data-lang="en"><p>Same subject before/after, or matched case-control → use McNemar. Treating paired as independent underuses the within-pair correlation and loses power. Bennett (2017 BMJ).</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="跑百萬個卡方不修正 p" data-en="Millions of χ² without multiplicity">多重比較未修正</span></h4>
+<div data-lang="zh"><p>GWAS、scRNA marker、藥物篩選——對每個變數跑卡方，p &lt; 0.05 早已被「多重檢定」吞噬。請看 Step 12，至少跑 Bonferroni（最嚴）或 BH-FDR（最常用）。</p></div>
+<div data-lang="en"><p>GWAS, scRNA marker tests, drug screens — running a chi-square per variable means p &lt; 0.05 is consumed by multiplicity long before you notice. See Step 12; at minimum apply Bonferroni (strictest) or BH-FDR (most common).</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 11: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 你的 2×2 表 4 格分別是 3, 27, 1, 29，總 N = 60。下列何者最合適？</p>
+<p data-lang="en">1. Your 2×2 table has cells 3, 27, 1, 29 with N = 60. Best choice?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. Pearson χ² 加 Yates 校正</span><span data-lang="en">A. Pearson χ² with Yates correction</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. Pearson χ² 不加校正</span><span data-lang="en">B. Pearson χ² without correction</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Fisher's exact test——因為 E 有格子 &lt; 5</span><span data-lang="en">C. Fisher's exact — because expected counts include a cell &lt; 5</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 用 t 檢定比較兩組比例</span><span data-lang="en">D. A t-test on the two proportions</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">2. RCT 中事件發生率：治療組 30%，對照組 50%。下列敘述何者錯誤？</p>
+<p data-lang="en">2. RCT event rates: treatment 30%, control 50%. Which statement is WRONG?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. RR = 0.6（30%/50%）</span><span data-lang="en">A. RR = 0.6 (30%/50%)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. RD = −20% → NNT = 5</span><span data-lang="en">B. RD = −20% → NNT = 5</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. OR ≈ 0.43；且 OR 等於 RR，所以 OR 也是 0.6</span><span data-lang="en">C. OR ≈ 0.43; and since OR equals RR, OR is also 0.6</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 結果常見（&gt; 10%）時，OR 與 RR 差距大，論文應同時報告兩者</span><span data-lang="en">D. With a common outcome (&gt; 10%), OR diverges from RR; report both</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">3. 你想檢驗某藥物使 100 位高血壓患者「治療前 / 後」的控制狀態變化。最合適的檢定是？</p>
+<p data-lang="en">3. You want to test whether a drug changes BP control status (yes/no) before vs after in 100 patients. Best test?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. Pearson χ² 獨立性檢定</span><span data-lang="en">A. Pearson χ² independence test</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. McNemar 檢定，只看不一致兩格 b, c</span><span data-lang="en">B. McNemar test — only the discordant cells b, c</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Fisher's exact test</span><span data-lang="en">C. Fisher's exact test</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 兩個獨立樣本 t 檢定</span><span data-lang="en">D. Two-sample independent t-test</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">4. 三家醫院的藥物試驗合併看顯示 OR = 1.5（不利於藥物），但每家醫院分別看 OR &lt; 1（藥物有效）。這是什麼現象？應該用什麼方法分析？</p>
+<p data-lang="en">4. Pooled across three hospitals, OR = 1.5 against the drug; within each hospital, OR &lt; 1 (drug helps). What is happening? What analysis should you run?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 樣本不足——加入更多醫院</span><span data-lang="en">A. Underpowered — add more hospitals</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 統計誤差——直接相信合併結果</span><span data-lang="en">B. Statistical noise — trust the pooled estimate</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Simpson's paradox——使用 Cochran-Mantel-Haenszel 分層分析或 logistic 回歸校正混淆變數</span><span data-lang="en">C. Simpson's paradox — use Cochran-Mantel-Haenszel or logistic regression to adjust the confounder</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 改用 t 檢定</span><span data-lang="en">D. Use a t-test instead</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="t-tests.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="Step 5：t 檢定" data-en="Step 5: t-tests">Step 5：t 檢定</span></a><a href="anova.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 7：ANOVA" data-en="Step 7: ANOVA">Step 7：ANOVA</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== Stats helpers =====
+// Chi-square survival ≈ exp(-x/2) for df=1; for general df use series.
+// Use Wilson-Hilferty for general df.
+function chi2PvalDf1(x){return Math.exp(-x/2);}
+function chi2Pval(x,df){if(df<=0||x<=0)return 1;if(df===1)return chi2PvalDf1(x);// Wilson-Hilferty
+  const z=(Math.cbrt(x/df)-(1-2/(9*df)))/Math.sqrt(2/(9*df));
+  return 0.5*(1-erf(z/Math.SQRT2));}
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const t=1/(1+p*x);const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return s*y;}
+// log factorial via Stirling for hypergeometric Fisher
+function logFact(n){if(n<2)return 0;let s=0;for(let i=2;i<=n;i++)s+=Math.log(i);return s;}
+function logHyper(a,b,c,d){const N=a+b+c+d;return logFact(a+b)+logFact(c+d)+logFact(a+c)+logFact(b+d)-logFact(N)-logFact(a)-logFact(b)-logFact(c)-logFact(d);}
+function fisherP(a,b,c,d){const obs=logHyper(a,b,c,d);const r1=a+b,c1=a+c,N=a+b+c+d;const lo=Math.max(0,r1+c1-N),hi=Math.min(r1,c1);let p=0;for(let x=lo;x<=hi;x++){const p0=a+b-x>=0?logHyper(x,r1-x,c1-x,N-r1-c1+x):null;if(p0!==null&&p0<=obs+1e-9)p+=Math.exp(p0);}return Math.min(p,1);}
+
+// ===== Sim 1: 2x2 table =====
+const chiBarChart=new Chart(document.getElementById('chiBarChart'),{type:'bar',data:{labels:['a','b','c','d'],datasets:[
+  {label:'Observed',data:[0,0,0,0],backgroundColor:'rgba(15,118,110,0.85)',borderRadius:3},
+  {label:'Expected',data:[0,0,0,0],backgroundColor:'rgba(15,118,110,0.3)',borderRadius:3}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,position:'top'}},scales:{x:{title:{display:true,text:'cell'}},y:{title:{display:true,text:'count'},beginAtZero:true}}}});
+
+function updChi(){const a=Math.max(0,+document.getElementById('inA').value);const b=Math.max(0,+document.getElementById('inB').value);const c=Math.max(0,+document.getElementById('inC').value);const d=Math.max(0,+document.getElementById('inD').value);
+  document.getElementById('vA').textContent=a;document.getElementById('vB').textContent=b;document.getElementById('vC').textContent=c;document.getElementById('vD').textContent=d;
+  const N=a+b+c+d;if(N===0)return;
+  const r1=a+b,r2=c+d,c1=a+c,c2=b+d;
+  const eA=r1*c1/N,eB=r1*c2/N,eC=r2*c1/N,eD=r2*c2/N;
+  const minE=Math.min(eA,eB,eC,eD);
+  const chi2=(a-eA)**2/eA+(b-eB)**2/eB+(c-eC)**2/eC+(d-eD)**2/eD;
+  const chi2Y=(Math.max(0,Math.abs(a-eA)-0.5))**2/eA+(Math.max(0,Math.abs(b-eB)-0.5))**2/eB+(Math.max(0,Math.abs(c-eC)-0.5))**2/eC+(Math.max(0,Math.abs(d-eD)-0.5))**2/eD;
+  const p=chi2Pval(chi2,1);const pY=chi2Pval(chi2Y,1);
+  const aa=Math.max(a,0.5),bb=Math.max(b,0.5),cc=Math.max(c,0.5),dd=Math.max(d,0.5);
+  const or=(aa*dd)/(bb*cc);const logOR=Math.log(or);const seOR=Math.sqrt(1/aa+1/bb+1/cc+1/dd);
+  const orLo=Math.exp(logOR-1.96*seOR),orHi=Math.exp(logOR+1.96*seOR);
+  const p1=a/(a+b||1),p2=c/(c+d||1);const rr=p1/(p2||1e-9);const logRR=Math.log(rr);const seRR=Math.sqrt((1/aa-1/(a+b||1))+(1/cc-1/(c+d||1)));
+  const rrLo=Math.exp(logRR-1.96*Math.abs(seRR)),rrHi=Math.exp(logRR+1.96*Math.abs(seRR));
+  const rd=p1-p2;const seRD=Math.sqrt(p1*(1-p1)/(a+b||1)+p2*(1-p2)/(c+d||1));const rdLo=rd-1.96*seRD,rdHi=rd+1.96*seRD;
+  const fP=(N<=300)?fisherP(a,b,c,d):null;
+  chiBarChart.data.datasets[0].data=[a,b,c,d];chiBarChart.data.datasets[1].data=[eA,eB,eC,eD];chiBarChart.update('none');
+  const L=I18n.get();const warn=minE<5?(L==='zh'?`<div style="color:var(--c-danger);margin-top:6px;">⚠️ 最小 E = ${minE.toFixed(2)} &lt; 5：建議改用 <strong>Fisher's exact</strong>。</div>`:`<div style="color:var(--c-danger);margin-top:6px;">⚠️ Minimum E = ${minE.toFixed(2)} &lt; 5: prefer <strong>Fisher's exact</strong>.</div>`):'';
+  const fLine=fP!==null?(L==='zh'?`Fisher's exact p = <strong>${fP<1e-4?'<0.0001':fP.toFixed(4)}</strong>`:`Fisher's exact p = <strong>${fP<1e-4?'<0.0001':fP.toFixed(4)}</strong>`):(L==='zh'?'<em>Fisher 略過（N&gt;300）</em>':'<em>Fisher skipped (N>300)</em>');
+  document.getElementById('chiOut').innerHTML=L==='zh'?
+    `<strong>Expected E</strong>: a=${eA.toFixed(1)}, b=${eB.toFixed(1)}, c=${eC.toFixed(1)}, d=${eD.toFixed(1)} · min E = ${minE.toFixed(2)}<br>
+    χ² = <strong>${chi2.toFixed(2)}</strong> (df=1) · p = <strong>${p<1e-4?'<0.0001':p.toFixed(4)}</strong> ${p<0.05?'✅':'❌'}<br>
+    χ²<sub>Yates</sub> = ${chi2Y.toFixed(2)} · p<sub>Yates</sub> = ${pY<1e-4?'<0.0001':pY.toFixed(4)} <span style="color:var(--c-ink-muted)">（過度保守，現代不建議）</span><br>
+    ${fLine}<br>
+    <strong>OR</strong> = ${or.toFixed(2)} (95% CI ${orLo.toFixed(2)}–${orHi.toFixed(2)}) · <strong>RR</strong> = ${rr.toFixed(2)} (95% CI ${rrLo.toFixed(2)}–${rrHi.toFixed(2)})<br>
+    <strong>RD</strong> = ${(rd*100).toFixed(1)}% (95% CI ${(rdLo*100).toFixed(1)}–${(rdHi*100).toFixed(1)}%) · NNT ≈ ${Math.abs(rd)>0.001?Math.ceil(1/Math.abs(rd)):'∞'}${warn}`:
+    `<strong>Expected E</strong>: a=${eA.toFixed(1)}, b=${eB.toFixed(1)}, c=${eC.toFixed(1)}, d=${eD.toFixed(1)} · min E = ${minE.toFixed(2)}<br>
+    χ² = <strong>${chi2.toFixed(2)}</strong> (df=1) · p = <strong>${p<1e-4?'<0.0001':p.toFixed(4)}</strong> ${p<0.05?'✅':'❌'}<br>
+    χ²<sub>Yates</sub> = ${chi2Y.toFixed(2)} · p<sub>Yates</sub> = ${pY<1e-4?'<0.0001':pY.toFixed(4)} <span style="color:var(--c-ink-muted)">(over-conservative, not recommended)</span><br>
+    ${fLine}<br>
+    <strong>OR</strong> = ${or.toFixed(2)} (95% CI ${orLo.toFixed(2)}–${orHi.toFixed(2)}) · <strong>RR</strong> = ${rr.toFixed(2)} (95% CI ${rrLo.toFixed(2)}–${rrHi.toFixed(2)})<br>
+    <strong>RD</strong> = ${(rd*100).toFixed(1)}% (95% CI ${(rdLo*100).toFixed(1)}–${(rdHi*100).toFixed(1)}%) · NNT ≈ ${Math.abs(rd)>0.001?Math.ceil(1/Math.abs(rd)):'∞'}${warn}`;
+}
+['inA','inB','inC','inD'].forEach(id=>document.getElementById(id).addEventListener('input',updChi));
+document.addEventListener('langchange',updChi);
+updChi();
+
+// ===== Sim 2: OR vs RR vs RD across baseline risk =====
+const effChart=new Chart(document.getElementById('effChart'),{type:'line',data:{labels:[],datasets:[
+  {label:'OR',data:[],borderColor:'rgba(192,57,43,1)',backgroundColor:'rgba(192,57,43,0.1)',borderWidth:2,tension:0.2,pointRadius:0},
+  {label:'RR',data:[],borderColor:'rgba(15,118,110,1)',backgroundColor:'rgba(15,118,110,0.1)',borderWidth:2,tension:0.2,pointRadius:0},
+  {label:'RD ×10',data:[],borderColor:'rgba(46,125,50,1)',backgroundColor:'rgba(46,125,50,0.1)',borderWidth:2,borderDash:[6,4],tension:0.2,pointRadius:0,yAxisID:'y'}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{position:'top'}},scales:{x:{title:{display:true,text:'baseline risk p₀'}},y:{title:{display:true,text:'OR / RR / RD×10'},beginAtZero:true}}}});
+function updEff(){const RR=+document.getElementById('slRR').value;document.getElementById('vRR').textContent=RR.toFixed(1);
+  const xs=[];const ORs=[];const RRs=[];const RDs=[];
+  for(let p0=0.01;p0<=0.5;p0+=0.01){const p1=Math.min(0.999,RR*p0);const or=(p1/(1-p1))/(p0/(1-p0));xs.push(p0.toFixed(2));ORs.push(or);RRs.push(RR);RDs.push((p1-p0)*10);}
+  effChart.data.labels=xs;effChart.data.datasets[0].data=ORs;effChart.data.datasets[1].data=RRs;effChart.data.datasets[2].data=RDs;effChart.update('none');
+  const p0a=0.05,p0b=0.30;const orA=(RR*p0a/(1-RR*p0a))/(p0a/(1-p0a));const orB=(RR*p0b/(1-RR*p0b))/(p0b/(1-p0b));
+  const L=I18n.get();
+  document.getElementById('effOut').innerHTML=L==='zh'?
+    `當 <strong>RR = ${RR.toFixed(1)}</strong> 固定不變：<br>· p₀ = 5%（罕見結果） → OR = <strong>${orA.toFixed(2)}</strong>，幾乎等於 RR<br>· p₀ = 30%（常見結果） → OR = <strong>${orB.toFixed(2)}</strong>，比 RR 高 ${((orB/RR-1)*100).toFixed(0)}%<br><span style="color:var(--c-ink-muted)">→ 結果越常見，OR 與 RR 的差距越大；新聞 / 臨床溝通請優先用 RR 或 RD。</span>`:
+    `With <strong>RR = ${RR.toFixed(1)}</strong> fixed:<br>· p₀ = 5% (rare outcome) → OR = <strong>${orA.toFixed(2)}</strong>, essentially equal to RR<br>· p₀ = 30% (common outcome) → OR = <strong>${orB.toFixed(2)}</strong>, ${((orB/RR-1)*100).toFixed(0)}% higher than RR<br><span style="color:var(--c-ink-muted)">→ The more common the outcome, the more OR overstates RR. For news / clinical reporting, prefer RR or RD.</span>`;
+}
+document.getElementById('slRR').addEventListener('input',updEff);
+document.addEventListener('langchange',updEff);
+updEff();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'最小期望次數 &lt; 5 違反 Cochran 1954 的卡方近似條件——直接用 Fisher\'s exact 最安全。',q1_n:'正確選項已標示。',
+      q2_y:'OR ≠ RR 當結果常見時；50% 與 30% 的 OR ≈ 0.43，明顯小於 RR = 0.6（OR 高估了風險變化的幅度）。',q2_n:'正確選項已標示。',
+      q3_y:'同一受試者前後 → 配對資料 → McNemar；只看不一致兩格 (b 與 c)。',q3_n:'正確選項已標示。',
+      q4_y:'這就是經典的 Simpson\'s paradox——醫院（混淆變數）影響合併結果。CMH 或 logistic 回歸把混淆放進模型才能還原真相。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'A minimum expected count &lt; 5 violates Cochran 1954 — Fisher\'s exact is the safe call.',q1_n:'Correct option highlighted.',
+      q2_y:'OR ≠ RR for common outcomes; OR for 30% vs 50% ≈ 0.43, much smaller than RR = 0.6 (OR overstates the magnitude of change).',q2_n:'Correct option highlighted.',
+      q3_y:'Same subjects before/after → paired data → McNemar; only the discordant cells (b, c) drive the test.',q3_n:'Correct option highlighted.',
+      q4_y:'Classic Simpson\'s paradox — hospital (confounder) flips the pooled direction. CMH or logistic regression with the confounder is the fix.',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>

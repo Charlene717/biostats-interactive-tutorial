@@ -1,226 +1,608 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>假設檢定 | Biostatistics Tutorial</title>
-  <meta name="description" content="Understand the framework of hypothesis testing and try a one-sample test interactively.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="biostats.js"></script>
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html" class="active">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 4</div>
-      <h1 data-zh="假設檢定" data-en="Hypothesis Testing">假設檢定</h1>
-      <p class="subtitle" data-lang="zh">了解零假設與對立假設、顯著水準與檢定統計，並透過範例演練檢定流程。</p>
-      <p class="subtitle" data-lang="en">Understand null and alternative hypotheses, significance levels and test statistics, and walk through a testing procedure with an example.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="假設與檢定統計" data-en="Hypotheses and Test Statistics">假設與檢定統計</h2>
-      <p data-lang="zh">假設檢定以零假設 (H₀) 與對立假設 (H₁) 為核心：H₀ 通常代表「無差異」或「效果為零」的主張，而 H₁ 則代表研究者欲證明的替代說法。決定顯著水準 α 後，計算樣本資料的檢定統計量並與臨界值比較，若結果落在拒絕區域則拒絕 H₀。</p>
-      <p data-lang="en">Hypothesis testing revolves around the null hypothesis (H₀), which usually represents no difference or no effect, and the alternative hypothesis (H₁), which represents what the researcher aims to demonstrate. After choosing a significance level α, we compute a test statistic from the sample data and compare it to a critical value. If the statistic falls into the rejection region, we reject H₀.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="單樣本 t 檢定" data-en="One‑Sample t‑Test">單樣本 t 檢定</h2>
-      <p data-lang="zh">輸入樣本均值、假設的母體均值、樣本標準差、樣本大小與顯著水準，計算 t 值並判斷是否拒絕 H₀。此處以標準常態分布近似 t 分布。</p>
-      <p data-lang="en">Enter the sample mean, hypothesised population mean, sample standard deviation, sample size and significance level to calculate the t‑statistic and decide whether to reject H₀. We use the normal approximation to the t distribution for simplicity.</p>
-      <div class="interactive-panel">
-        <label>x̄: <input type="number" id="sampleMean" value="5" step="0.1" style="width:80px"></label>
-        <label style="margin-left:12px">μ₀: <input type="number" id="nullMean" value="5" step="0.1" style="width:80px"></label>
-        <label style="margin-left:12px">s: <input type="number" id="sampleSd" value="1" min="0.01" step="0.1" style="width:80px"></label>
-        <label style="margin-left:12px">n: <input type="number" id="sampleN" value="30" min="2" step="1" style="width:60px"></label>
-        <label style="margin-left:12px">α: <input type="number" id="alpha" value="0.05" min="0.001" max="0.2" step="0.001" style="width:60px"></label>
-        <!-- Use inline handler to ensure click works locally -->
-        <button id="testBtn" onclick="oneSampleTest()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Test</button>
-        <div id="testOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
-      </div>
-    </section>
-    <!-- Pros, cons and limitations section -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons & Limitations">優缺點與限制</div>
-      <h2 data-zh="假設檢定的優勢與侷限" data-en="Advantages and Limitations of Hypothesis Testing">假設檢定的優勢與侷限</h2>
-      <p data-lang="zh">
-        假設檢定提供了 <strong>客觀且系統化</strong> 的流程，讓研究者能以樣本資料評估假設是否成立，避免單憑直覺做決策。它有助於<strong>資料驅動的決策</strong>與<strong>批判性思考</strong>，在商業、臨床試驗、製造及金融等領域廣泛應用，能提升營運效率並降低風險。</p>
-      <p data-lang="en">
-        Hypothesis testing provides an <strong>objective and systematic framework</strong> for assessing whether a claim about a population is supported by sample data. By grounding decisions in statistical evidence rather than intuition, it improves <strong>data‑driven decision‑making</strong> and <strong>critical thinking</strong>, and is widely used across business, clinical, manufacturing and financial contexts to enhance operational efficiency and reduce risk.</p>
-      <p data-lang="zh"><strong>限制與缺點</strong>包括：對 p 值的詮釋依賴停頓規則及多重比較設定，且不同檢定哲學混用可能產生概念混淆；聚焦於顯著性可能忽略估計與重覆驗證；出版偏差導致只報導顯著結果；若假設不合理或資料不符合獨立與隨機抽樣假設，檢定可能產生不可靠結論。</p>
-      <p data-lang="en"><strong>Limitations and drawbacks</strong> include: interpretation of p‑values depends on the stopping rule and handling of multiple comparisons; mixing Fisher’s and Neyman–Pearson philosophies can introduce conceptual confusion; focusing solely on statistical significance may distract from estimation and replication; publication bias may favour significant results; and if assumptions such as independence and random sampling are violated, the conclusions may be unreliable.</p>
-    </section>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 4: Hypothesis Testing — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html" class="active">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 4 / 13</div>
+<h1 data-zh="假設檢定 (Hypothesis Testing)" data-en="Hypothesis Testing">假設檢定 (Hypothesis Testing)</h1>
+<p class="subtitle" data-lang="zh">五步框架、H₀ vs H₁、Type I/II 錯誤、α/β、p-value 真意——所有推論統計的中樞神經，也是被誤解最深的一章。</p>
+<p class="subtitle" data-lang="en">The five-step framework, H₀ vs H₁, Type I/II errors, α/β, and what a p-value really means — the central nervous system of inferential statistics, and the most misunderstood chapter in the book.</p>
+</header>
+<main class="content-wrap">
 
-    <!-- Decision guidance and example section -->
-    <section class="section">
-      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance & Example">決策指引與範例</div>
-      <h2 data-zh="何時與如何進行假設檢定？" data-en="When and How to Perform Hypothesis Tests?">何時與如何進行假設檢定？</h2>
-      <p data-lang="zh">
-        在實施假設檢定前，首先明確定義研究問題，擬定零假設 H₀ 與對立假設 H₁，並選擇合適的檢定類型（如 t 檢定、卡方檢定或 ANOVA）。
-        接著設定顯著水準 α—通常為 0.05，代表願意承擔 5% 的第一類錯誤風險。確保樣本來自隨機且獨立的觀測，並留意檢定的適用條件，例如 t 檢定須要資料近似常態分布。
-      </p>
-      <p data-lang="en">
-        Before conducting a hypothesis test, clearly define your research question and formulate the null hypothesis H₀ and alternative hypothesis H₁. Choose an appropriate test (e.g., t‑test, chi‑square test or ANOVA) and set the significance level α—commonly 0.05, representing a 5 % risk of a Type I error. Ensure that the sample is drawn randomly and observations are independent, and check that the test’s assumptions hold (for example, the t‑test assumes approximately normal data).
-      </p>
-      <p data-lang="zh">
-        <strong>例子：</strong>某公司欲評估新行銷活動是否提升銷售額。可設定 H₀：新活動與舊活動之間的平均銷售無差異；H₁：新活動平均銷售較高。收集活動前後的銷售資料，計算檢定統計量與 p 值，若 p 值小於 α 則拒絕 H₀，認為新活動有效，否則維持原結論。另一例是臨床試驗測試新藥對血壓的影響，設定 H₀：新藥與安慰劑無差異，H₁：新藥能降低血壓，並使用 t 檢定比較兩組的平均下降值。</p>
-      <p data-lang="en">
-        <strong>Example:</strong> A company wants to evaluate whether a new marketing campaign increases sales. We can set H₀: no difference in average sales between the new and previous campaigns, and H₁: average sales are higher under the new campaign. Collect sales data before and after the campaign, compute a test statistic and p‑value, and if the p‑value is less than α, reject H₀ and conclude that the campaign is effective; otherwise retain H₀. Another example is a clinical trial testing whether a new drug lowers blood pressure: set H₀: no difference between the drug and placebo, H₁: the drug lowers blood pressure, and use a t‑test to compare the mean reduction across groups.</p>
-    </section>
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="為什麼假設檢定被廣泛誤解？" data-en="Why hypothesis testing is widely misunderstood">為什麼假設檢定被廣泛誤解？</h2>
+<div data-lang="zh">
+<p>假設檢定是 20 世紀統計學「最成功」也「最被濫用」的工具。Fisher（1925）原本提出 p-value 作為「資料是否值得進一步研究」的弱證據指標；Neyman & Pearson（1933）後來補上 α、β、Type I/II error 的決策框架。<strong>今天的「混合派」</strong>（hybrid logic）是兩者倉促拼接的產物——這就是為什麼 90% 的研究者在被問到「p = 0.04 是什麼意思？」時答錯。</p>
+<p><strong>ASA（American Statistical Association）2016 統計聲明</strong>（Wasserstein & Lazar 2016, Am Stat）正式承認：研究界長期誤用 p-value，列出六大原則。2019 年的續篇〈Moving to a World Beyond "p &lt; 0.05"〉更直接呼籲：<strong>停止用「統計顯著」這個詞</strong>。本章不只教你怎麼「跑檢定」，更要教你<strong>怎麼讀懂並誠實報告</strong>。</p>
+</div>
+<div data-lang="en">
+<p>Hypothesis testing is the 20th century's most successful — and most abused — statistical tool. Fisher (1925) proposed p-values as weak evidence that the data deserve further study; Neyman & Pearson (1933) later added α, β, and Type I/II decision theory. <strong>The "hybrid" logic taught today</strong> is a hasty splicing of the two — which is exactly why 90 % of researchers misread "p = 0.04" when asked.</p>
+<p>The <strong>ASA 2016 Statement</strong> (Wasserstein & Lazar 2016, <em>Am Stat</em>) formally acknowledged decades of misuse and listed six principles. Its 2019 sequel — "Moving to a World Beyond <em>p</em> &lt; 0.05" — went further: <strong>stop using the phrase "statistically significant" altogether</strong>. This chapter teaches you not just how to <em>run</em> a test, but how to <strong>read it and report it honestly</strong>.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>Fisher 的本意：</strong>在《Statistical Methods for Research Workers》(1925)，Fisher 把 p &lt; 0.05 描述為「值得繼續追問」的門檻，<strong>不是</strong>下結論的終點。他若見今日「p &lt; 0.05 就投稿、p &gt; 0.05 就丟抽屜」的習慣，一定會大發雷霆。</span>
+<span data-lang="en"><strong>What Fisher really meant:</strong> in <em>Statistical Methods for Research Workers</em> (1925), Fisher described p &lt; 0.05 as "worth a closer look" — <strong>not</strong> as a finish line. Were he alive to see the modern habit of "p &lt; 0.05 = submit, p &gt; 0.05 = file-drawer," he would be furious.</span>
+</div></div>
+</section>
 
-    <!-- Quiz section -->
-    <section class="section">
-      <div class="section-label" data-zh="練習與測驗" data-en="Quiz">練習與測驗</div>
-      <h2 data-zh="測驗：錯誤類型" data-en="Quiz: Error Types">測驗：錯誤類型</h2>
-      <p data-lang="zh">若在真實狀況下母體均值已改變，但我們的檢定未拒絕 H₀，這會是哪一種錯誤？</p>
-      <p data-lang="en">If the population mean has truly changed but our test fails to reject H₀, what kind of error has occurred?</p>
-      <div class="interactive-panel" style="margin-top:8px;">
-        <label style="margin-right:12px"><input type="radio" name="hypQuiz" value="type1"> Type I / 第一類</label>
-        <label style="margin-right:12px"><input type="radio" name="hypQuiz" value="type2"> Type II / 第二類</label>
-        <label style="margin-right:12px"><input type="radio" name="hypQuiz" value="none"> Neither</label>
-      </div>
-      <button onclick="checkHypQuiz()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
-      <div id="hypQuizFeedback" style="margin-top:8px;font-size:0.9rem;color:var(--c-ink)"></div>
-    </section>
+<!-- ===== Section 2: Five-step framework ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心框架" data-en="CORE FRAMEWORK">核心框架</div>
+<h2 data-zh="一、五步檢定框架" data-en="I. The five-step framework">一、五步檢定框架</h2>
+<div data-lang="zh"><p>不論你跑 t 檢定、卡方、ANOVA、迴歸——所有頻率學派假設檢定都走<strong>同樣的五步</strong>。背下這五步比背公式重要十倍：</p></div>
+<div data-lang="en"><p>Whether you run a t-test, chi-square, ANOVA, or regression — every frequentist test follows <strong>the same five steps</strong>. Memorising them matters ten times more than memorising formulas:</p></div>
 
-    <!-- R and Python code examples section -->
-    <section class="section">
-      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
-      <h2 data-zh="R 與 Python 範例" data-en="R & Python Examples">R 與 Python 範例</h2>
-      <p data-lang="zh">以下範例示範如何使用 R 與 Python 進行單樣本 t 檢定並取得 t 統計量與 p 值。</p>
-      <p data-lang="en">The examples below show how to perform a one‑sample t‑test in R and Python and return the t‑statistic and p‑value.</p>
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(this, 'hyp-r')">R</button>
-          <button class="code-tab-btn" onclick="switchTab(this, 'hyp-python')">Python</button>
-        </div>
-        <div id="hyp-r" class="code-tab-content active">
-          <button class="copy-btn" onclick="copyCode('hyp-r', this)">Copy</button>
-          <pre><span class="comment"># R: single-sample t-test</span>
-<span class="kw">x</span> &lt;- <span class="func">c</span>(<span class="num">5.2</span>, <span class="num">4.8</span>, <span class="num">5.1</span>, <span class="num">4.9</span>, <span class="num">5.3</span>)
-<span class="kw">result</span> &lt;- <span class="func">t.test</span>(x, <span class="kw">mu</span> = <span class="num">5</span>)
-<span class="func">print</span>(result)</pre>
-        </div>
-        <div id="hyp-python" class="code-tab-content">
-          <button class="copy-btn" onclick="copyCode('hyp-python', this)">Copy</button>
-          <pre><span class="comment"># Python: single-sample t-test</span>
-<span class="kw">import</span> numpy <span class="kw">as</span> np
+<div class="tl">
+<div class="tl-item"><div class="tl-marker">1</div><div class="tl-body"><h5 data-zh="陳述 H₀ 與 H₁" data-en="State H₀ and H₁">陳述 H₀ 與 H₁</h5>
+<div data-lang="zh"><p><strong>H₀（虛無假設）</strong>：「沒有效應 / 沒有差異 / 沒有關聯」（μ₁ = μ₂）。<strong>H₁（對立假設）</strong>：你想證據支持的東西（μ₁ ≠ μ₂、μ₁ &gt; μ₂、或 μ₁ &lt; μ₂）。寫下方向（單尾 vs 雙尾）必須在<strong>看資料前</strong>定，事後改是 p-hacking。</p></div>
+<div data-lang="en"><p><strong>H₀ (null)</strong>: "no effect / no difference / no association" (μ₁ = μ₂). <strong>H₁ (alternative)</strong>: what you want evidence for (μ₁ ≠ μ₂, μ₁ &gt; μ₂, or μ₁ &lt; μ₂). Pick directionality (one- vs two-tailed) <strong>before</strong> you see the data — switching after is p-hacking.</p></div>
+</div></div>
+
+<div class="tl-item"><div class="tl-marker">2</div><div class="tl-body"><h5 data-zh="決定 α（顯著水準）" data-en="Choose α (significance level)">決定 α</h5>
+<div data-lang="zh"><p>傳統 α = 0.05 是 Fisher 1925 的<strong>歷史慣例</strong>而非物理常數。基因體（多重比較）通常用 α = 0.05/m 或 FDR；高利害臨床試驗用 α = 0.025（單尾）；高能物理用 5σ ≈ 3×10⁻⁷。<strong>α 應依據錯誤成本選擇</strong>。</p></div>
+<div data-lang="en"><p>The traditional α = 0.05 is Fisher's 1925 <strong>convention</strong>, not a physical constant. Genomics (many tests) use α = 0.05/m or FDR; pivotal clinical trials use one-sided α = 0.025; particle physics uses 5σ ≈ 3 × 10⁻⁷. <strong>α should be chosen by the cost of being wrong</strong>.</p></div>
+</div></div>
+
+<div class="tl-item"><div class="tl-marker">3</div><div class="tl-body"><h5 data-zh="計算檢定統計量" data-en="Compute the test statistic">計算檢定統計量</h5>
+<div data-lang="zh"><p>把資料壓成一個數字——<em>z</em>、<em>t</em>、<em>F</em>、<em>χ²</em> 等。一般形式：<span class="math">統計量 = (估計值 − 虛無值) / 標準誤</span>。這個數字在 H₀ 為真時有已知分布。</p></div>
+<div data-lang="en"><p>Compress the data into a single number — <em>z</em>, <em>t</em>, <em>F</em>, <em>χ²</em>. General form: <span class="math">statistic = (estimate − null value) / standard error</span>. Under H₀ that number follows a known distribution.</p></div>
+</div></div>
+
+<div class="tl-item"><div class="tl-marker">4</div><div class="tl-body"><h5 data-zh="得 p-value" data-en="Obtain the p-value">得 p-value</h5>
+<div data-lang="zh"><p><strong>p = P(觀察到目前或更極端的統計量 | H₀ 為真)</strong>。注意三個必要條件：(a) <strong>「或更極端」</strong>——所以 p 是尾部累積機率，不是點機率；(b) <strong>「假設 H₀ 為真」</strong>——p 不是 H₀ 的機率；(c) <strong>「目前的</strong>檢定設計」——若你偷看資料才決定方向，這個 p 是錯的。</p></div>
+<div data-lang="en"><p><strong>p = P(statistic this extreme or more | H₀ true)</strong>. Three indispensable pieces: (a) <strong>"or more extreme"</strong> — p is a tail probability, not a point one; (b) <strong>"assuming H₀ is true"</strong> — p is not the probability of H₀; (c) <strong>"under the current</strong> design" — peeking before picking a direction invalidates it.</p></div>
+</div></div>
+
+<div class="tl-item"><div class="tl-marker">5</div><div class="tl-body"><h5 data-zh="做決定（含效應量與 CI）" data-en="Decide — with effect size and CI">做決定</h5>
+<div data-lang="zh"><p>p &lt; α → 「拒絕 H₀」；p ≥ α → 「未能拒絕 H₀」（<strong>不是</strong>「接受 H₀」、也<strong>不是</strong>「證明沒效應」）。<strong>同時必須報告</strong> 效應量（Cohen's d、OR、HR）與 95% CI——這比 p 本身更有資訊量。</p></div>
+<div data-lang="en"><p>p &lt; α → "reject H₀"; p ≥ α → "fail to reject H₀" (<strong>not</strong> "accept H₀", <strong>not</strong> "no effect proven"). <strong>Always also report</strong> the effect size (Cohen's d, OR, HR) and 95 % CI — they carry more information than p itself.</p></div>
+</div></div>
+</div>
+
+<div class="formula">
+<span data-lang="zh">⌜ <em>p</em> = P( |Z| ≥ |z<sub>obs</sub>| ∣ H₀ ) &nbsp; · &nbsp; <em>α</em> = P( reject H₀ ∣ H₀ true ) &nbsp; · &nbsp; <em>β</em> = P( fail to reject H₀ ∣ H₁ true ) &nbsp; · &nbsp; <em>Power</em> = 1 − β ⌝
+<span class="fnote">注意 α 與 p-value 不同：α 是檢定<strong>設計階段</strong>選的長期錯誤率；p 是<strong>觀察到資料後</strong>計算的尾部機率。混淆兩者是文獻中最常見的概念錯誤之一（Hubbard 2004 <em>Theory Psychol</em>）。</span></span>
+<span data-lang="en">⌜ <em>p</em> = P( |Z| ≥ |z<sub>obs</sub>| ∣ H₀ ) &nbsp; · &nbsp; <em>α</em> = P( reject H₀ ∣ H₀ true ) &nbsp; · &nbsp; <em>β</em> = P( fail to reject H₀ ∣ H₁ true ) &nbsp; · &nbsp; <em>Power</em> = 1 − β ⌝
+<span class="fnote">Note: α and the p-value are different — α is a long-run error rate chosen at <strong>design time</strong>; p is a tail probability computed <strong>after</strong> seeing the data. Conflating them is one of the most common conceptual errors in the literature (Hubbard 2004 <em>Theory Psychol</em>).</span></span>
+</div>
+</section>
+
+<!-- ===== Section 3: Errors and tails ===== -->
+<section class="section">
+<div class="section-label" data-zh="錯誤類型" data-en="ERROR TYPES">錯誤類型</div>
+<h2 data-zh="二、Type I / II 錯誤、單尾 vs 雙尾" data-en="II. Type I / II errors, one- vs two-tailed">二、Type I / II 與單尾 vs 雙尾</h2>
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">❌</div><h4 data-zh="Type I error (α) — 偽陽性" data-en="Type I (α) — false positive">Type I (α)</h4>
+<div data-lang="zh"><p><strong>P(reject H₀ ∣ H₀ true)</strong>。明明沒效應，卻說有——「無中生有」。α 是<strong>長期</strong>偽陽性率：跑 100 次測試，平均 5 次會誤報。臨床上對應「批准了無效藥」，FDA 嚴格控制。</p></div>
+<div data-lang="en"><p><strong>P(reject H₀ ∣ H₀ true)</strong>. No real effect, but you call one — making something from nothing. α is the <strong>long-run</strong> false-positive rate: of 100 tests, on average 5 mis-fire. Clinically: "approving a useless drug." Tightly controlled by FDA.</p></div>
+</div>
+<div class="card"><div class="card-icon">🙈</div><h4 data-zh="Type II error (β) — 偽陰性" data-en="Type II (β) — false negative">Type II (β)</h4>
+<div data-lang="zh"><p><strong>P(fail to reject H₀ ∣ H₁ true)</strong>。明明有效應，卻沒偵測到——「眼前漏看」。<strong>β 由樣本大小、效應量、α 共同決定</strong>。Power = 1 − β。傳統慣例：power ≥ 0.80（β ≤ 0.20）。Type II 是 underpowered 研究的禍源——見 Step 11。</p></div>
+<div data-lang="en"><p><strong>P(fail to reject H₀ ∣ H₁ true)</strong>. A real effect, but you missed it. <strong>β depends on n, effect size, and α together</strong>. Power = 1 − β. Convention: power ≥ 0.80 (β ≤ 0.20). Type II is the curse of underpowered studies — see Step 11.</p></div>
+</div>
+<div class="card"><div class="card-icon">⚖️</div><h4 data-zh="α 與 β 的拉鋸" data-en="α vs β trade-off">α vs β 拉鋸</h4>
+<div data-lang="zh"><p>固定 n 時，<strong>降低 α 會升高 β</strong>（拒絕門檻變嚴 → 更難偵測真效應）。同時降低兩者的唯一辦法是<strong>增加 n</strong>。Neyman-Pearson lemma：UMP（最強檢定）在 α 與 H₁ 點固定時最大化 power。</p></div>
+<div data-lang="en"><p>For fixed n, <strong>lowering α raises β</strong> (stricter threshold ⇒ harder to detect real effects). The only way to lower both is to <strong>raise n</strong>. The Neyman–Pearson lemma: the UMP (uniformly most powerful) test maximises power for a fixed α and point-H₁.</p></div>
+</div>
+</div>
+
+<table class="comp-table">
+<thead><tr><th></th><th data-zh="H₀ 真實" data-en="H₀ true">H₀ true</th><th data-zh="H₁ 真實" data-en="H₁ true">H₁ true</th></tr></thead>
+<tbody>
+<tr><td><strong data-zh="拒絕 H₀" data-en="Reject H₀">Reject H₀</strong></td>
+<td><span data-lang="zh">❌ Type I error（機率 α）</span><span data-lang="en">❌ Type I error (prob. α)</span></td>
+<td><span data-lang="zh">✅ 正確（機率 1 − β = power）</span><span data-lang="en">✅ Correct (prob. 1 − β = power)</span></td></tr>
+<tr><td><strong data-zh="未能拒絕 H₀" data-en="Fail to reject H₀">Fail to reject H₀</strong></td>
+<td><span data-lang="zh">✅ 正確（機率 1 − α）</span><span data-lang="en">✅ Correct (prob. 1 − α)</span></td>
+<td><span data-lang="zh">❌ Type II error（機率 β）</span><span data-lang="en">❌ Type II error (prob. β)</span></td></tr>
+</tbody></table>
+
+<div class="split">
+<div>
+<h5 data-zh="雙尾檢定（two-tailed）" data-en="Two-tailed test">雙尾檢定</h5>
+<div data-lang="zh"><p>H₁: μ ≠ μ₀。α 分到兩端各 α/2。<strong>默認首選</strong>——大多數情況不知道方向。</p></div>
+<div data-lang="en"><p>H₁: μ ≠ μ₀. α split equally between both tails. <strong>Default choice</strong> — most of the time you do not know the direction.</p></div>
+</div>
+<div>
+<h5 data-zh="單尾檢定（one-tailed）" data-en="One-tailed test">單尾檢定</h5>
+<div data-lang="zh"><p>H₁: μ &gt; μ₀（或 &lt;）。α 全放一邊。<strong>須事前嚴格證明</strong>反方向的效應「不重要或不可能」（如生物等價性、非劣性），否則就是 p-hacking。</p></div>
+<div data-lang="en"><p>H₁: μ &gt; μ₀ (or &lt;). All α in one tail. <strong>Requires pre-specified justification</strong> that the opposite direction is "uninteresting or impossible" (e.g. equivalence, non-inferiority). Otherwise it is p-hacking.</p></div>
+</div>
+</div>
+
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>單尾 = 偷一倍 power？</strong>常見誤解：「我用單尾 p 比較容易 &lt; 0.05」。真相是——你只能在<strong>事前</strong>合理排除反方向的情況才能用單尾；事後改方向是學術不端。Bland & Altman 1994 <em>BMJ</em> 明確警告。</span>
+<span data-lang="en"><strong>"One-tailed = free power"?</strong> A common myth. The truth: you may only use one-tailed when the opposite direction is <strong>pre-specified</strong> as uninteresting; switching after seeing data is research misconduct. Bland & Altman 1994 <em>BMJ</em> are explicit.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 4: Interactive sim 1 (α/β/power) ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="α、β、Power 的視覺對話" data-en="α, β, and power — a visual conversation">α、β、Power 視覺化</h2>
+<div data-lang="zh"><p>下方顯示<strong>兩個常態分布</strong>：左邊（藍）= H₀ 真實時統計量的分布；右邊（綠）= H₁ 真實時的分布，差距 = 效應量 d。紅色垂直線是<strong>臨界值</strong>（由 α 決定）。<strong>紅尾</strong> = α（Type I error，H₀ 區域中超過臨界值的部分）；<strong>橙色區</strong> = β（Type II error，H₁ 區域中未超過臨界值的部分）；<strong>綠色區</strong> = power（H₁ 區域中超過臨界值的部分，1 − β）。拖滑桿觀察三者怎麼動。</p></div>
+<div data-lang="en"><p>Two normal densities below: left (blue) = sampling distribution under H₀; right (green) = under H₁, gap = effect size d. The red vertical line is the <strong>critical value</strong> (set by α). <strong>Red tail</strong> = α (Type I, the slice of H₀ beyond critical); <strong>orange</strong> = β (Type II, slice of H₁ below critical); <strong>green</strong> = power (slice of H₁ above critical, 1 − β). Drag the sliders and watch all three react.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="效應量 d (H₁ 平均值偏移)" data-en="Effect size d (H₁ mean shift)">效應量 d</span> <span id="valD">0.8</span></label><input type="range" id="sliderD" min="0" max="3" value="0.8" step="0.05"></div>
+<div class="slider-group"><label><span data-zh="顯著水準 α" data-en="Significance level α">顯著水準 α</span> <span id="valA">0.050</span></label><input type="range" id="sliderA" min="0.001" max="0.10" value="0.05" step="0.001"></div>
+<div id="powDesc" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:300px;"><canvas id="powChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">藍 = H₀ · 綠 = H₁ · 紅線 = 臨界值 · 紅尾 = α · 橙 = β · 綠區 = power</span><span data-lang="en">Blue = H₀ · Green = H₁ · Red line = critical value · Red tail = α · Orange = β · Green = power</span></p>
+</div>
+</section>
+
+<!-- ===== Section 5: ASA + S-value + p-hacking deep dive ===== -->
+<section class="section">
+<div class="section-label" data-zh="深入討論" data-en="DEEP DIVE">深入討論</div>
+<h2 data-zh="三、ASA 聲明、S-value、p-hacking 與分岔花園" data-en="III. ASA statements, the S-value, p-hacking and forking paths">三、ASA、S-value、分岔花園</h2>
+
+<div data-lang="zh">
+<p>2016 年 3 月 7 日，美國統計學會（ASA）發表史上第一份對單一統計概念的官方立場聲明——〈The ASA Statement on p-Values: Context, Process, and Purpose〉（Wasserstein & Lazar 2016）。文件列出<strong>六大原則</strong>，每一條都對應一個常見誤用：</p>
+</div>
+<div data-lang="en">
+<p>On 7 March 2016 the American Statistical Association issued the first official position statement in its history about a single statistical concept — "The ASA Statement on p-Values: Context, Process, and Purpose" (Wasserstein & Lazar 2016). The document lists <strong>six principles</strong>, each addressing a frequent misuse:</p>
+</div>
+
+<table class="comp-table">
+<thead><tr><th data-zh="ASA 2016 原則" data-en="ASA 2016 principle">原則</th><th data-zh="說明" data-en="Meaning">說明</th></tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td><span data-lang="zh">p-value 衡量「資料與某個指定統計模型的不相容程度」。</span><span data-lang="en">p-values can indicate how incompatible the data are with a specified model.</span></td></tr>
+<tr><td><strong>2</strong></td><td><span data-lang="zh">p-value <strong>不是</strong>「假設為真的機率」，也<strong>不是</strong>「結果是偶然產生的機率」。</span><span data-lang="en">p-values do <strong>not</strong> measure the probability the hypothesis is true, nor that the data are "random chance alone".</span></td></tr>
+<tr><td><strong>3</strong></td><td><span data-lang="zh">科學結論與商業／政策決定，<strong>不應</strong>僅以 p 是否越過某個門檻來決定。</span><span data-lang="en">Scientific or policy decisions should <strong>not</strong> rest solely on whether p crosses a threshold.</span></td></tr>
+<tr><td><strong>4</strong></td><td><span data-lang="zh">適當的推論需要<strong>完整報告</strong>與透明化（含分析過程、樣本選擇、模型假設）。</span><span data-lang="en">Proper inference requires <strong>full reporting</strong> and transparency.</span></td></tr>
+<tr><td><strong>5</strong></td><td><span data-lang="zh">p-value <strong>不衡量</strong>效應大小或結果重要性。</span><span data-lang="en">A p-value does <strong>not</strong> measure the size or importance of an effect.</span></td></tr>
+<tr><td><strong>6</strong></td><td><span data-lang="zh">單一 p-value <strong>不能提供完整證據</strong>——須配合效應量、CI、先驗、研究設計一起讀。</span><span data-lang="en">By itself a p-value does <strong>not</strong> provide a good measure of evidence — pair it with effect size, CI, design, priors.</span></td></tr>
+</tbody></table>
+
+<div data-lang="zh"><p>2019 年的續篇〈Moving to a World Beyond "p &lt; 0.05"〉（Wasserstein, Schirm & Lazar 2019, <em>Am Stat</em>）由 43 位作者共同撰寫，立場更激進：<strong>建議停用「statistically significant」這個詞彙</strong>，因為它已被當成「結果重要 vs 不重要」的開關來濫用。同期 Amrhein, Greenland & McShane (2019, <em>Nature</em>) 也發起 800+ 學者連署的「Retire statistical significance」運動。</p></div>
+<div data-lang="en"><p>The 2019 sequel "Moving to a World Beyond <em>p</em> &lt; 0.05" (Wasserstein, Schirm & Lazar 2019, <em>Am Stat</em>) — co-authored by 43 statisticians — went further: <strong>stop using the phrase "statistically significant"</strong>, because it had become a switch flipped between "matters" and "doesn't". The same week, Amrhein, Greenland & McShane (2019, <em>Nature</em>) gathered 800+ scientists to "retire statistical significance".</p></div>
+
+<div class="split">
+<div>
+<h5 data-zh="S-value（surprisal value）" data-en="S-value (surprisal)">S-value（驚奇值）</h5>
+<div data-lang="zh"><p><strong>Greenland 2019 <em>Am Stat</em></strong> 建議用 <strong>S = −log₂(p)</strong>——以「<strong>位元</strong>」（bit）為單位表達 p 的證據強度。直觀：S 是「擲幾次公平硬幣全部同面」的等價驚奇度。</p>
+<ul style="margin:.4em 0 .4em 1.2em;line-height:1.7;">
+<li>p = 0.5 → S = 1 bit（1 次硬幣）</li>
+<li>p = 0.05 → S ≈ 4.3 bits（≈ 4 次硬幣全朝同一面）</li>
+<li>p = 0.005 → S ≈ 7.6 bits（≈ 8 次）</li>
+<li>p = 0.001 → S ≈ 10 bits</li>
+</ul>
+<p>S-value 的優點：(1) 線性—— p 從 0.06 到 0.04 看似巨變，S 從 4.06 到 4.64 只移 0.6 bit；(2) 不會被「&lt; vs ≥」二分法騙；(3) 直接對應日常驚奇感。</p></div>
+<div data-lang="en"><p><strong>Greenland 2019 <em>Am Stat</em></strong> recommends <strong>S = −log₂(p)</strong> — measuring p in <strong>bits</strong> of surprise: how many fair-coin flips all landing the same way is equally surprising.</p>
+<ul style="margin:.4em 0 .4em 1.2em;line-height:1.7;">
+<li>p = 0.5 → S = 1 bit (1 flip)</li>
+<li>p = 0.05 → S ≈ 4.3 bits (≈ 4 flips all same)</li>
+<li>p = 0.005 → S ≈ 7.6 bits (≈ 8 flips)</li>
+<li>p = 0.001 → S ≈ 10 bits</li>
+</ul>
+<p>Advantages: (1) linear — p moving 0.06 → 0.04 looks dramatic, but S moves only 4.06 → 4.64; (2) cannot be tricked by the &lt; vs ≥ dichotomy; (3) maps to everyday intuition.</p></div>
+</div>
+<div>
+<h5 data-zh="Gelman & Loken 「分岔花園」" data-en="Gelman & Loken: garden of forking paths">分岔花園 (2014)</h5>
+<div data-lang="zh"><p><strong>Gelman & Loken 2014 <em>Am Sci</em></strong>「The Garden of Forking Paths」指出一個比 p-hacking 更陰險的問題：研究者<strong>不需故意</strong>多次測試——只要在分析時做的每個小選擇（要不要剔除 outlier？要不要 log 變換？亞群分析？）<strong>都會在不同資料下不同</strong>，整體就成了多重比較。</p>
+<p>結果：<strong>單一論文裡看似「事先設計」的單一檢定，其實是研究者腦中「眾多檢定」的選一個顯著的呈現</strong>。這比赤裸的 p-hacking 更難偵測，也更普遍。Borges 的「岔路花園」短篇就是論文標題的靈感。</p></div>
+<div data-lang="en"><p><strong>Gelman & Loken 2014 <em>Am Sci</em></strong>'s "Garden of Forking Paths" describes something subtler than p-hacking: the analyst <strong>need not consciously</strong> run many tests — every small decision (exclude outliers? log-transform? subgroup?) <strong>would differ on different data</strong>, so the overall procedure is itself a multiple comparison.</p>
+<p>Result: <strong>a single "pre-specified" test in a paper is the surviving member of many implicit tests the analyst's mind ran.</strong> Harder to detect than overt p-hacking — and far more common. Borges' "Garden of Forking Paths" is the inspiration for the name.</p></div>
+</div>
+</div>
+
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>解方：preregistration（預先註冊）。</strong>在收資料<em>前</em>把假設、檢定、α、停止規則寫死並上傳到第三方平台（<strong>OSF Registries</strong>、<strong>AsPredicted</strong>、Clinicaltrials.gov）。<strong>Registered Reports</strong>（《Cortex》《Nature Human Behaviour》《eLife》接受）更進一步——同行評審先審 protocol、再做實驗，無論結果都發表。Nosek et al. 2018 <em>PNAS</em> 估計 RR 能把偽陽性率降低 5–10 倍。</span>
+<span data-lang="en"><strong>The remedy: preregistration.</strong> Before data collection, lock down hypotheses, tests, α, and stopping rules on a third-party platform (<strong>OSF Registries</strong>, <strong>AsPredicted</strong>, ClinicalTrials.gov). <strong>Registered Reports</strong> (offered by <em>Cortex</em>, <em>Nature Human Behaviour</em>, <em>eLife</em>) go further: peer review the protocol, then run the experiment, publish regardless of outcome. Nosek et al. 2018 <em>PNAS</em> estimate RRs cut false-positive rates 5–10×.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 6: Equivalence & non-inferiority ===== -->
+<section class="section">
+<div class="section-label" data-zh="進階檢定" data-en="ADVANCED">進階檢定類型</div>
+<h2 data-zh="四、等效（Equivalence）與非劣性（Non-Inferiority）" data-en="IV. Equivalence and non-inferiority testing">四、等效與非劣性</h2>
+<div data-lang="zh"><p>傳統 NHST 只能<strong>否決</strong>「無差異」，無法<strong>證明</strong>「無差異」——這是它最常被誤用的地方（看到 p &gt; 0.05 就說「兩組相同」是嚴重錯誤）。當研究目的是<strong>展示差不多</strong>（如學名藥 vs 原廠藥）或<strong>不會更差</strong>（新療法非劣於現有標準），應改用以下兩種設計：</p></div>
+<div data-lang="en"><p>Classical NHST can only <strong>reject</strong> "no difference"; it cannot <strong>prove</strong> "no difference" — its single most abused property (concluding "equal" from p &gt; 0.05 is a serious error). When the goal is to show <strong>similar enough</strong> (generic vs brand drug) or <strong>not meaningfully worse</strong> (new therapy non-inferior to standard), switch to one of these designs:</p></div>
+
+<div class="card-grid cols-2">
+<div class="card"><h4 data-zh="🎯 Equivalence — TOST" data-en="🎯 Equivalence — TOST">🎯 Equivalence — TOST</h4>
+<div data-lang="zh"><p><strong>Schuirmann 1987 <em>J Pharmacokinet Biopharm</em></strong> 的「Two One-Sided Tests」：定義<strong>等效邊界</strong> δ（如 ±20%），然後做<strong>兩個單尾檢定</strong>：</p>
+<p style="margin:.4em 0;"><span class="math">H₀: μ₁ − μ₂ ≤ −δ 或 ≥ +δ &nbsp; vs &nbsp; H₁: −δ &lt; μ₁ − μ₂ &lt; +δ</span></p>
+<p>若<strong>兩個 p 都 &lt; α</strong>（等價於 90% CI 完全落在 (−δ, +δ) 內），即可宣告等效。FDA 生物等效性指引（2003、2022 更新）用 GMR 的 90% CI 必須在 (0.80, 1.25)。<strong>Lakens 2017 <em>Soc Psychol Personal Sci</em></strong> 是入門 TOST 必讀，配套 R 套件 <code>TOSTER</code>。</p></div>
+<div data-lang="en"><p><strong>Schuirmann 1987 <em>J Pharmacokinet Biopharm</em></strong>'s Two One-Sided Tests: define an <strong>equivalence margin</strong> δ (e.g. ±20 %) and run <strong>two one-sided tests</strong>:</p>
+<p style="margin:.4em 0;"><span class="math">H₀: μ₁ − μ₂ ≤ −δ or ≥ +δ &nbsp; vs &nbsp; H₁: −δ &lt; μ₁ − μ₂ &lt; +δ</span></p>
+<p>If <strong>both ps &lt; α</strong> (equivalently, the 90 % CI lies entirely inside (−δ, +δ)) you may claim equivalence. FDA Bioequivalence Guidance (2003; updated 2022) requires the 90 % CI of the GMR to lie within (0.80, 1.25). <strong>Lakens 2017 <em>Soc Psychol Personal Sci</em></strong> is the canonical tutorial; R package <code>TOSTER</code>.</p></div>
+</div>
+<div class="card"><h4 data-zh="⚖️ Non-Inferiority — 單尾" data-en="⚖️ Non-Inferiority">⚖️ Non-Inferiority</h4>
+<div data-lang="zh"><p>新療法只需<strong>不顯著差於</strong>標準療法即可——常見於有道德問題不能放安慰劑的臨床試驗。<strong>CONSORT-NI 2012 <em>JAMA</em></strong>（Piaggio et al.）規範報告：</p>
+<p style="margin:.4em 0;"><span class="math">H₀: μ<sub>new</sub> &lt; μ<sub>std</sub> − δ &nbsp; vs &nbsp; H₁: μ<sub>new</sub> ≥ μ<sub>std</sub> − δ</span></p>
+<p>δ（非劣性邊界）必須<strong>事先決定</strong>，並基於臨床意義、不是統計方便。報告應同時呈現 CI 與 δ，並明確標示「non-inferiority margin」。FDA Non-Inferiority Guidance 2016 提供範例。</p></div>
+<div data-lang="en"><p>The new therapy need only be <strong>not meaningfully worse</strong> than the standard — common in clinical trials where placebo is unethical. <strong>CONSORT-NI 2012 <em>JAMA</em></strong> (Piaggio et al.) regulates reporting:</p>
+<p style="margin:.4em 0;"><span class="math">H₀: μ<sub>new</sub> &lt; μ<sub>std</sub> − δ &nbsp; vs &nbsp; H₁: μ<sub>new</sub> ≥ μ<sub>std</sub> − δ</span></p>
+<p>The margin δ must be <strong>pre-specified</strong> on clinical, not statistical, grounds. Reports must show the CI alongside δ and explicitly label the "non-inferiority margin". FDA Non-Inferiority Guidance 2016 provides templates.</p></div>
+</div>
+</div>
+
+<div class="idea">
+<span data-lang="zh"><strong>常見錯誤：</strong>「p = 0.31，兩組沒有顯著差異 → 兩組相同」<strong>← 大錯！</strong>p &gt; 0.05 只代表「沒有足夠證據說有差異」，可能是真的沒差、也可能是 power 不夠。要證明「相同」，請跑等效檢定。Greene et al. 2008 <em>BMJ</em> 估計約 60% 的非顯著結果論文錯誤地宣稱「無差異」。</span>
+<span data-lang="en"><strong>Common error:</strong> "p = 0.31, no significant difference → the groups are equal." <strong>Wrong.</strong> p &gt; 0.05 only means "no evidence of a difference" — could be no effect, or could be underpowered. To claim equality, run an equivalence test. Greene et al. 2008 <em>BMJ</em> estimate ~60 % of non-significant-result papers wrongly conclude "no difference".</span>
+</div>
+</section>
+
+<!-- ===== Section 7: Interactive sim 2 (p-value distribution) ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="p-value 在 H₀ vs H₁ 下的分布" data-en="The distribution of p-values under H₀ vs H₁">p-value 的分布長相</h2>
+<div data-lang="zh"><p>很多人不知道：<strong>當 H₀ 為真時，p-value 是均勻分布 U(0,1)</strong>——所以你看到 p = 0.04 跟 p = 0.96 的機率一樣大！只有當 H₁ 為真時，p 才會偏向 0（小 p 變多）。下方模擬 5000 次<strong>雙樣本 z 檢定</strong>，把所有 p 畫成 histogram。試試 d = 0（H₀ 真）vs d = 0.5（中等效應）。</p></div>
+<div data-lang="en"><p>A surprising fact: <strong>under H₀ the p-value is uniformly distributed on (0,1)</strong> — so p = 0.04 and p = 0.96 are <em>equally likely</em>. Only under H₁ does the distribution skew toward 0 (small p's become more common). The widget below simulates 5000 <strong>two-sample z-tests</strong> and histograms the p's. Try d = 0 (H₀ true) vs d = 0.5 (medium effect).</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="真實效應量 d" data-en="True effect size d">真實效應量 d</span> <span id="valD2">0.0</span></label><input type="range" id="sliderD2" min="0" max="1.5" value="0" step="0.05"></div>
+<div class="slider-group"><label><span data-zh="每次檢定樣本數 n" data-en="Sample size n per test">樣本數 n</span> <span id="valN2">30</span></label><input type="range" id="sliderN2" min="10" max="200" value="30" step="5"></div>
+<div id="pHistDesc" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:260px;"><canvas id="pHistChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">紅虛線 = α = 0.05 · 紅色 bin = p &lt; 0.05 的比例（≈ 觀察 power）</span><span data-lang="en">Red dashed = α = 0.05 · Red bin = fraction with p &lt; 0.05 (≈ observed power)</span></p>
+</div>
+</section>
+
+<!-- ===== Section 8: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="五、Significance / Equivalence / Non-Inferiority 怎麼選？" data-en="V. Significance / equivalence / non-inferiority — which to use?">五、檢定設計決策樹</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="檢定設計決策樹" data-en="Test-design decision tree">檢定設計決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>你的研究問題是「<strong>有沒有差異？</strong>」（探索性 / 比較性研究）<span class="dt-arrow">→ 是 →</span> 傳統 <strong>significance test</strong>（t、ANOVA、迴歸），雙尾為主；務必同時報 effect size + 95% CI。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>你的問題是「<strong>兩者效果差不多嗎？</strong>」（學名藥、不同儀器交叉驗證）<span class="dt-arrow">→ 是 →</span> <strong>Equivalence test (TOST)</strong>，事前定 δ，跑兩個單尾。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>「新療法<strong>不會比現有更差</strong>嗎？」（活性對照臨床試驗）<span class="dt-arrow">→ 是 →</span> <strong>Non-inferiority test</strong>，事前定 δ；遵循 CONSORT-NI。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>多個假設要同時檢定（基因體、imaging）？<span class="dt-arrow">→ 是 →</span> 加 <strong>FDR 或 Bonferroni 校正</strong>（見 Step 12）；不要單獨用 raw p。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>樣本數很小（n &lt; 10）或分布極不正常？<span class="dt-arrow">→ 是 →</span> <strong>permutation / exact test</strong>（Fisher's exact、Wilcoxon、bootstrap），別硬套常態檢定。</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>關心方向<strong>嚴格事先確定</strong>？<span class="dt-arrow">→ 是 →</span> 才能用<strong>單尾</strong>；否則一律雙尾。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>"<strong>Is there a difference?</strong>" (exploratory / comparative)<span class="dt-arrow">→ Yes →</span> classical <strong>significance test</strong> (t, ANOVA, regression), two-tailed by default; report effect size + 95 % CI alongside.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>"<strong>Are the two effectively equal?</strong>" (generic drug, cross-device validation)<span class="dt-arrow">→ Yes →</span> <strong>Equivalence (TOST)</strong>; pre-specify δ; run two one-sided tests.</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>"<strong>Is the new therapy not meaningfully worse?</strong>" (active-control trial)<span class="dt-arrow">→ Yes →</span> <strong>Non-inferiority</strong> with a pre-specified δ; follow CONSORT-NI.</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Many hypotheses at once (genomics, imaging)?<span class="dt-arrow">→ Yes →</span> add <strong>FDR or Bonferroni</strong> correction (Step 12); never report raw p alone.</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Very small n (&lt; 10) or wildly non-normal?<span class="dt-arrow">→ Yes →</span> use <strong>permutation / exact tests</strong> (Fisher's exact, Wilcoxon, bootstrap) rather than forcing normality.</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>Direction is <strong>strictly pre-specified</strong>?<span class="dt-arrow">→ Yes →</span> only then may you use a <strong>one-tailed</strong> test; otherwise two-tailed.</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 9: Misuse vs correct interpretation table ===== -->
+<section class="section">
+<div class="section-label" data-zh="正確解讀 vs 常見誤用" data-en="MISUSE vs CORRECT">六、p-value 誤用對照表</h2>
+<h2 data-zh="六、p-value 誤用對照表" data-en="VI. p-value misuses vs correct interpretations">六、p-value 誤用對照表</h2>
+
+<table class="comp-table">
+<thead><tr>
+<th data-zh="情境 / 觀察到的 p" data-en="Scenario / observed p">情境</th>
+<th data-zh="❌ 常見誤讀" data-en="❌ Common misreading">常見誤讀</th>
+<th data-zh="✅ 正確解讀" data-en="✅ Correct interpretation">正確解讀</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>p = 0.03</strong></td>
+<td><span data-lang="zh">「H₀ 為真的機率是 3%」</span><span data-lang="en">"There's a 3 % chance H₀ is true"</span></td>
+<td><span data-lang="zh">在 H₀ 為真的前提下，觀察到目前或更極端統計量的機率是 3%。</span><span data-lang="en">Given H₀ is true, P(statistic this extreme or more) = 3 %.</span></td></tr>
+<tr><td><strong>p = 0.03</strong></td>
+<td><span data-lang="zh">「結果為偶然的機率 3%」</span><span data-lang="en">"3 % chance the result is due to chance"</span></td>
+<td><span data-lang="zh">p 是「資料 ∣ 模型」的條件機率，與「偶然 vs 真效應」的後驗無直接關係。</span><span data-lang="en">p is P(data | model); it is not the posterior split between "chance" and "real effect".</span></td></tr>
+<tr><td><strong>p &gt; 0.05</strong></td>
+<td><span data-lang="zh">「兩組沒有差異」</span><span data-lang="en">"The two groups are the same"</span></td>
+<td><span data-lang="zh">缺乏拒絕 H₀ 的證據——可能真沒差，也可能 power 不夠。要證明「相同」請用 TOST。</span><span data-lang="en">Insufficient evidence to reject H₀ — could be no effect, could be underpowered. Use TOST for equality.</span></td></tr>
+<tr><td><strong>p &lt; 0.001</strong></td>
+<td><span data-lang="zh">「效應很大」</span><span data-lang="en">"Large effect"</span></td>
+<td><span data-lang="zh">p 很小可能來自<strong>大 n</strong>而非大效應。同時看 effect size。</span><span data-lang="en">A tiny p may come from <strong>large n</strong>, not a large effect. Read the effect size.</span></td></tr>
+<tr><td><strong>p = 0.049 vs p = 0.051</strong></td>
+<td><span data-lang="zh">「一個顯著，一個不顯著，差很多」</span><span data-lang="en">"One significant, one not — big difference"</span></td>
+<td><span data-lang="zh">兩者的證據強度幾乎一樣（S 差 ~0.06 bit）。「&lt; vs ≥」是人為二分。</span><span data-lang="en">Evidence strength is essentially identical (≈ 0.06 bit difference). The &lt;/≥ split is artificial.</span></td></tr>
+<tr><td><strong data-zh="重複實驗 p = 0.06" data-en="Replication p = 0.06">重複實驗 p = 0.06</strong></td>
+<td><span data-lang="zh">「沒重現原研究 p = 0.04」</span><span data-lang="en">"Failed to replicate the original p = 0.04"</span></td>
+<td><span data-lang="zh">兩次都看到一致方向的小 p——其實是一致證據！「significance ≠ replication」（McShane & Gal 2017）。</span><span data-lang="en">Two similar small p's in the same direction — that <em>is</em> consistent evidence. "Significance ≠ replication" (McShane & Gal 2017).</span></td></tr>
+<tr><td><strong>p = 0.04，n = 12</strong></td>
+<td><span data-lang="zh">「可以發表」</span><span data-lang="en">"Publishable"</span></td>
+<td><span data-lang="zh">小 n 配剛跨門檻的 p——典型「winner's curse」，效應量極可能被高估。需重複驗證。</span><span data-lang="en">Tiny n + barely-crossing p — textbook "winner's curse"; effect size almost certainly inflated. Needs replication.</span></td></tr>
+</tbody></table>
+
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>新一代報告語：</strong>與其寫「p = 0.03，significant」，不如寫「the estimated mean difference was 0.42 (95% CI 0.05 to 0.79), corresponding to p = 0.03 (S ≈ 5.1 bits of evidence against H₀)」。資訊量多三倍，且不暗示二分結論。</span>
+<span data-lang="en"><strong>Modern reporting:</strong> instead of "p = 0.03, significant," try "mean difference 0.42 (95 % CI 0.05–0.79); p = 0.03 (S ≈ 5.1 bits against H₀)." Three times the information, none of the false dichotomy.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 10: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="七、實作範例（z 檢定、TOST、效應量 + CI）" data-en="VII. Code (z-test, TOST, effect size + CI)">七、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R / tidyverse</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python / SciPy</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: z-test, TOST equivalence, effect size + CI</span>
+<span class="func">library</span>(tidyverse)
+<span class="func">library</span>(TOSTER)        <span class="comment"># equivalence (Lakens 2017)</span>
+<span class="func">library</span>(effectsize)    <span class="comment"># Cohen's d + 95% CI</span>
+
+<span class="comment"># --- Synthetic biomarker example ---</span>
+<span class="func">set.seed</span>(<span class="num">42</span>)
+ctrl &lt;- <span class="func">rnorm</span>(<span class="num">30</span>, mean = <span class="num">5.0</span>, sd = <span class="num">1.0</span>)
+trt  &lt;- <span class="func">rnorm</span>(<span class="num">30</span>, mean = <span class="num">5.5</span>, sd = <span class="num">1.0</span>)
+
+<span class="comment"># --- (1) Classical two-sided test ---</span>
+res &lt;- t.<span class="func">test</span>(trt, ctrl, var.equal = <span class="kw">FALSE</span>)   <span class="comment"># Welch by default</span>
+res$p.value
+res$conf.int
+effectsize::<span class="func">cohens_d</span>(trt, ctrl)         <span class="comment"># d + 95% CI</span>
+
+<span class="comment"># --- (2) Report S-value (Greenland 2019) ---</span>
+s_val &lt;- -<span class="func">log2</span>(res$p.value)             <span class="comment"># bits of surprise</span>
+
+<span class="comment"># --- (3) TOST equivalence test (δ = 0.4) ---</span>
+TOSTER::<span class="func">tsum_TOST</span>(
+  m1 = <span class="func">mean</span>(trt), sd1 = <span class="func">sd</span>(trt), n1 = <span class="num">30</span>,
+  m2 = <span class="func">mean</span>(ctrl), sd2 = <span class="func">sd</span>(ctrl), n2 = <span class="num">30</span>,
+  low_eqbound = -<span class="num">0.4</span>, high_eqbound = <span class="num">0.4</span>,
+  eqbound_type = <span class="str">"raw"</span>, alpha = <span class="num">0.05</span>
+)
+<span class="comment"># Both 1-sided p &lt; 0.05 → equivalent within ±0.4 units</span>
+
+<span class="comment"># --- (4) Recommended sentence ---</span>
+<span class="func">sprintf</span>(<span class="str">"Mean diff = %.2f (95%% CI %.2f to %.2f); p = %.3f (S = %.1f bits)"</span>,
+        <span class="func">mean</span>(trt) - <span class="func">mean</span>(ctrl),
+        -res$conf.int[<span class="num">2</span>], -res$conf.int[<span class="num">1</span>],
+        res$p.value, s_val)</pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
 <span class="kw">from</span> scipy <span class="kw">import</span> stats
-data = np.array([<span class="num">5.2</span>, <span class="num">4.8</span>, <span class="num">5.1</span>, <span class="num">4.9</span>, <span class="num">5.3</span>])
-t_stat, p_value = stats.ttest_1samp(data, <span class="num">5</span>)
-<span class="func">print</span>(t_stat, p_value)</pre>
-        </div>
-      </div>
-    </section>
-    <div class="page-nav">
-      <a href="sampling.html">
-        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
-        <span class="nav-title" data-zh="抽樣與CLT" data-en="Sampling & CLT">抽樣與CLT</span>
-      </a>
-      <a href="t-tests.html">
-        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
-        <span class="nav-title" data-zh="t 檢定與信賴區間" data-en="t‑Tests & CIs">t 檢定與信賴區間</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    // Use global normInv defined in biostats.js
-    function oneSampleTest() {
-      const xbar = parseFloat(document.getElementById('sampleMean').value);
-      const mu0 = parseFloat(document.getElementById('nullMean').value);
-      const s = parseFloat(document.getElementById('sampleSd').value);
-      const n = parseInt(document.getElementById('sampleN').value);
-      const alpha = parseFloat(document.getElementById('alpha').value);
-      const tStat = (xbar - mu0) / (s / Math.sqrt(n));
-      const zCrit = Math.abs(window.normInv(1 - alpha / 2));
-      const reject = Math.abs(tStat) > zCrit;
-      const out = document.getElementById('testOutput');
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      // Construct labels based on language and present statistics more clearly
-      const tLabel = lang === 'zh' ? 't 統計量' : 't‑statistic';
-      const criticalLabel = lang === 'zh' ? '臨界 z (z<sub>α/2</sub>)' : 'Critical z (z<sub>α/2</sub>)';
-      const decision = reject
-        ? (lang === 'zh' ? '拒絕 H₀：樣本均值與假設值差異顯著' : 'Reject H₀: the sample mean differs significantly from the hypothesised mean')
-        : (lang === 'zh' ? '不拒絕 H₀：差異不顯著' : 'Do not reject H₀: no significant difference');
-      out.innerHTML = `<p><strong>${tLabel}:</strong> ${tStat.toFixed(3)}, <strong>${criticalLabel}:</strong> ${zCrit.toFixed(3)}</p>` +
-        `<p>${decision}</p>`;
-    }
-    window.oneSampleTest = oneSampleTest;
+<span class="kw">import</span> math
 
-    // Quiz logic for hypothesis testing error types. Determines whether the selected radio value
-    // corresponds to a Type I or Type II error and displays language‑dependent feedback.
-    function checkHypQuiz() {
-      const radios = document.getElementsByName('hypQuiz');
-      let selected = null;
-      for (const r of radios) {
-        if (r.checked) { selected = r.value; break; }
-      }
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      let msg;
-      if (!selected) {
-        msg = lang === 'zh' ? '請選擇一個答案。' : 'Please select an option.';
-      } else if (selected === 'type2') {
-        msg = lang === 'zh' ? '正確！未拒絕錯誤的 H₀ 屬於第二類錯誤 (Type II error)。' : 'Correct! Failing to reject a false H₀ is a Type II error.';
-      } else {
-        msg = lang === 'zh' ? '不正確。第一類錯誤是在 H₀ 為真時錯誤拒絕 H₀。' : 'Incorrect. A Type I error occurs when you reject a true H₀.';
-      }
-      const fb = document.getElementById('hypQuizFeedback');
-      if (fb) fb.textContent = msg;
-    }
-    window.checkHypQuiz = checkHypQuiz;
+<span class="comment"># Synthetic biomarker example</span>
+rng = np.random.<span class="func">default_rng</span>(<span class="num">42</span>)
+ctrl = rng.<span class="func">normal</span>(<span class="num">5.0</span>, <span class="num">1.0</span>, <span class="num">30</span>)
+trt  = rng.<span class="func">normal</span>(<span class="num">5.5</span>, <span class="num">1.0</span>, <span class="num">30</span>)
 
-    // Tab switching logic for code examples. Activates the clicked tab button and its
-    // corresponding content within the same .code-tabs container.
-    function switchTab(btn, id) {
-      const tabs = btn.closest('.code-tabs');
-      if (!tabs) return;
-      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
-      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
-      btn.classList.add('active');
-      const panel = document.getElementById(id);
-      if (panel) panel.classList.add('active');
-    }
-    window.switchTab = switchTab;
+<span class="comment"># (1) Welch t-test (two-sided)</span>
+res = stats.<span class="func">ttest_ind</span>(trt, ctrl, equal_var=<span class="kw">False</span>)
+mean_diff = trt.<span class="func">mean</span>() - ctrl.<span class="func">mean</span>()
 
-    // Copy code from a given code block to the clipboard. Provides temporary
-    // visual feedback by changing the button text. Errors are silently ignored
-    // since clipboard operations might not be permitted on all browsers.
-    function copyCode(codeId, btn) {
-      const el = document.getElementById(codeId);
-      if (!el) return;
-      const text = el.innerText;
-      const original = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      navigator.clipboard.writeText(text).catch(() => {});
-      setTimeout(() => {
-        btn.textContent = original;
-        btn.classList.remove('copied');
-      }, 1200);
-    }
-    window.copyCode = copyCode;
-  </script>
-</body>
-</html>
+<span class="comment"># 95% CI for mean difference</span>
+se = math.<span class="func">sqrt</span>(trt.<span class="func">var</span>(ddof=<span class="num">1</span>)/<span class="func">len</span>(trt) + ctrl.<span class="func">var</span>(ddof=<span class="num">1</span>)/<span class="func">len</span>(ctrl))
+df = res.df
+tcrit = stats.t.<span class="func">ppf</span>(<span class="num">0.975</span>, df)
+ci = (mean_diff - tcrit*se, mean_diff + tcrit*se)
+
+<span class="comment"># (2) Cohen's d (Hedges-corrected)</span>
+pooled = math.<span class="func">sqrt</span>(((<span class="func">len</span>(trt)-<span class="num">1</span>)*trt.<span class="func">var</span>(ddof=<span class="num">1</span>) +
+                   (<span class="func">len</span>(ctrl)-<span class="num">1</span>)*ctrl.<span class="func">var</span>(ddof=<span class="num">1</span>)) / (<span class="func">len</span>(trt)+<span class="func">len</span>(ctrl)-<span class="num">2</span>))
+d = mean_diff / pooled
+
+<span class="comment"># (3) S-value (Greenland 2019)</span>
+s_val = -math.<span class="func">log2</span>(res.pvalue)
+
+<span class="comment"># (4) TOST equivalence (δ = ±0.4)</span>
+delta = <span class="num">0.4</span>
+t1 = (mean_diff - (-delta)) / se   <span class="comment"># H0: diff &lt;= -delta</span>
+t2 = (mean_diff -   delta ) / se   <span class="comment"># H0: diff &gt;= +delta</span>
+p1 = <span class="num">1</span> - stats.t.<span class="func">cdf</span>(t1, df)
+p2 = stats.t.<span class="func">cdf</span>(t2, df)
+p_tost = <span class="func">max</span>(p1, p2)              <span class="comment"># larger of the two 1-sided p's</span>
+
+<span class="func">print</span>(<span class="str">f"diff = {mean_diff:.2f} (95% CI {ci[0]:.2f} to {ci[1]:.2f})"</span>)
+<span class="func">print</span>(<span class="str">f"p = {res.pvalue:.3f}  S = {s_val:.1f} bits  d = {d:.2f}"</span>)
+<span class="func">print</span>(<span class="str">f"TOST p = {p_tost:.3f} → equivalent within ±{delta}: {p_tost &lt; 0.05}"</span>)</pre></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>練習：</strong>把過去一篇你寫的論文裡的「p = 0.0X」改寫成「diff (95% CI); p (S bits)」格式。多半你會發現 CI 上下界並不一致地遠離 0，或效應量小到沒臨床意義——這正是 ASA 2019 提倡的「資訊密度報告」。</span>
+<span data-lang="en"><strong>Exercise:</strong> rewrite a "p = 0.0X" line from your last paper as "diff (95 % CI); p (S bits)". Often you'll discover the CI is not symmetrically far from 0, or the effect is too small to matter clinically — exactly the information-rich reporting ASA 2019 advocates.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 11: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">八、常見陷阱</div>
+<h2 data-zh="八、四大假設檢定陷阱" data-en="VIII. Four big hypothesis-testing pitfalls">八、四大陷阱</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="p &lt; 0.05 懸崖" data-en="The p &lt; 0.05 cliff">p &lt; 0.05 懸崖</span></h4>
+<div data-lang="zh"><p>p = 0.049 不是「正確」、p = 0.051 不是「錯誤」——兩者證據強度幾乎相同（S ≈ 4.36 vs 4.29 bits）。把 0.05 當二分懸崖是 ASA 2016 第 3 條原則明文反對的。<strong>解方：</strong>報告連續的 p、effect size、95% CI，讓讀者自己判斷臨床重要性。</p></div>
+<div data-lang="en"><p>p = 0.049 is not "right"; p = 0.051 is not "wrong" — the evidence strength is essentially equal (S ≈ 4.36 vs 4.29 bits). Treating 0.05 as a cliff is explicitly rejected by ASA 2016 Principle 3. <strong>Fix:</strong> report continuous p, effect size, and 95 % CI; let the reader judge clinical importance.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="事後挑選（cherry-picking）" data-en="Post-hoc cherry-picking">事後挑選</span></h4>
+<div data-lang="zh"><p>「我跑了 20 個亞群分析，挑了最顯著的兩個發表。」這是赤裸的 p-hacking。即使 H₀ 全部為真，跑 20 個獨立檢定中至少一個 p &lt; 0.05 的機率是 1 − (1−0.05)²⁰ ≈ <strong>64%</strong>。<strong>解方：</strong>preregistration + FDR / Bonferroni 校正（Step 12）。</p></div>
+<div data-lang="en"><p>"I ran 20 subgroup analyses and reported the two most significant." Plain p-hacking. Even if all H₀ are true, the chance at least one of 20 independent tests has p &lt; 0.05 is 1 − (1 − 0.05)²⁰ ≈ <strong>64 %</strong>. <strong>Fix:</strong> preregistration + FDR / Bonferroni (Step 12).</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="「不顯著」 = 「沒效應」" data-en="Treating &quot;not significant&quot; as &quot;no effect&quot;">「不顯著」≠「沒效應」</span></h4>
+<div data-lang="zh"><p>Altman & Bland 1995 <em>BMJ</em>: 〈Absence of evidence is not evidence of absence〉。p &gt; 0.05 可能來自真的沒效應、樣本太小、變異太大、設計不良。<strong>解方：</strong>看 95% CI——若 CI 跨 0 但寬到 (−5, +5)，就是「不確定」，不是「等於 0」。要證明「相同」改用 TOST。</p></div>
+<div data-lang="en"><p>Altman & Bland 1995 <em>BMJ</em>: "Absence of evidence is not evidence of absence." p &gt; 0.05 may mean no effect, small n, big variance, or bad design. <strong>Fix:</strong> read the 95 % CI — if it crosses 0 but spans (−5, +5), that's "uncertain", not "zero". Use TOST to claim equality.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="基率謬誤 (base-rate fallacy)" data-en="Base-rate fallacy">基率謬誤</span></h4>
+<div data-lang="zh"><p>「p = 0.05 就 95% 信任結果」是錯的。若研究的真實假設只有 10% 為真，依貝氏分析（Ioannidis 2005 <em>PLoS Med</em>「Why Most Published Research Findings Are False」）：在 α = 0.05、power = 0.80 下，<strong>PPV（陽性預測值）只有 ~36%</strong>——大半發表的 p &lt; 0.05 結果其實是偽陽性。<strong>解方：</strong>提高 power、preregister、複現研究。</p></div>
+<div data-lang="en"><p>"p = 0.05, 95 % trust" is wrong. If only 10 % of tested hypotheses are true, Bayes (Ioannidis 2005 <em>PLoS Med</em>: "Why Most Published Research Findings Are False") gives, at α = 0.05 and power = 0.80, a <strong>PPV of only ~36 %</strong> — most published p &lt; 0.05 results are false positives. <strong>Fix:</strong> raise power, preregister, replicate.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="只報 p、不報效應量 + CI" data-en="Reporting p alone, no effect size + CI">缺 effect size + CI</span></h4>
+<div data-lang="zh"><p>大 n 下，p = 0.0001 也可能對應 d = 0.05 的微小效應——統計顯著但臨床無意義。<strong>CONSORT 2010 / SAMPL 2015</strong> 都要求同時報告效應量 + 95% CI。</p></div>
+<div data-lang="en"><p>With large n, p = 0.0001 may correspond to a trivial d = 0.05 — statistically significant but clinically meaningless. <strong>CONSORT 2010 / SAMPL 2015</strong> both require effect size + 95 % CI alongside p.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="HARKing（事後改假設）" data-en="HARKing (hypothesising after results known)">HARKing</span></h4>
+<div data-lang="zh"><p>看完結果再回頭「事後設計」假設讓 p 顯著——Kerr 1998 <em>Pers Soc Psychol Rev</em> 命名為 HARKing（Hypothesising After the Results are Known）。學術不端的核心類型之一。<strong>解方：</strong>preregistration、Registered Reports、分離「探索 vs 確證」分析。</p></div>
+<div data-lang="en"><p>Reverse-engineering a hypothesis to fit the significant finding — Kerr 1998 <em>Pers Soc Psychol Rev</em> named it HARKing (Hypothesising After Results Known). A canonical form of research misconduct. <strong>Fix:</strong> preregistration, Registered Reports, separating exploratory vs confirmatory analyses.</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 12: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 你看到一篇論文寫「p = 0.02，所以 H₀ 為真的機率是 2%」，最佳回應是？</p>
+<p data-lang="en">1. A paper writes "p = 0.02, so the probability H₀ is true is 2 %." Best response?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 沒問題，這就是 p 的意思</span><span data-lang="en">A. Fine, that's what p means</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 改寫成「H₁ 為真的機率是 98%」更精確</span><span data-lang="en">B. Rephrase as "98 % chance H₁ is true"</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 錯誤：p 是 P(data | H₀)，不是 P(H₀ | data)；要算後者得用貝氏分析</span><span data-lang="en">C. Wrong: p is P(data | H₀), not P(H₀ | data); the latter needs Bayes</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 沒差，本來統計都是這樣寫</span><span data-lang="en">D. Doesn't matter, all stats papers write this way</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">2. 在學名藥研發中要「證明等效於原廠藥」，最合適的設計是？</p>
+<p data-lang="en">2. To "prove equivalence" of a generic to a brand-name drug, the best design is:</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 跑傳統雙樣本 t 檢定，若 p &gt; 0.05 就宣告等效</span><span data-lang="en">A. Run classical two-sample t-test; declare equal if p &gt; 0.05</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. TOST 等效檢定：事前定 δ（如 ±20%），確認 90% CI 落在 (−δ, +δ) 內</span><span data-lang="en">B. TOST equivalence test: pre-specify δ (e.g. ±20 %), verify 90 % CI lies in (−δ, +δ)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 單尾 t 檢定，方向取對自己有利的</span><span data-lang="en">C. One-tailed t-test in the convenient direction</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 跑 100 次然後挑最不顯著的那次</span><span data-lang="en">D. Run 100 tests and report the least significant one</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">3. Gelman & Loken 的「分岔花園」（garden of forking paths）描述的問題是？</p>
+<p data-lang="en">3. Gelman & Loken's "garden of forking paths" describes:</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 多重共線性 (multicollinearity)</span><span data-lang="en">A. Multicollinearity</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 異質性檢驗</span><span data-lang="en">B. Heterogeneity testing</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 即使沒有主動 p-hacking，分析中每個小選擇都會隨資料而變，整體成為隱含的多重比較</span><span data-lang="en">C. Even without deliberate p-hacking, each analyst choice would vary with data — creating implicit multiple comparisons</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 樣本不獨立的問題</span><span data-lang="en">D. Non-independent samples</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">4. Greenland 2019 提出的 S-value，p = 0.05 對應的 S 約為？</p>
+<p data-lang="en">4. Greenland's S-value: p = 0.05 corresponds to approximately:</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 0.05 bits</span><span data-lang="en">A. 0.05 bits</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 0.5 bits</span><span data-lang="en">B. 0.5 bits</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 20 bits</span><span data-lang="en">C. 20 bits</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. ≈ 4.3 bits（相當於 4 次公平硬幣全朝同一面）</span><span data-lang="en">D. ≈ 4.3 bits (about 4 fair coin flips landing the same way)</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="sampling.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="Step 3：抽樣與 CLT" data-en="Step 3: Sampling & CLT">Step 3：抽樣與 CLT</span></a><a href="t-tests.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 5：t 檢定" data-en="Step 5: t-tests">Step 5：t 檢定</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== Helpers =====
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function dnorm(x,mu,sd){return Math.exp(-0.5*((x-mu)/sd)*((x-mu)/sd))/(sd*Math.sqrt(2*Math.PI));}
+// Acklam-style approximation for inverse normal CDF (good to ~1e-9)
+function qnorm(p){
+  const a=[-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+  const b=[-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+  const c=[-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+  const d=[7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+  const plow=0.02425,phigh=1-plow;let q,r;
+  if(p<plow){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p<=phigh){q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);}
+  q=Math.sqrt(-2*Math.log(1-p));return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);
+}
+// 1 - pnorm via erf-style approximation
+function pnorm(x){return 0.5*(1+erf(x/Math.SQRT2));}
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const t=1/(1+0.3275911*x);const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+
+// ===== Sim 1: α / β / Power overlapping normals =====
+const powChart=new Chart(document.getElementById('powChart'),{type:'line',data:{labels:[],datasets:[
+  {label:'H₀',data:[],borderColor:'rgba(37,99,235,0.95)',backgroundColor:'rgba(37,99,235,0.18)',borderWidth:2,fill:true,pointRadius:0,tension:0.2},
+  {label:'H₁',data:[],borderColor:'rgba(16,185,129,0.95)',backgroundColor:'rgba(16,185,129,0.18)',borderWidth:2,fill:true,pointRadius:0,tension:0.2},
+  {label:'α (Type I)',data:[],borderColor:'rgba(220,38,38,0.0)',backgroundColor:'rgba(220,38,38,0.55)',borderWidth:0,fill:true,pointRadius:0},
+  {label:'β (Type II)',data:[],borderColor:'rgba(245,158,11,0.0)',backgroundColor:'rgba(245,158,11,0.55)',borderWidth:0,fill:true,pointRadius:0},
+  {label:'Power',data:[],borderColor:'rgba(16,185,129,0.0)',backgroundColor:'rgba(16,185,129,0.55)',borderWidth:0,fill:true,pointRadius:0},
+  {label:'critical',data:[],borderColor:'rgba(220,38,38,1)',borderWidth:2,fill:false,pointRadius:0,borderDash:[6,4]}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:true,position:'top',labels:{boxWidth:12,font:{size:11}}}},scales:{x:{title:{display:true,text:'test statistic'},ticks:{maxTicksLimit:8}},y:{title:{display:true,text:'density'},beginAtZero:true}}}});
+
+function upPow(){
+  const d=+document.getElementById('sliderD').value;
+  const a=+document.getElementById('sliderA').value;
+  document.getElementById('valD').textContent=d.toFixed(2);
+  document.getElementById('valA').textContent=a.toFixed(3);
+  const zcrit=qnorm(1-a/2);   // two-tailed critical
+  const xs=[],h0=[],h1=[],alphaTail=[],beta=[],power=[],critLine=[];
+  const xmin=-4,xmax=4+Math.max(d,0);
+  for(let x=xmin;x<=xmax;x+=0.05){
+    xs.push(x.toFixed(2));
+    const y0=dnorm(x,0,1),y1=dnorm(x,d,1);
+    h0.push(y0);h1.push(y1);
+    // alpha = H0 region beyond critical
+    alphaTail.push(Math.abs(x)>=zcrit?y0:null);
+    // beta = H1 region below critical
+    beta.push(x<zcrit?y1:null);
+    // power = H1 region beyond critical
+    power.push(x>=zcrit?y1:null);
+    critLine.push(null);
+  }
+  // add critical-line markers
+  const yMax=0.42;
+  for(let i=0;i<xs.length;i++){
+    const xv=parseFloat(xs[i]);
+    if(Math.abs(xv-zcrit)<0.03||Math.abs(xv+zcrit)<0.03){critLine[i]=yMax;}
+  }
+  powChart.data.labels=xs;
+  powChart.data.datasets[0].data=h0;
+  powChart.data.datasets[1].data=h1;
+  powChart.data.datasets[2].data=alphaTail;
+  powChart.data.datasets[3].data=beta;
+  powChart.data.datasets[4].data=power;
+  powChart.data.datasets[5].data=critLine;
+  powChart.update('none');
+  // numeric: power = P(|Z| > zcrit | mean=d) ≈ pnorm(d - zcrit) + pnorm(-d - zcrit)
+  const pwr=(1-pnorm(zcrit-d))+pnorm(-zcrit-d);
+  const betaV=1-pwr;
+  const L=I18n.get();
+  document.getElementById('powDesc').innerHTML=L==='zh'?
+    `<strong>α</strong> = ${a.toFixed(3)} · <strong>臨界值 |z|</strong> = ${zcrit.toFixed(2)} · <strong>效應量 d</strong> = ${d.toFixed(2)}<br><strong>Power (1 − β)</strong> = ${pwr.toFixed(3)} · <strong>β</strong> = ${betaV.toFixed(3)} ${pwr<0.5?'⚠️ Power 不足 0.5，研究 underpowered':(pwr<0.8?'· Power &lt; 0.80，建議加大 n':'✅ Power ≥ 0.80')}`:
+    `<strong>α</strong> = ${a.toFixed(3)} · <strong>critical |z|</strong> = ${zcrit.toFixed(2)} · <strong>effect d</strong> = ${d.toFixed(2)}<br><strong>Power (1 − β)</strong> = ${pwr.toFixed(3)} · <strong>β</strong> = ${betaV.toFixed(3)} ${pwr<0.5?'⚠️ Power below 0.5 — underpowered':(pwr<0.8?'· Power &lt; 0.80 — consider larger n':'✅ Power ≥ 0.80')}`;
+}
+document.getElementById('sliderD').addEventListener('input',upPow);
+document.getElementById('sliderA').addEventListener('input',upPow);
+document.addEventListener('langchange',upPow);
+upPow();
+
+// ===== Sim 2: p-value distribution under H0 / H1 =====
+const pHist=new Chart(document.getElementById('pHistChart'),{type:'bar',data:{labels:[],datasets:[{label:'count',data:[],backgroundColor:[],borderWidth:1,borderColor:'rgba(15,118,110,1)',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'p-value bin'}},y:{title:{display:true,text:'count'},beginAtZero:true}}}});
+
+function simP(){
+  const d=+document.getElementById('sliderD2').value;
+  const n=+document.getElementById('sliderN2').value;
+  document.getElementById('valD2').textContent=d.toFixed(2);
+  document.getElementById('valN2').textContent=n;
+  const REPS=5000,nBins=20;
+  const bins=new Array(nBins).fill(0);
+  let nSig=0;
+  for(let r=0;r<REPS;r++){
+    let m1=0,m2=0;
+    for(let i=0;i<n;i++){m1+=randn();m2+=randn()+d;}
+    m1/=n;m2/=n;
+    const z=(m2-m1)/Math.sqrt(2/n);
+    const p=2*(1-pnorm(Math.abs(z)));
+    if(p<0.05)nSig++;
+    let k=Math.floor(p*nBins);if(k>=nBins)k=nBins-1;
+    bins[k]++;
+  }
+  pHist.data.labels=bins.map((_,i)=>((i+0.5)/nBins).toFixed(2));
+  pHist.data.datasets[0].data=bins;
+  pHist.data.datasets[0].backgroundColor=bins.map((_,i)=>i===0?'rgba(220,38,38,0.7)':'rgba(15,118,110,0.5)');
+  pHist.update('none');
+  const frac=nSig/REPS;
+  const L=I18n.get();
+  document.getElementById('pHistDesc').innerHTML=L==='zh'?
+    `5000 次模擬雙樣本 z 檢定 (n=${n} per group, d=${d.toFixed(2)})<br><strong>p &lt; 0.05 的比例</strong> = ${frac.toFixed(3)} ${d===0?'(理論值應接近 α = 0.05 — 因為 H₀ 真實時 p 是均勻分布)':'(這就是觀察到的 power)'}<br>${d===0?'<strong>請觀察：所有 20 個 bin 高度大致相等</strong>——這正是 U(0,1) 的特徵':'<strong>請觀察：低 p 那邊明顯堆高</strong>——H₁ 真實時的特徵分布'}`:
+    `5000 simulated two-sample z-tests (n=${n} per group, d=${d.toFixed(2)})<br><strong>Fraction with p &lt; 0.05</strong> = ${frac.toFixed(3)} ${d===0?'(should be ≈ α = 0.05 — under H₀, p is uniform)':'(this is the observed power)'}<br>${d===0?'<strong>Note: all 20 bins are roughly equal height</strong> — that\'s U(0,1)':'<strong>Note: pile-up on the low-p side</strong> — characteristic of true H₁'}`;
+}
+document.getElementById('sliderD2').addEventListener('input',simP);
+document.getElementById('sliderN2').addEventListener('input',simP);
+document.addEventListener('langchange',simP);
+simP();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'p = P(data | H₀)，不是 P(H₀ | data)。要算後驗機率必須加入先驗（貝氏框架）。這正是 ASA 2016 原則 2。',q1_n:'正確選項已標示。',q2_y:'TOST 是 Schuirmann 1987 提出的等效檢定標準做法，FDA 生物等效性指引採用。Lakens 2017 為臨床/心理領域寫了入門。',q2_n:'正確選項已標示。',q3_y:'Gelman & Loken 2014 強調：即使「事前」設計，分析過程中每個依資料而定的小選擇都會貢獻隱含的多重比較。',q3_n:'正確選項已標示。',q4_y:'S = −log₂(0.05) ≈ 4.32 bits。意思：跟連續擲 4 次公平硬幣全部正面一樣驚奇。Greenland 2019 Am Stat。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'p = P(data | H₀), not P(H₀ | data). The posterior requires a prior (Bayesian framework). This is ASA 2016 Principle 2.',q1_n:'Correct option highlighted.',q2_y:'TOST (Schuirmann 1987) is the standard for equivalence testing, used in FDA bioequivalence guidance. Lakens 2017 is the clinical/psych tutorial.',q2_n:'Correct option highlighted.',q3_y:'Gelman & Loken 2014: even "pre-specified" analyses contain many data-dependent micro-choices that act as implicit multiple comparisons.',q3_n:'Correct option highlighted.',q4_y:'S = −log₂(0.05) ≈ 4.32 bits — as surprising as 4 fair coin flips all heads. Greenland 2019 Am Stat.',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>📊 生物統計 互動式考題</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+:root{
+  --bg:#f5f8fa;--card:#fff;--ink:#1a2733;--soft:#5a6b7b;--line:#e0e6eb;
+  --primary:#0F766E;--primary-soft:#E0F6F4;--primary-dark:#0A514C;
+  --accent:#D97706;--accent-soft:#F4EBE1;
+  --exam-soft:#f3e8ff;--green-soft:#d3f9d8;--red-soft:#ffe3e3;--yellow-soft:#fff4c2;--grey-soft:#f8f9fa;
+}
+body{background:var(--bg);font-family:var(--font-body);color:var(--ink)}
+.quiz-wrap{max-width:920px;margin:0 auto;padding:32px 24px 80px}
+.quiz-header{background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 60%,var(--accent) 100%);color:#fff;padding:40px 28px;border-radius:var(--radius-lg);margin-bottom:24px}
+.quiz-header h1{font-family:var(--font-display);font-size:1.8rem;margin-bottom:8px}
+.quiz-header p{opacity:.92;font-size:.95rem}
+.coming-soon{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:36px 28px;text-align:center;margin-top:20px}
+.coming-soon h2{color:var(--primary-dark);margin-bottom:12px}
+.coming-soon p{color:var(--soft);line-height:1.7;margin:8px 0}
+.coming-soon a{color:var(--primary);font-weight:600;text-decoration:underline}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:20px 0;text-align:left}
+.topic-grid div{background:var(--primary-soft);color:var(--primary-dark);padding:10px 14px;border-radius:8px;font-size:.88rem}
+</style>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+<a href="../index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+<ul class="top-nav-links">
+<li><a href="../descriptive.html">Desc.</a></li><li><a href="../distributions.html">Dist.</a></li><li><a href="../sampling.html">CLT</a></li><li><a href="../hypothesis.html">Hypoth.</a></li><li><a href="../t-tests.html">t-tests</a></li><li><a href="../chi-square.html">Chi²</a></li><li><a href="../anova.html">ANOVA</a></li><li><a href="../regression.html">Regress.</a></li><li><a href="../logistic.html">Logistic</a></li><li><a href="../survival.html">Survival</a></li><li><a href="../power.html">Power</a></li><li><a href="../fdr.html">FDR</a></li><li><a href="../mixed-models.html">Mixed</a></li>
+<li><a href="../references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+</ul>
+</div></nav>
+
+<div class="quiz-wrap">
+  <div class="quiz-header">
+    <h1>📊 <span data-zh="生物統計 互動式考題" data-en="Biostatistics Interactive Quiz">生物統計 互動式考題</span></h1>
+    <p data-lang="zh">涵蓋 13 章生物統計核心主題的單選、多選、是非題，內建錯題複習、隨機練習與多使用者進度。</p>
+    <p data-lang="en">Single-choice, multi-select, and true/false questions across 13 biostatistics chapters — with wrong-answer review, random practice, and multi-user progress tracking.</p>
+  </div>
+
+  <div class="coming-soon">
+    <h2 data-zh="📝 題庫建置中" data-en="📝 Quiz bank under construction">📝 題庫建置中</h2>
+    <p data-lang="zh">題庫正在建置中，預計每章 10 題、共約 130 題雙語題庫。在題庫完成前，請先閱讀各章節並參考 <a href="../references/index.html">參考資料頁</a> 的引用文獻與教學註記。</p>
+    <p data-lang="en">The question bank is under construction — ~10 questions per chapter, ~130 bilingual questions total. While we build it, please work through the chapters and consult the cited papers and tutorial notes on the <a href="../references/index.html">References page</a>.</p>
+
+    <div class="topic-grid">
+      <div data-zh="Step 1 描述統計" data-en="Step 1 Descriptive">Step 1 描述統計</div>
+      <div data-zh="Step 2 機率分布" data-en="Step 2 Distributions">Step 2 機率分布</div>
+      <div data-zh="Step 3 抽樣 & CLT" data-en="Step 3 Sampling & CLT">Step 3 抽樣 & CLT</div>
+      <div data-zh="Step 4 假設檢定" data-en="Step 4 Hypothesis">Step 4 假設檢定</div>
+      <div data-zh="Step 5 t 檢定" data-en="Step 5 t-tests">Step 5 t 檢定</div>
+      <div data-zh="Step 6 卡方檢定" data-en="Step 6 Chi-square">Step 6 卡方檢定</div>
+      <div data-zh="Step 7 ANOVA" data-en="Step 7 ANOVA">Step 7 ANOVA</div>
+      <div data-zh="Step 8 線性迴歸" data-en="Step 8 Linear Reg.">Step 8 線性迴歸</div>
+      <div data-zh="Step 9 邏輯斯迴歸" data-en="Step 9 Logistic">Step 9 邏輯斯迴歸</div>
+      <div data-zh="Step 10 存活分析" data-en="Step 10 Survival">Step 10 存活分析</div>
+      <div data-zh="Step 11 樣本數 & Power" data-en="Step 11 Power">Step 11 樣本數 & Power</div>
+      <div data-zh="Step 12 多重檢定 / FDR" data-en="Step 12 FDR">Step 12 FDR</div>
+      <div data-zh="Step 13 混合模型" data-en="Step 13 Mixed Models">Step 13 混合模型</div>
+    </div>
+
+    <p style="margin-top:24px"><a href="../index.html" data-zh="← 回教學首頁" data-en="← Back to tutorial home">← 回教學首頁</a></p>
+  </div>
+</div>
+
+<script src="../i18n.js"></script>
+</body></html>

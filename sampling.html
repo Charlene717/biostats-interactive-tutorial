@@ -1,289 +1,485 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>抽樣與中心極限定理 | Biostatistics Tutorial</title>
-  <meta name="description" content="Interactive demonstration of sampling distributions and the Central Limit Theorem.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="biostats.js"></script>
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html" class="active">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 3</div>
-      <h1 data-zh="抽樣與中心極限定理" data-en="Sampling & Central Limit Theorem">抽樣與中心極限定理</h1>
-      <p class="subtitle" data-lang="zh">瞭解抽樣分布與中心極限定理，並透過模擬觀察樣本均值的分布趨近常態。</p>
-      <p class="subtitle" data-lang="en">Understand sampling distributions and the Central Limit Theorem, and observe through simulation how sample means approximate a normal distribution.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="抽樣分布" data-en="Sampling Distribution">抽樣分布</h2>
-      <p data-lang="zh">當我們從母體抽取樣本並計算統計量（如樣本均值）時，這些統計量本身也具有分布，稱為抽樣分布。抽樣分布反映了在相同條件下無限次抽樣時統計量可能的變化情形。</p>
-      <p data-lang="en">When we draw samples from a population and compute statistics such as the sample mean, these statistics themselves have a distribution called the sampling distribution. The sampling distribution reflects how a statistic would vary if we repeatedly sample under the same conditions.</p>
-      <h2 data-zh="中心極限定理" data-en="Central Limit Theorem">中心極限定理</h2>
-      <p data-lang="zh">中心極限定理指出：無論原始分布如何，只要樣本大小足夠大（一般至少 30），樣本均值的抽樣分布將近似常態分布，平均數約為母體平均 μ，標準差約為 σ/√n。</p>
-      <p data-lang="en">The Central Limit Theorem states that regardless of the shape of the original distribution, the sampling distribution of the sample mean will be approximately normal when the sample size is large enough (typically at least 30). The mean of this distribution is the population mean μ and its standard deviation is σ/√n.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="模擬抽樣" data-en="Simulate Sampling">模擬抽樣</h2>
-      <p data-lang="zh">選擇母體分布、樣本大小與抽樣次數，按下模擬即可觀察樣本均值的分布。</p>
-      <p data-lang="en">Choose a population distribution, sample size and number of samples. Press simulate to observe the distribution of sample means.</p>
-      <div class="interactive-panel">
-        <label><span data-zh="母體分布：" data-en="Population distribution:">母體分布：</span>
-          <select id="popDist">
-            <option value="uniform" data-zh="均勻 (0,1)" data-en="Uniform (0,1)">均勻 (0,1)</option>
-            <option value="exponential" data-zh="指數 (λ=1)" data-en="Exponential (λ=1)">指數 (λ=1)</option>
-          </select>
-        </label>
-        <label style="margin-left:12px">n: <input type="number" id="sampleSize" value="5" min="1" step="1" style="width:60px"></label>
-        <!-- Wrap translation text in a span so the input is not replaced by i18n.js -->
-        <label style="margin-left:12px">
-          <span data-zh="次數" data-en="Samples">Samples</span>: <input type="number" id="numSamples" value="1000" min="10" step="10" style="width:80px">
-        </label>
-        <button id="simulateBtn" onclick="runSimulation()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Simulate</button>
-        <div id="cltOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
-        <div class="chart-container"><canvas id="cltCanvas"></canvas></div>
-      </div>
-    </section>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 3: Sampling & CLT — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html" class="active">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 3 / 13</div>
+<h1 data-zh="抽樣與中央極限定理 (Sampling & CLT)" data-en="Sampling & Central Limit Theorem">抽樣與中央極限定理 (Sampling & CLT)</h1>
+<p class="subtitle" data-lang="zh">為何任何形狀的母體，其樣本平均都會收斂到常態？這條定理撐起了 t 檢定、ANOVA、信賴區間，也定義了「精確度」與「離散度」的差異。</p>
+<p class="subtitle" data-lang="en">Why sample means from any population converge to normal — the theorem that holds up t-tests, ANOVA, confidence intervals, and the distinction between precision and spread.</p>
+</header>
+<main class="content-wrap">
 
-    <!-- Additional educational sections -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
-      <h3 data-zh="抽樣分布與中心極限定理" data-en="Sampling Distribution &amp; CLT">抽樣分布與中心極限定理</h3>
-      <p data-lang="zh"><strong>優點：</strong>中心極限定理指出，當樣本大小足夠大時，樣本均值的分布會趨近常態，即使母體分布不是常態。這讓我們可以使用常態分布的計算與表格來做推論分析，簡化了統計方法，並提供可預測的樣本均值行為。<strong>缺點與限制：</strong>此定理需要樣本隨機且彼此獨立，且樣本數充足。當樣本過小或母體極度偏斜或含有重尾時，樣本均值可能無法良好近似常態分布，且需要更大的樣本量。此外，CLT 假設的是樣本均值，而非其他統計量；對中位數或範圍等量的抽樣分布可能有不同性質。</p>
-      <p data-lang="en"><strong>Advantages:</strong> The central limit theorem states that, with a sufficiently large sample size, the distribution of sample means tends toward normal regardless of the population’s shape. This allows us to use normal‑based tables and formulas for inference, simplifying statistical procedures and making the behaviour of sample means predictable. <strong>Drawbacks &amp; limitations:</strong> The CLT requires that observations are drawn randomly and independently and that the sample size is sufficiently large. If the sample is too small or the population is extremely skewed or heavy‑tailed, the sampling distribution may not approximate normal well and larger samples are needed. Also, the theorem applies specifically to sample means; other statistics like the median or range have different sampling distributions.</p>
-    </section>
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="為什麼 CLT 是生物統計的「核反應爐」？" data-en="Why CLT is the reactor core of biostatistics">為什麼 CLT 是生物統計的「核反應爐」？</h2>
+<div data-lang="zh">
+<p>幾乎每一個你用過的推論統計都依賴中央極限定理（Central Limit Theorem, CLT）：t 檢定為什麼能用？ANOVA 的 F 值為什麼有意義？線性迴歸的 95% CI 為什麼合法？答案都是 CLT——當樣本數 n 夠大時，<strong>樣本平均（或迴歸係數、比例、差值）的抽樣分布會接近常態</strong>，與原始資料是否常態無關。</p>
+<p>更深層的觀念：<strong>SE（standard error）與 SD（standard deviation）是兩件完全不同的事</strong>。SD 描述「資料散得多開」，SE = SD/√n 描述「我對 mean 的估計有多精確」。Curran-Everett 2008 Adv Physiol Educ 指出，這是論文最常見的混淆——許多人把 SEM 當 SD 寫，誤差條看起來「乾淨」，卻把資料變異藏起來。</p>
+</div>
+<div data-lang="en">
+<p>Nearly every inferential procedure you've ever used relies on the Central Limit Theorem (CLT): why does the t-test work? Why does the ANOVA F-ratio mean anything? Why is a regression's 95% CI legal? The answer is CLT — when n is large, the <strong>sampling distribution of the mean (or of regression coefficients, proportions, or differences)</strong> approaches normal, regardless of whether the raw data are normal.</p>
+<p>A deeper idea: <strong>SE (standard error) and SD (standard deviation) are entirely different things.</strong> SD captures how spread the data are; SE = SD/√n captures how precisely you've estimated the mean. Curran-Everett 2008 (Adv Physiol Educ) flagged this as the most common confusion in biology papers — people report SEM as if it described variability, making error bars look tidy while hiding the actual spread.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>抽樣分布（sampling distribution）的定義：</strong>如果我們無限次地從同一個母體抽 n 個觀察、每次都算一個統計量（例如 mean），這些統計量本身會形成一個分布——這個「想像出來的」分布就是<strong>抽樣分布</strong>。CLT 告訴我們：當 n 大時，這個分布長得像常態。所有推論統計都是在比較「觀察到的統計量」與「抽樣分布」。</span>
+<span data-lang="en"><strong>What is a sampling distribution?</strong> Imagine drawing n observations from the same population an infinite number of times and computing a statistic (the mean, say) each time. Those statistics themselves form a distribution — that hypothetical distribution is the <strong>sampling distribution</strong>. CLT tells us that for large n it looks normal. All inferential statistics compare an observed statistic against its sampling distribution.</span>
+</div></div>
+</section>
 
-    <section class="section">
-      <div class="section-label" data-zh="決策引導與範例" data-en="Decision Guidance &amp; Example">決策引導與範例</div>
-      <p data-lang="zh">在決定是否使用中心極限定理時，請確認數據是否隨機且獨立抽樣，並評估樣本大小是否足夠大。若母體分布接近對稱且無重尾，較小的樣本（例如 n=15）即可能讓樣本均值近似常態；若母體偏態或重尾，則需更大的樣本，例如 n≥30 或 50 才足以應用 CLT。例如，測量身高這類接近常態的變數，抽樣 15 人其平均就接近母體平均；而對於收入這種右偏分布，需抽取至少 30 或更多樣本其平均才會趨近常態。</p>
-      <p data-lang="en">When deciding whether to apply the CLT, make sure your data come from a random, independent sample and that the sample size is large enough. If the population distribution is approximately symmetric and not heavy‑tailed, even a modest sample (say n = 15) may produce a nearly normal sampling distribution. If the population is skewed or has heavy tails, larger samples—30 or even 50 observations—are needed for the CLT to kick in. For example, for a variable like height, which is roughly normal, the mean of 15 sampled individuals will be close to normal; for income, which is right‑skewed, you may need to sample at least 30 or more observations for the sample mean distribution to approximate normal.</p>
-    </section>
+<!-- ===== Section 2: Three core concepts ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心三概念" data-en="THREE CORE CONCEPTS">核心三概念</div>
+<h2 data-zh="一、抽樣分布、SE、CLT 三件事" data-en="I. Sampling distribution, SE, and CLT — three things">一、抽樣分布、SE、CLT</h2>
+<div class="card-grid cols-3">
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="抽樣分布" data-en="Sampling distribution">抽樣分布</h4>
+<div data-lang="zh"><p><span class="kt">不是資料的分布</span>——而是「<strong>統計量</strong>（如 X̄）跨假想重複抽樣後的分布」。每次實驗只看到一個 X̄，但 CLT 告訴我們這個 X̄ 來自一個寬度 σ/√n、中心 μ 的常態分布。<br>所有 p 值、CI、t 值都是基於這個分布計算。</p></div>
+<div data-lang="en"><p><span class="kt">Not the distribution of the data</span> — but the distribution of a <strong>statistic</strong> (like X̄) over hypothetical repeated samples. Each experiment gives one X̄, but CLT tells us it comes from a normal distribution with mean μ and width σ/√n.<br>Every p-value, CI, and t-statistic lives on this distribution.</p></div>
+</div>
+<div class="card"><div class="card-icon">📏</div><h4 data-zh="SE vs SD" data-en="SE vs SD">SE vs SD</h4>
+<div data-lang="zh"><p><span class="kt">SD</span>：資料的離散（<strong>越大表示個體差異越大</strong>）。<br><span class="kt">SE</span> = SD/√n：估計的精確度（<strong>越小表示越能精準估到 mean</strong>）。<br>n = 100 時 SE ≈ SD/10；n = 10000 時 SE ≈ SD/100——但 SD 本身不變。<br>論文中報告 mean ± SD（離散）或 mean (95% CI)（精度），<strong>不要報 mean ± SEM</strong>。</p></div>
+<div data-lang="en"><p><span class="kt">SD</span>: how spread the data are (<strong>bigger SD = more variation between individuals</strong>).<br><span class="kt">SE</span> = SD/√n: precision of the estimate (<strong>smaller SE = mean estimated more precisely</strong>).<br>At n = 100, SE ≈ SD/10; at n = 10 000, SE ≈ SD/100 — yet SD itself doesn't change.<br>Report mean ± SD (spread) or mean (95% CI) (precision); <strong>do not report mean ± SEM</strong>.</p></div>
+</div>
+<div class="card"><div class="card-icon">🌐</div><h4 data-zh="CLT 敘述" data-en="CLT statement">CLT 敘述</h4>
+<div data-lang="zh"><p>設 X₁, …, Xₙ 為 i.i.d.，<strong>具有有限均值 μ 與有限變異 σ²</strong>，則<br><span class="math">(X̄ − μ) / (σ/√n) → N(0, 1)</span><br>當 n → ∞（Lindeberg-Lévy CLT, 1922）。實務上 n ≥ 30 通常足夠；但偏態強或尾巴重時，需要更大 n。</p></div>
+<div data-lang="en"><p>Let X₁, …, Xₙ be i.i.d. with <strong>finite mean μ and finite variance σ²</strong>. Then<br><span class="math">(X̄ − μ) / (σ/√n) → N(0, 1)</span><br>as n → ∞ (Lindeberg-Lévy CLT, 1922). In practice n ≥ 30 often suffices, but heavily skewed or heavy-tailed data need more.</p></div>
+</div>
+</div>
 
-    <section class="section">
-      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
-      <p data-lang="zh">為使中心極限定理成立，下列哪一個條件是必要的？</p>
-      <p data-lang="en">Which of the following conditions is required for the Central Limit Theorem to hold?</p>
-      <form id="cltQuizForm">
-        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="random"> <span data-zh="隨機抽樣" data-en="Random sampling">隨機抽樣</span></label>
-        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="independent"> <span data-zh="獨立觀察" data-en="Independent observations">獨立觀察</span></label>
-        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="both"> <span data-zh="隨機且獨立" data-en="Random &amp; independent">隨機且獨立</span></label>
-        <label style="display:block;margin:4px 0"><input type="radio" name="quizCLT" value="small"> <span data-zh="樣本越小越好" data-en="Smaller sample is better">樣本越小越好</span></label>
-        <button type="button" onclick="checkCltQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer"><span data-zh="提交" data-en="Submit">提交</span></button>
-        <p id="cltQuizFeedback" class="quiz-feedback" style="margin-top:8px;"></p>
-      </form>
-    </section>
+<div class="formula">
+<span data-lang="zh">⌜ <em>E</em>(X̄) = μ &nbsp; · &nbsp; <em>Var</em>(X̄) = σ²/n &nbsp; · &nbsp; <em>SE</em>(X̄) = σ/√n &nbsp; · &nbsp; <em>X̄</em> ~ N(μ, σ²/n) 當 n → ∞ ⌝
+<span class="fnote">兩個關鍵推論：(1) X̄ 的期望值等於 μ（無偏）；(2) X̄ 的變異隨 n 線性下降——「n 翻 4 倍，SE 減半」就是這條式子。樣本 SE 用 s/√n 估計（s 是樣本 SD）。</span></span>
+<span data-lang="en">⌜ <em>E</em>(X̄) = μ &nbsp; · &nbsp; <em>Var</em>(X̄) = σ²/n &nbsp; · &nbsp; <em>SE</em>(X̄) = σ/√n &nbsp; · &nbsp; <em>X̄</em> ~ N(μ, σ²/n) as n → ∞ ⌝
+<span class="fnote">Two key consequences: (1) E(X̄) = μ — the sample mean is unbiased; (2) Var(X̄) shrinks linearly in n — "quadruple n to halve SE" is this formula. The sample SE is estimated as s/√n where s is the sample SD.</span></span>
+</div>
+</section>
 
-    <section class="section">
-      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
-      <p data-lang="zh">以下 R 與 Python 程式碼示範如何從指數分布（λ=1）隨機抽樣，計算樣本均值並繪製其分布，以觀察中心極限定理。點擊複製按鈕即可複製程式碼。</p>
-      <p data-lang="en">The R and Python snippets below demonstrate how to sample from an exponential distribution (λ=1), compute sample means and plot their distribution to illustrate the CLT. Click the copy icon to copy the code.</p>
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(this, 'clt-code-r')">R</button>
-          <button class="code-tab-btn" onclick="switchTab(this, 'clt-code-python')">Python</button>
-        </div>
-        <div class="code-tab-content active" id="clt-code-r">
-          <button class="copy-btn" onclick="copyCode('clt-r-code', this)">📋</button>
-          <pre><code id="clt-r-code" class="language-r"><span class="comment"># 重複抽樣並繪製樣本均值分布</span>
-<span class="kw">set.seed</span>(<span class="num">123</span>)
-<span class="comment"># 設定樣本大小 n 與抽樣次數 m</span>
-<span class="kw">n</span> &lt;- <span class="num">30</span>; <span class="kw">m</span> &lt;- <span class="num">1000</span>
-<span class="comment"># 使用 replicate 產生 m 組樣本均值</span>
-<span class="kw">means</span> &lt;- <span class="func">replicate</span>(<span class="kw">m</span>, <span class="func">mean</span>(<span class="func">rexp</span>(<span class="kw">n</span>, rate = <span class="num">1</span>)))
-<span class="comment"># 計算均值與標準差</span>
-<span class="func">print</span>(<span class="func">mean</span>(<span class="kw">means</span>)); <span class="func">print</span>(<span class="func">sd</span>(<span class="kw">means</span>))
-<span class="comment"># 繪製直方圖</span>
-<span class="func">hist</span>(<span class="kw">means</span>, breaks = <span class="num">30</span>, main = <span class="str">'Sampling distribution of means'</span>, xlab = <span class="str">'sample mean'</span>)</code></pre>
-        </div>
-        <div class="code-tab-content" id="clt-code-python">
-          <button class="copy-btn" onclick="copyCode('clt-python-code', this)">📋</button>
-          <pre><code id="clt-python-code" class="language-python"><span class="comment"># sample means from exponential distribution and plot histogram</span>
-<span class="kw">import</span> numpy <span class="kw">as</span> np
+<!-- ===== Section 3: Interactive sim 1 — CLT demonstrator ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="CLT 演示：任意母體 → 樣本平均收斂到常態" data-en="CLT demo: any population → sample-mean converges to normal">CLT 演示</h2>
+<div data-lang="zh"><p>選一個母體分布（<strong>均勻 / 指數 / 雙峰 / Cauchy</strong>），拖動 n 滑桿。每次從母體抽 n 個觀察、算一個平均，重複 2000 次，繪出「樣本平均的分布」。觀察：<br>· 母體越偏態，需要越大 n 才能收斂；<br>· Cauchy 分布<strong>沒有定義的 mean / 變異</strong>，CLT <strong>不適用</strong>——無論 n 多大，樣本平均仍然亂跳。這正是 CLT「有限變異」假設的破口。</p></div>
+<div data-lang="en"><p>Pick a population (<strong>uniform / exponential / bimodal / Cauchy</strong>) and drag n. We draw n observations, compute the mean, repeat 2 000 times, and plot the sampling distribution. Watch:<br>· The more skewed the population, the larger n needed for convergence.<br>· The Cauchy distribution <strong>has no defined mean or variance</strong>, so CLT <strong>fails</strong> — sample means keep jumping no matter how big n is. That is the breach in the finite-variance assumption.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="母體分布" data-en="Population">母體</span></label>
+<select id="popType" style="padding:6px 10px;border:1px solid var(--c-border);border-radius:6px;font-size:.9rem;">
+<option value="unif" data-zh="均勻 Uniform" data-en="Uniform">Uniform (均勻)</option>
+<option value="exp" selected data-zh="指數 Exponential（右偏）" data-en="Exponential (skewed)">Exponential (右偏)</option>
+<option value="bimod" data-zh="雙峰 Bimodal" data-en="Bimodal">Bimodal (雙峰)</option>
+<option value="cauchy" data-zh="Cauchy（CLT 失效！）" data-en="Cauchy (CLT fails!)">Cauchy ⚠️</option>
+</select></div>
+<div class="slider-group"><label><span data-zh="樣本數 n（每次抽幾個取平均）" data-en="Sample size n">樣本數 n</span> <span id="valN">5</span></label><input type="range" id="sliderN" min="1" max="200" value="5" step="1"></div>
+<div id="cltStats" style="font-size:.88rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:160px;"><canvas id="popChart"></canvas></div>
+<p style="font-size:.78rem;color:var(--c-ink-muted);text-align:center;margin:6px 0 12px;"><span data-lang="zh">↑ 母體分布（單次大樣本，N = 5000）</span><span data-lang="en">↑ Population (one large sample, N = 5000)</span></p>
+<div class="chart-container" style="height:240px;"><canvas id="cltChart"></canvas></div>
+<p style="font-size:.78rem;color:var(--c-ink-muted);text-align:center;margin-top:6px;"><span data-lang="zh">↑ 樣本平均的分布（2000 次重複，n 顆觀察取平均）· 紅虛線 = 理論常態（μ, σ/√n）</span><span data-lang="en">↑ Sampling distribution of the mean (2000 reps, n per draw) · Red dashed = theoretical Normal(μ, σ/√n)</span></p>
+</div>
+</section>
+
+<!-- ===== Section 4: Deep dive — history & assumptions ===== -->
+<section class="section">
+<div class="section-label" data-zh="深入討論" data-en="DEEP DIVE">深入討論</div>
+<h2 data-zh="二、CLT 的歷史、假設、與何時失效" data-en="II. CLT's history, assumptions, and when it fails">二、CLT 的歷史與假設</h2>
+
+<div class="split">
+<div>
+<h5 data-zh="從 De Moivre 到 Lyapunov" data-en="From De Moivre to Lyapunov">CLT 簡史</h5>
+<div data-lang="zh"><p><strong>1733 De Moivre</strong>：在《The Doctrine of Chances》第二版證明「擲銅板很多次後，正面比例近似常態」——這是 CLT 的最早版本（二項 → 常態）。<br><strong>1810 Laplace</strong>：推廣為任何 i.i.d. 變數，給出全名「中央極限定理」的雛形。<br><strong>1922 Lindeberg-Lévy</strong>：以現代測度論寫下標準形式，假設只需 i.i.d. + 有限變異。<br><strong>1901 Lyapunov</strong>：放寬到非同分布但獨立的情況（Lyapunov CLT）。</p></div>
+<div data-lang="en"><p><strong>1733 De Moivre</strong>: in the second edition of <em>The Doctrine of Chances</em> he proved the proportion of heads in many coin tosses is approximately normal — the earliest CLT (binomial → normal).<br><strong>1810 Laplace</strong>: extended it to any i.i.d. variables, coining what we now call the Central Limit Theorem.<br><strong>1922 Lindeberg-Lévy</strong>: laid out the modern measure-theoretic statement under i.i.d. + finite variance.<br><strong>1901 Lyapunov</strong>: relaxed to independent-but-not-identically-distributed (Lyapunov's CLT).</p></div>
+</div>
+<div>
+<h5 data-zh="兩條關鍵假設" data-en="Two key assumptions">兩條關鍵假設</h5>
+<div data-lang="zh"><p>(1) <strong>i.i.d.（獨立且同分布）</strong>：每個觀察彼此獨立，且來自同一個分布。Panel data、time series、cluster sampling 都違反這條——必須用 mixed model 或 GEE。<br>(2) <strong>有限變異 σ² &lt; ∞</strong>：Cauchy 分布（t₁）的變異不存在，CLT 失效。Pareto α &lt; 2 的分布也是。<br>除此之外，<strong>不需要原始資料常態</strong>——這是最常被誤解的一點。</p></div>
+<div data-lang="en"><p>(1) <strong>i.i.d. (independent, identically distributed)</strong>: observations independent and from the same population. Panel data, time series, and cluster sampling violate this — use a mixed model or GEE.<br>(2) <strong>Finite variance σ² &lt; ∞</strong>: Cauchy (t₁) has no variance, so CLT fails. Pareto with α &lt; 2 likewise.<br>Otherwise, <strong>raw data normality is not required</strong> — the most widely misread point.</p></div>
+</div>
+</div>
+
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>收斂速率 — Berry-Esseen 界（1941–1942）：</strong>對於 i.i.d. 且有限三階矩 E|X|³ &lt; ∞ 的情況，|F_n(x) − Φ(x)| ≤ C·ρ/(σ³√n)，其中 ρ = E|X − μ|³，C ≈ 0.4748（Shevtsova 2011 最佳常數）。直觀意義：<strong>偏態越大、收斂越慢</strong>。指數分布 n = 30 已不錯，但 log-normal σ = 2 可能要 n &gt; 500。</span>
+<span data-lang="en"><strong>Rate of convergence — Berry-Esseen bound (1941–1942):</strong> for i.i.d. data with finite third moment, |F_n(x) − Φ(x)| ≤ C·ρ/(σ³√n), where ρ = E|X − μ|³, C ≈ 0.4748 (Shevtsova 2011, best constant). Intuition: <strong>the more skewed the data, the slower CLT kicks in.</strong> Exponential is fine at n = 30, but log-normal with σ = 2 may need n &gt; 500.</span>
+</div></div>
+
+<div class="callout danger"><span class="callout-icon">🚫</span><div>
+<span data-lang="zh"><strong>CLT 失效的真實案例：</strong>(1) <strong>Cauchy / 強尾分布</strong>——基因表達單細胞「dropout」資料常有重尾，t 檢定 CI 太窄。(2) <strong>非獨立資料</strong>——同一隻老鼠的多次測量、同一病人的多次抽血，必須用 mixed model（Step 13）。(3) <strong>n 極小且資料極偏</strong>——n = 5、log-normal σ = 3，CLT 完全沒收斂。Hall 1992《Bootstrap and Edgeworth Expansion》詳細推導了偏度如何透過 Edgeworth 展開影響 CI 覆蓋率。</span>
+<span data-lang="en"><strong>Real CLT failures:</strong> (1) <strong>Cauchy / heavy-tailed</strong> — single-cell expression "dropout" data are heavy-tailed; t-CIs are too narrow. (2) <strong>Non-independent data</strong> — repeated measures on the same mouse or patient need a mixed model (Step 13). (3) <strong>Tiny n with extreme skew</strong> — n = 5 on log-normal σ = 3 simply does not converge. Hall (1992, <em>Bootstrap and Edgeworth Expansion</em>) derives how skewness leaks through Edgeworth expansions to distort CI coverage.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 5: Interactive sim 2 — Bootstrap ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="Bootstrap 演示：當 CLT 不可信時的萬用方案" data-en="Bootstrap demo: the universal fallback when CLT is shaky">Bootstrap 演示</h2>
+<div data-lang="zh"><p>當 n 太小或資料太偏，CLT 給出的 t-CI 不可信。Efron 1979 提出 <strong>Bootstrap</strong>：把手上的 n 筆資料當作「迷你母體」，<strong>有放回地重抽 n 筆 B 次</strong>，每次算統計量，得到的分布就是經驗抽樣分布。<br>· <strong>Percentile CI</strong>：取 bootstrap 統計量的 2.5% 與 97.5% 分位數。<br>· <strong>t-CI</strong>：mean ± t·SE/√n，假設常態。<br>當資料偏態時，percentile CI 通常較準。</p></div>
+<div data-lang="en"><p>When n is small or data are skewed, CLT-based t-CIs can mislead. Efron 1979 introduced the <strong>bootstrap</strong>: treat your n data points as a mini-population, <strong>resample n with replacement</strong> B times, compute the statistic each time, and the spread is the empirical sampling distribution.<br>· <strong>Percentile CI</strong>: 2.5th and 97.5th quantiles of the bootstrap statistics.<br>· <strong>t-CI</strong>: mean ± t·SE/√n, assuming normality.<br>For skewed data, the percentile CI is usually more honest.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="原始樣本數 n" data-en="Original sample size n">原始 n</span> <span id="valBn">15</span></label><input type="range" id="sliderBn" min="5" max="100" value="15" step="1"></div>
+<div class="slider-group"><label><span data-zh="Bootstrap 重複次數 B" data-en="Bootstrap reps B">Bootstrap B</span> <span id="valBb">2000</span></label><input type="range" id="sliderBb" min="200" max="5000" value="2000" step="100"></div>
+<div class="slider-group"><label><span data-zh="母體偏態（log-normal σ）" data-en="Population skew (log-normal σ)">母體偏態</span> <span id="valBs">1.0</span></label><input type="range" id="sliderBs" min="0.1" max="2.5" value="1.0" step="0.1"></div>
+<div id="bootStats" style="font-size:.88rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:260px;"><canvas id="bootChart"></canvas></div>
+<p style="font-size:.78rem;color:var(--c-ink-muted);text-align:center;margin-top:6px;"><span data-lang="zh">綠色 = Bootstrap 平均分布 · 藍虛線 = 95% percentile CI · 紅虛線 = t-CI · 黑色 = 觀察到的 mean</span><span data-lang="en">Green = bootstrap mean distribution · Blue dashed = 95% percentile CI · Red dashed = t-CI · Black = observed mean</span></p>
+</div>
+
+<div class="idea">
+<span data-lang="zh"><strong>BCa（Bias-Corrected accelerated）CI：</strong>DiCiccio & Efron 1996 進一步改良 percentile CI，校正偏態與「加速因子」a。R: <code>boot::boot.ci(b, type="bca")</code>；Python: <code>scipy.stats.bootstrap(method="BCa")</code>。對於中等偏態資料，BCa 比 percentile 更準。</span>
+<span data-lang="en"><strong>BCa (Bias-Corrected accelerated) CI:</strong> DiCiccio & Efron (1996) refined the percentile CI by correcting for skewness and an "acceleration" factor a. R: <code>boot::boot.ci(b, type="bca")</code>; Python: <code>scipy.stats.bootstrap(method="BCa")</code>. For moderately skewed data, BCa beats plain percentile.</span>
+</div>
+</section>
+
+<!-- ===== Section 6: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="三、Parametric CI vs Bootstrap CI vs CLT-based CI" data-en="III. Parametric CI vs Bootstrap CI vs CLT-based CI">三、CI 怎麼選？</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="信賴區間方法決策樹" data-en="Confidence interval decision tree">信賴區間決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>資料近似常態，且 n &gt; 20？<span class="dt-arrow">→ 是 →</span> <strong>t-CI</strong>：mean ± t<sub>n−1, 0.975</sub>·s/√n。簡單、精確、論文預設。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>資料偏態但 n ≥ 30，且無極端 outlier？<span class="dt-arrow">→ 是 →</span> <strong>CLT-based t-CI 仍可用</strong>（CLT 收斂中），或對數轉換後再用 t-CI。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>資料嚴重偏態、n 小（&lt; 20）、或統計量不是 mean（如 median、相關係數）？<span class="dt-arrow">→ 是 →</span> <strong>Bootstrap percentile / BCa CI</strong>（Efron-Tibshirani 1993）。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>比例 (proportion) 資料？<span class="dt-arrow">→ 是 →</span> <strong>Wilson 或 Clopper-Pearson CI</strong>（不要用 mean ± 1.96·SE，n 小時覆蓋率差）。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>有重複測量、cluster、time-series？<span class="dt-arrow">→ 是 →</span> 不能直接 bootstrap 個別觀察——<strong>cluster bootstrap</strong> 或直接用 mixed model（Step 13）。</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>抽樣 &gt; 5% 的有限母體？<span class="dt-arrow">→ 是 →</span> 加上 <strong>finite-population correction</strong> (FPC) = √((N−n)/(N−1))。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>Roughly normal data with n &gt; 20? <span class="dt-arrow">→ Yes →</span> <strong>t-CI</strong>: mean ± t<sub>n−1, 0.975</sub>·s/√n. Simple, precise, the default for papers.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>Skewed but n ≥ 30 and no extreme outliers? <span class="dt-arrow">→ Yes →</span> <strong>CLT-based t-CI still acceptable</strong> (CLT is converging) — or log-transform first.</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Strong skew, small n (&lt; 20), or statistic ≠ mean (median, correlation)? <span class="dt-arrow">→ Yes →</span> <strong>Bootstrap percentile / BCa CI</strong> (Efron-Tibshirani 1993).</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Proportion data? <span class="dt-arrow">→ Yes →</span> <strong>Wilson or Clopper-Pearson CI</strong> — never mean ± 1.96·SE for small n.</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Repeated measures, clusters, time series? <span class="dt-arrow">→ Yes →</span> Don't bootstrap individual rows — use <strong>cluster bootstrap</strong> or a mixed model (Step 13).</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>Sampling &gt; 5% of a finite population? <span class="dt-arrow">→ Yes →</span> Apply the <strong>finite-population correction</strong> √((N−n)/(N−1)).</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 7: Comparison table ===== -->
+<section class="section">
+<div class="section-label" data-zh="對照表" data-en="COMPARISON TABLE">對照表</div>
+<h2 data-zh="四、SD / SE / 95% CI / Bootstrap CI——一張表看懂" data-en="IV. SD / SE / 95% CI / Bootstrap CI — one table">四、四種誤差條怎麼用？</h2>
+
+<table class="comp-table">
+<thead><tr>
+<th data-zh="量" data-en="Quantity">量</th>
+<th data-zh="意義" data-en="Meaning">意義</th>
+<th data-zh="公式" data-en="Formula">公式</th>
+<th data-zh="何時用" data-en="When to use">何時用</th>
+<th data-zh="陷阱" data-en="Pitfall">陷阱</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>SD</strong></td>
+<td data-lang="zh">資料的離散</td><td data-lang="zh">s = √(Σ(xᵢ−x̄)²/(n−1))</td><td data-lang="zh">描述個體差異</td><td data-lang="zh">不隨 n 變小</td>
+<td data-lang="en">Data spread</td><td data-lang="en">s = √(Σ(xᵢ−x̄)²/(n−1))</td><td data-lang="en">Describe individual variation</td><td data-lang="en">Does not shrink with n</td></tr>
+<tr><td><strong>SE (SEM)</strong></td>
+<td data-lang="zh">mean 估計的精確度</td><td data-lang="zh">SE = s/√n</td><td data-lang="zh">罕用——通常該用 CI</td><td data-lang="zh"><span style="color:var(--c-danger)">勿當 SD 報</span></td>
+<td data-lang="en">Precision of the mean estimate</td><td data-lang="en">SE = s/√n</td><td data-lang="en">Rarely the right report — usually use a CI</td><td data-lang="en"><span style="color:var(--c-danger)">Do not report as SD</span></td></tr>
+<tr><td><strong>95% t-CI</strong></td>
+<td data-lang="zh">mean 的 95% 信賴區間（CLT 推導）</td><td data-lang="zh">x̄ ± t<sub>n−1, 0.975</sub>·s/√n</td><td data-lang="zh">資料近似常態 / n ≥ 20</td><td data-lang="zh">n 小且偏態時覆蓋率差</td>
+<td data-lang="en">95% CI for the mean (CLT-based)</td><td data-lang="en">x̄ ± t<sub>n−1, 0.975</sub>·s/√n</td><td data-lang="en">Approx. normal data / n ≥ 20</td><td data-lang="en">Poor coverage when n is small and data skewed</td></tr>
+<tr><td><strong>Bootstrap CI</strong></td>
+<td data-lang="zh">經驗抽樣分布的分位數</td><td data-lang="zh">2.5%, 97.5% 分位數（percentile）；或 BCa</td><td data-lang="zh">偏態、n 小、統計量複雜</td><td data-lang="zh">n &lt; 10 時不穩定</td>
+<td data-lang="en">Quantiles of empirical sampling distribution</td><td data-lang="en">2.5th / 97.5th percentile, or BCa</td><td data-lang="en">Skewed data, small n, complex statistics</td><td data-lang="en">Unstable when n &lt; 10</td></tr>
+<tr><td><strong>Wilson CI (proportion)</strong></td>
+<td data-lang="zh">比例的 95% CI</td><td data-lang="zh">(p̂ + z²/2n ± z√(p̂q̂/n + z²/4n²)) / (1+z²/n)</td><td data-lang="zh">二元結果，n 小或 p 極端</td><td data-lang="zh">不要用 p̂ ± 1.96·SE</td>
+<td data-lang="en">95% CI for a proportion</td><td data-lang="en">(p̂ + z²/2n ± z√(p̂q̂/n + z²/4n²)) / (1+z²/n)</td><td data-lang="en">Binary outcome, small n or extreme p</td><td data-lang="en">Avoid p̂ ± 1.96·SE (Wald)</td></tr>
+</tbody></table>
+
+<div class="idea">
+<span data-lang="zh"><strong>論文寫法建議（Cumming 2014 Psychol Sci 倡議）：</strong>結果段落報 <strong>mean (95% CI)</strong>；表格 1 / 描述統計報 mean ± SD；圖中的誤差條清楚標示「error bars = 95% CI」或「= SD」。<strong>勿用 SEM 當誤差條</strong>——讀者無法解釋。</span>
+<span data-lang="en"><strong>Reporting advice (Cumming 2014 Psychol Sci):</strong> in results paragraphs report <strong>mean (95% CI)</strong>; in Table 1 report mean ± SD; on figures clearly state "error bars = 95% CI" or "= SD". <strong>Do not use SEM error bars</strong> — readers cannot interpret them.</span>
+</div>
+</section>
+
+<!-- ===== Section 8: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="五、實作範例：抽樣、CLT、Bootstrap CI" data-en="V. Code examples: sample, CLT, bootstrap CI">五、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R / boot</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python / scipy</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: CLT demo + bootstrap CI</span>
+<span class="func">library</span>(tidyverse); <span class="func">library</span>(boot)
+
+<span class="comment"># --- 1) Simulate CLT: exponential population ---</span>
+n  &lt;- <span class="num">30</span>
+sims &lt;- <span class="func">replicate</span>(<span class="num">5000</span>, <span class="func">mean</span>(<span class="func">rexp</span>(n, rate = <span class="num">1</span>)))
+<span class="func">hist</span>(sims, breaks = <span class="num">40</span>, main = <span class="str">"Sampling distribution of X̄"</span>)
+<span class="func">qqnorm</span>(sims); <span class="func">qqline</span>(sims, col = <span class="str">"red"</span>)
+
+<span class="comment"># --- 2) SE vs SD ---</span>
+x  &lt;- <span class="func">rnorm</span>(<span class="num">100</span>, mean = <span class="num">120</span>, sd = <span class="num">15</span>)
+sd_x &lt;- <span class="func">sd</span>(x)                   <span class="comment"># data spread (~15)</span>
+se_x &lt;- sd_x / <span class="func">sqrt</span>(<span class="func">length</span>(x))   <span class="comment"># mean precision (~1.5)</span>
+
+<span class="comment"># --- 3) Classic t-CI (CLT-based) ---</span>
+ci_t &lt;- <span class="func">t.test</span>(x)$conf.int          <span class="comment"># 95% t-CI</span>
+
+<span class="comment"># --- 4) Bootstrap percentile + BCa CI ---</span>
+b &lt;- <span class="func">boot</span>(x, statistic = <span class="kw">function</span>(d, i) <span class="func">mean</span>(d[i]), R = <span class="num">2000</span>)
+<span class="func">boot.ci</span>(b, type = <span class="func">c</span>(<span class="str">"perc"</span>, <span class="str">"bca"</span>))
+
+<span class="comment"># --- 5) Finite-population correction ---</span>
+N &lt;- <span class="num">500</span>; n &lt;- <span class="num">60</span>
+fpc &lt;- <span class="func">sqrt</span>((N - n) / (N - <span class="num">1</span>))
+se_fpc &lt;- (sd_x / <span class="func">sqrt</span>(n)) * fpc</pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
 <span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
-<span class="comment"># set sample size n and number of simulations m</span>
-n = <span class="num">30</span>; m = <span class="num">1000</span>
-<span class="comment"># generate m×n matrix of exponential samples</span>
-samples = np.<span class="func">random</span>.exponential(scale=<span class="num">1</span>, size=(m, n))
-<span class="comment"># compute sample means</span>
-means = samples.mean(axis=<span class="num">1</span>)
-<span class="comment"># print mean and standard deviation</span>
-print(means.mean(), means.std())
-<span class="comment"># plot histogram of sample means</span>
-plt.<span class="func">hist</span>(means, bins=<span class="num">30</span>)
-plt.<span class="func">xlabel</span>(<span class="str">'sample mean'</span>)
-plt.<span class="func">title</span>(<span class="str">'Sampling distribution of means'</span>)
-plt.<span class="func">show</span>()</code></pre>
-        </div>
-      </div>
-    </section>
-    <div class="page-nav">
-      <a href="distributions.html">
-        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
-        <span class="nav-title" data-zh="機率分布" data-en="Distributions">機率分布</span>
-      </a>
-      <a href="hypothesis.html">
-        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
-        <span class="nav-title" data-zh="假設檢定" data-en="Hypothesis Testing">假設檢定</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    // Define histogram drawer locally to avoid relying on external modules.
-    function drawHistogram(ctx, values, bins = 30) {
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const width = (max - min) / bins;
-      const counts = new Array(bins).fill(0);
-      values.forEach(v => {
-        const idx = Math.min(Math.floor((v - min) / width), bins - 1);
-        counts[idx]++;
-      });
-      const labels = counts.map((_, i) => (min + i * width).toFixed(2));
-      return new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Frequency',
-            data: counts,
-            backgroundColor: 'rgba(26,107,90,0.6)',
-            borderColor: 'rgba(26,107,90,1)',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            x: { title: { display: true, text: '' } },
-            y: { beginAtZero: true }
-          },
-          responsive: true,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-    let cltChart;
-    // Simulate sampling and compute sample means
-    function simulate(pop, n, m) {
-      const means = [];
-      for (let i = 0; i < m; i++) {
-        let sum = 0;
-        for (let j = 0; j < n; j++) {
-          let x;
-          if (pop === 'uniform') {
-            x = Math.random();
-          } else if (pop === 'exponential') {
-            // exponential with lambda=1 using inverse transform
-            x = -Math.log(1 - Math.random());
-          }
-          sum += x;
-        }
-        means.push(sum / n);
-      }
-      return means;
-    }
-    // Called when user clicks Simulate button
-    function runSimulation() {
-      const pop = document.getElementById('popDist').value;
-      const n = parseInt(document.getElementById('sampleSize').value);
-      const m = parseInt(document.getElementById('numSamples').value);
-      const means = simulate(pop, n, m);
-      const output = document.getElementById('cltOutput');
-      const avg = means.reduce((a,b) => a+b, 0) / means.length;
-      const varMean = means.reduce((s, x) => s + Math.pow(x - avg, 2), 0) / (means.length - 1);
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      output.innerHTML = `<p><strong>${lang === 'zh' ? '樣本均值平均' : 'Mean of sample means'}:</strong> ${avg.toFixed(3)} | <strong>${lang === 'zh' ? '樣本均值標準差' : 'Std Dev of sample means'}:</strong> ${Math.sqrt(varMean).toFixed(3)}</p>`;
-      const ctx = document.getElementById('cltCanvas').getContext('2d');
-      if (cltChart) cltChart.destroy();
-      cltChart = drawHistogram(ctx, means, 30);
-    }
-    // Expose to global scope so onclick works
-    window.runSimulation = runSimulation;
 
-    // Quiz function for the CLT page. Determines which option the user selected
-    // and provides feedback. The correct answer is that the sample must be both
-    // random and independent (option value "both"). If no option is selected or
-    // the wrong option is chosen, the feedback explains why.  Messages adapt to
-    // the current language.
-    function checkCltQuiz() {
-      const opts = document.getElementsByName('quizCLT');
-      let val = '';
-      for (const opt of opts) {
-        if (opt.checked) { val = opt.value; break; }
-      }
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      let msg;
-      if (!val) {
-        msg = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
-      } else if (val === 'both') {
-        msg = lang === 'zh'
-          ? '答對了！隨機且獨立是應用中心極限定理的必要條件之一。'
-          : 'Correct! Random sampling and independence are required for the CLT.';
-      } else {
-        msg = lang === 'zh'
-          ? '不正確，中心極限定理需要樣本隨機且彼此獨立，且樣本大小足夠。'
-          : 'Incorrect. The CLT requires both random sampling and independent observations, along with a sufficiently large sample.';
-      }
-      const fb = document.getElementById('cltQuizFeedback');
-      if (fb) fb.textContent = msg;
-    }
-    window.checkCltQuiz = checkCltQuiz;
+rng = np.random.<span class="func">default_rng</span>(<span class="num">0</span>)
 
-    // Tab switching logic for code examples. Activates the clicked tab and its
-    // corresponding content within the same .code-tabs container.
-    function switchTab(btn, id) {
-      const tabs = btn.closest('.code-tabs');
-      if (!tabs) return;
-      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
-      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
-      btn.classList.add('active');
-      const panel = document.getElementById(id);
-      if (panel) panel.classList.add('active');
-    }
-    window.switchTab = switchTab;
+<span class="comment"># --- 1) Simulate CLT: exponential population ---</span>
+n = <span class="num">30</span>
+sims = np.array([rng.<span class="func">exponential</span>(<span class="num">1</span>, n).<span class="func">mean</span>() <span class="kw">for</span> _ <span class="kw">in</span> <span class="func">range</span>(<span class="num">5000</span>)])
+plt.<span class="func">hist</span>(sims, bins=<span class="num">40</span>); plt.<span class="func">title</span>(<span class="str">"Sampling distribution of X̄"</span>); plt.<span class="func">show</span>()
+stats.<span class="func">probplot</span>(sims, plot=plt); plt.<span class="func">show</span>()
 
-    // Copy code from a given code block to the clipboard. Provides temporary
-    // visual feedback by changing the button text. Errors are silently ignored
-    // since clipboard operations might not be permitted on all browsers.
-    function copyCode(codeId, btn) {
-      const el = document.getElementById(codeId);
-      if (!el) return;
-      const text = el.innerText;
-      const original = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      navigator.clipboard.writeText(text).catch(() => {});
-      setTimeout(() => {
-        btn.textContent = original;
-        btn.classList.remove('copied');
-      }, 1200);
-    }
-    window.copyCode = copyCode;
-  </script>
-</body>
-</html>
+<span class="comment"># --- 2) SE vs SD ---</span>
+x = rng.<span class="func">normal</span>(<span class="num">120</span>, <span class="num">15</span>, <span class="num">100</span>)
+sd_x = x.<span class="func">std</span>(ddof=<span class="num">1</span>)
+se_x = sd_x / np.<span class="func">sqrt</span>(<span class="func">len</span>(x))
+
+<span class="comment"># --- 3) Classic t-CI (CLT-based) ---</span>
+ci_t = stats.<span class="func">t</span>.<span class="func">interval</span>(<span class="num">0.95</span>, df=<span class="func">len</span>(x)-<span class="num">1</span>, loc=x.<span class="func">mean</span>(), scale=se_x)
+
+<span class="comment"># --- 4) Bootstrap percentile + BCa (scipy ≥ 1.7) ---</span>
+res = stats.<span class="func">bootstrap</span>((x,), np.<span class="func">mean</span>,
+                       n_resamples=<span class="num">2000</span>, method=<span class="str">"BCa"</span>,
+                       confidence_level=<span class="num">0.95</span>, random_state=rng)
+res.confidence_interval         <span class="comment"># (low, high)</span>
+
+<span class="comment"># --- 5) Finite-population correction ---</span>
+N, n = <span class="num">500</span>, <span class="num">60</span>
+fpc  = np.<span class="func">sqrt</span>((N - n) / (N - <span class="num">1</span>))
+se_fpc = (sd_x / np.<span class="func">sqrt</span>(n)) * fpc</pre></div>
+</div>
+
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>練習：</strong>下次跑 t 檢定前，先用 <code>boot::boot.ci()</code> 或 <code>scipy.stats.bootstrap()</code> 對同一份資料做 BCa CI，比較兩者寬度。若兩個 CI 差很多，<strong>你的資料對 CLT 來說太偏</strong>，應該優先使用 bootstrap 結果，並考慮對數轉換。</span>
+<span data-lang="en"><strong>Exercise:</strong> Before running your next t-test, also compute a BCa CI with <code>boot::boot.ci()</code> or <code>scipy.stats.bootstrap()</code> and compare widths. If they differ noticeably, <strong>your data are too skewed for CLT</strong> — prefer the bootstrap result and consider a log transform.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 9: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="六、六個 CLT / Bootstrap 常見錯誤" data-en="VI. Six common CLT / bootstrap errors">六、六個常見錯誤</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="把 SE 當 SD 報" data-en="Reporting SE as if it were SD">SE 不是 SD</span></h4>
+<div data-lang="zh"><p>n 越大 SEM 越小，誤差條看起來「漂亮」——但這只是估計的精度，不是資料散布。<strong>Curran-Everett 2008</strong>：報告變異請用 SD 或 IQR；報告精度請用 95% CI。SEM 幾乎沒有獨立用途。</p></div>
+<div data-lang="en"><p>Bigger n shrinks SEM and makes error bars look tidy — but that's estimate precision, not data spread. <strong>Curran-Everett 2008</strong>: report SD or IQR for spread, 95% CI for precision. SEM has almost no standalone use.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="CLT 要求原始資料常態？" data-en="CLT requires raw normality?">CLT 是關於 mean，不是原始資料</span></h4>
+<div data-lang="zh"><p>常見錯誤：「我的資料不常態，所以 t 檢定不能用」。<strong>CLT 是對樣本平均的陳述</strong>——只要 n 夠大、變異有限，X̄ 就近似常態，t 檢定就能用。檢測 raw data normality（Shapiro-Wilk）本身意義有限。</p></div>
+<div data-lang="en"><p>Common mistake: "My data aren't normal, so the t-test isn't valid." <strong>CLT is about the sample mean</strong>, not the raw data. If n is large enough and the variance is finite, X̄ is approximately normal and t still works. Testing raw-data normality (Shapiro-Wilk) is largely a distraction.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Bootstrap with tiny n" data-en="Bootstrap with tiny n">Bootstrap 不是萬靈丹</span></h4>
+<div data-lang="zh"><p>當 n &lt; 10，bootstrap 重抽的只是同樣 10 個值的不同組合——抽樣分布幾乎沒有資訊。<strong>Chernick 2008</strong>：n &lt; 10 時 bootstrap CI 不穩定；理想 n ≥ 30。極端情況需用 Bayesian 或精確檢定。</p></div>
+<div data-lang="en"><p>With n &lt; 10, the bootstrap just rearranges the same 10 values — the sampling distribution carries little information. <strong>Chernick 2008</strong>: bootstrap CIs are unstable when n &lt; 10; n ≥ 30 is ideal. Extreme small-sample problems call for Bayesian or exact methods.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="忽略相依性（panel data）" data-en="Ignoring dependence (panel data)">忽略相依性</span></h4>
+<div data-lang="zh"><p>同一隻老鼠的 3 個切片不是獨立——把 n 寫成「老鼠數 × 切片數」會誇大有效樣本數，SE 太小、p 值太小。<strong>Lazic 2010 BMC Neurosci</strong>：使用 mixed model 或 cluster bootstrap，把生物 / 技術重複分開處理。</p></div>
+<div data-lang="en"><p>Three slices from the same mouse are not independent. Counting "n = mice × slices" inflates the effective sample size, shrinks SE, and shrinks p. <strong>Lazic 2010 BMC Neurosci</strong>: use mixed models or cluster bootstrap to keep biological and technical replication separate.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="Cauchy / 重尾資料用 CLT" data-en="CLT on Cauchy / heavy tails">CLT 不適用 Cauchy</span></h4>
+<div data-lang="zh"><p>單細胞表達資料、收入、保險賠付都可能是重尾。對於 Pareto α &lt; 2 或 Cauchy，<strong>變異不存在 → CLT 失效</strong>。應改用 median 與 quantile-based 推論，或 stable distribution。</p></div>
+<div data-lang="en"><p>Single-cell expression, income, insurance payouts can be heavy-tailed. For Pareto with α &lt; 2 or Cauchy, <strong>variance does not exist → CLT fails</strong>. Use medians and quantile-based inference, or stable distributions.</p></div>
+</div>
+<div class="card"><h4>❌ <span data-zh="抽樣 &gt; 5% 母體未校正" data-en="Sampling &gt; 5% without FPC">忘記 FPC</span></h4>
+<div data-lang="zh"><p>抽樣全國醫院 500 家中的 100 家（占 20%），不加 finite-population correction (FPC) 會高估 SE。FPC = √((N−n)/(N−1))，當 n/N → 1 時 SE → 0。Cochran 1977《Sampling Techniques》。</p></div>
+<div data-lang="en"><p>Sampling 100 of 500 hospitals (20%) without the finite-population correction overstates SE. FPC = √((N−n)/(N−1)); as n/N → 1, SE → 0. See Cochran 1977 <em>Sampling Techniques</em>.</p></div>
+</div>
+</div>
+
+<div class="pitfall">
+<span class="pitfall-title" data-zh="陷阱：n = 30 不是魔法數字" data-en="Pitfall: n = 30 is not a magic number">陷阱：n = 30 不是魔法數字</span>
+<span data-lang="zh">教科書常說「n ≥ 30 就可以用 CLT」。事實上：對均勻 / 近常態母體，<strong>n = 10 已經夠</strong>；對指數母體，n = 30 大致 OK；對 log-normal σ = 2 的母體，<strong>n = 500 仍不夠</strong>（Berry-Esseen 邊界給出 |F_n − Φ| ~ ρ/√n，其中 ρ 隨偏態三次方放大）。實務做法：跑一次 simulation 看 X̄ 的 QQ plot，或乾脆用 bootstrap CI 與 t-CI 比較。</span>
+<span data-lang="en">Textbooks repeat "n ≥ 30 and CLT is fine." Reality: for uniform / near-normal populations, <strong>n = 10 is plenty</strong>; for exponential, n = 30 is roughly OK; for log-normal with σ = 2, <strong>n = 500 is still not enough</strong> (Berry-Esseen gives |F_n − Φ| ~ ρ/√n where ρ scales with skewness cubed). In practice: simulate and inspect the QQ plot of X̄, or simply compare a bootstrap CI to a t-CI.</span>
+</div>
+</section>
+
+<!-- ===== Section 10: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. 在報告 100 位病人的收縮壓（SBP）資料時，論文寫「mean ± SEM = 132 ± 1.4 mmHg」。最合適的修正是？</p>
+<p data-lang="en">1. A paper reports systolic BP for 100 patients as "mean ± SEM = 132 ± 1.4 mmHg." The best correction is?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 把 SEM 改成 SD 但數值不變（132 ± 1.4）</span><span data-lang="en">A. Keep the number but relabel SEM as SD (132 ± 1.4)</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 還是用 SEM，因為誤差條看起來小</span><span data-lang="en">B. Keep SEM because the error bar looks small</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 改報 mean ± SD（132 ± 14）描述離散，並另外寫 95% CI 描述精度</span><span data-lang="en">C. Report mean ± SD (132 ± 14) for spread and add a 95% CI for precision</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 只報 median + IQR，永遠不用 mean</span><span data-lang="en">D. Always report only median + IQR</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">2. 同事看到單細胞 RNA-seq 某基因表達量 QQ plot 嚴重偏離 45° 線，建議「不要做 t 檢定」。最合適的回應？</p>
+<p data-lang="en">2. A colleague sees a single-cell RNA-seq gene-expression QQ plot deviates badly from the 45° line and says "don't run a t-test." Best response?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 同意，t 檢定永遠要求原始資料常態</span><span data-lang="en">A. Agree — t-tests always require raw-data normality</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 把所有 outlier 刪除直到資料看起來常態</span><span data-lang="en">B. Delete outliers until the data look normal</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. CLT 是關於樣本平均的——n 夠大時 X̄ 仍近常態。可進一步用 bootstrap CI 驗證</span><span data-lang="en">C. CLT is about the sample mean — X̄ is still ~ normal for large n. Confirm with a bootstrap CI</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 改用 χ² 檢定</span><span data-lang="en">D. Switch to a chi-square test</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">3. 你只有 n = 8 個樣本，分布看起來右偏。下列哪個 CI 方法最不可靠？</p>
+<p data-lang="en">3. You have n = 8 samples that look right-skewed. Which CI method is least reliable?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 對數轉換後再做 t-CI</span><span data-lang="en">A. Log-transform then t-CI</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. Bootstrap BCa CI（注意 n 偏小，並報告限制）</span><span data-lang="en">B. Bootstrap BCa CI (note small n and report the limitation)</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 直接用 mean ± 1.96·SE 假設 CLT 已收斂</span><span data-lang="en">C. mean ± 1.96·SE assuming CLT has converged</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 報告 median + 非參數的 Hodges-Lehmann CI</span><span data-lang="en">D. Median + non-parametric Hodges-Lehmann CI</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="0">
+<p data-lang="zh">4. 從 500 家醫院中隨機抽 100 家做平均住院費調查。要計算 mean 的 95% CI，應該？</p>
+<p data-lang="en">4. From 500 hospitals you randomly sample 100 to estimate mean length-of-stay. To compute a 95% CI for the mean you should?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 使用 finite-population correction：SE × √((N−n)/(N−1))</span><span data-lang="en">A. Apply the finite-population correction: SE × √((N−n)/(N−1))</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 把 n 從 100 改成 500，因為要代表所有醫院</span><span data-lang="en">B. Pretend n = 500 because we represent all hospitals</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 不可能算 CI，因為抽樣不是完全隨機</span><span data-lang="en">C. No CI is possible because sampling isn't fully random</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 直接用 SE = s/√n 不需校正</span><span data-lang="en">D. Use SE = s/√n without correction</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="distributions.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="Step 2：機率分布" data-en="Step 2: Distributions">Step 2：機率分布</span></a><a href="hypothesis.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 4：假設檢定" data-en="Step 4: Hypothesis Testing">Step 4：假設檢定</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== Random helpers =====
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function bin(arr,nbins,mn,mx){if(mn===undefined)mn=Math.min(...arr);if(mx===undefined)mx=Math.max(...arr);const w=(mx-mn)/nbins;const c=new Array(nbins).fill(0);arr.forEach(v=>{let k=Math.floor((v-mn)/w);if(k>=nbins)k=nbins-1;if(k<0)k=0;c[k]++;});return{labels:c.map((_,i)=>(mn+w*(i+0.5)).toFixed(2)),data:c,binW:w,mn:mn,mx:mx};}
+function quantile(a,q){const s=[...a].sort((x,y)=>x-y);const i=(s.length-1)*q;const lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo);}
+function mean(a){return a.reduce((x,y)=>x+y,0)/a.length;}
+function sdev(a){const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)*(v-m),0)/(a.length-1));}
+
+// ===== Population samplers (return single observation) =====
+function drawPop(type){
+  if(type==='unif') return Math.random()*10;
+  if(type==='exp') return -Math.log(Math.random());
+  if(type==='bimod'){const c=Math.random()<0.5?2:8;return c+randn()*0.6;}
+  if(type==='cauchy') return Math.tan(Math.PI*(Math.random()-0.5));
+  return Math.random();
+}
+function popTheory(type){
+  if(type==='unif') return {mu:5,sigma:Math.sqrt(100/12)};
+  if(type==='exp') return {mu:1,sigma:1};
+  if(type==='bimod') return {mu:5,sigma:Math.sqrt(9+0.36)}; // var = (5-5)^2 avg of (2-5)^2,(8-5)^2 = 9 + within-cluster 0.36
+  if(type==='cauchy') return {mu:NaN,sigma:NaN};
+}
+
+// ===== Sim 1: CLT demo =====
+const popChart=new Chart(document.getElementById('popChart'),{type:'bar',data:{labels:[],datasets:[{data:[],backgroundColor:'rgba(180,83,9,0.55)',borderColor:'rgba(180,83,9,0.9)',borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'value (population)'},ticks:{maxTicksLimit:8}},y:{title:{display:true,text:'count'}}}}});
+const cltChart=new Chart(document.getElementById('cltChart'),{type:'bar',data:{labels:[],datasets:[
+  {label:'sample mean',data:[],backgroundColor:'rgba(15,118,110,0.55)',borderColor:'rgba(15,118,110,0.9)',borderWidth:1,order:2},
+  {label:'N(μ,σ/√n)',type:'line',data:[],borderColor:'rgba(192,57,43,0.9)',borderDash:[5,4],borderWidth:2,pointRadius:0,fill:false,tension:0.3,order:1}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'sample mean X̄'},ticks:{maxTicksLimit:10}},y:{title:{display:true,text:'count'}}}}});
+
+function upClt(){
+  const type=document.getElementById('popType').value;
+  const n=+document.getElementById('sliderN').value;
+  document.getElementById('valN').textContent=n;
+  // Population sample
+  const pop=[];for(let i=0;i<5000;i++)pop.push(drawPop(type));
+  // For Cauchy, clip plotting range
+  let pmn,pmx;
+  if(type==='cauchy'){pmn=-10;pmx=10;}
+  else {pmn=Math.min(...pop);pmx=Math.max(...pop);}
+  const popBin=bin(pop.filter(v=>v>=pmn&&v<=pmx),30,pmn,pmx);
+  popChart.data.labels=popBin.labels;popChart.data.datasets[0].data=popBin.data;popChart.update('none');
+  // Sample-mean sims
+  const sims=[];for(let i=0;i<2000;i++){let s=0;for(let j=0;j<n;j++)s+=drawPop(type);sims.push(s/n);}
+  let smn,smx;
+  if(type==='cauchy'){smn=-10;smx=10;}
+  else {const q=quantile(sims,0.005),qh=quantile(sims,0.995);smn=q;smx=qh;}
+  const simsClip=sims.filter(v=>v>=smn&&v<=smx);
+  const sb=bin(simsClip,30,smn,smx);
+  cltChart.data.labels=sb.labels;cltChart.data.datasets[0].data=sb.data;
+  // Theoretical normal overlay
+  const theory=popTheory(type);
+  let overlay=new Array(sb.labels.length).fill(null);
+  if(type!=='cauchy'){
+    const peak=Math.max(...sb.data);
+    const sigmaN=theory.sigma/Math.sqrt(n);
+    overlay=sb.labels.map(l=>{const x=+l;const z=(x-theory.mu)/sigmaN;return peak*Math.exp(-0.5*z*z);});
+  }
+  cltChart.data.datasets[1].data=overlay;
+  cltChart.update('none');
+  // Stats panel
+  const mObs=mean(sims),sObs=sdev(sims);
+  const L=I18n.get();
+  const seTheory=theory.sigma/Math.sqrt(n);
+  const isC=type==='cauchy';
+  document.getElementById('cltStats').innerHTML=L==='zh'?
+    `<strong>母體</strong>：${type==='unif'?'Uniform(0,10)':type==='exp'?'Exp(1)':type==='bimod'?'Bimodal':'Cauchy(0,1)'} · n = ${n}<br><strong>樣本平均的觀察 SD</strong> = ${sObs.toFixed(3)} ${isC?' (Cauchy 變異不存在！)':' · <strong>理論 SE = σ/√n</strong> = '+seTheory.toFixed(3)}<br><strong>觀察 mean of means</strong> = ${mObs.toFixed(3)} ${isC?' (亂跳)':' · 理論 μ = '+theory.mu}` :
+    `<strong>Population</strong>: ${type==='unif'?'Uniform(0,10)':type==='exp'?'Exp(1)':type==='bimod'?'Bimodal':'Cauchy(0,1)'} · n = ${n}<br><strong>Observed SD of X̄</strong> = ${sObs.toFixed(3)} ${isC?' (Cauchy variance does not exist!)':' · <strong>Theoretical SE = σ/√n</strong> = '+seTheory.toFixed(3)}<br><strong>Observed mean of means</strong> = ${mObs.toFixed(3)} ${isC?' (wildly jumping)':' · Theoretical μ = '+theory.mu}`;
+}
+document.getElementById('popType').addEventListener('change',upClt);
+document.getElementById('sliderN').addEventListener('input',upClt);
+document.addEventListener('langchange',upClt);
+upClt();
+
+// ===== Sim 2: Bootstrap demo =====
+const bootChart=new Chart(document.getElementById('bootChart'),{type:'bar',data:{labels:[],datasets:[
+  {label:'boot mean',data:[],backgroundColor:'rgba(15,118,110,0.55)',borderColor:'rgba(15,118,110,0.9)',borderWidth:1}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},annotation:{}},scales:{x:{title:{display:true,text:'bootstrap mean'},ticks:{maxTicksLimit:10}},y:{title:{display:true,text:'count'}}}}});
+
+function upBoot(){
+  const n=+document.getElementById('sliderBn').value;
+  const B=+document.getElementById('sliderBb').value;
+  const skewSig=+document.getElementById('sliderBs').value;
+  document.getElementById('valBn').textContent=n;
+  document.getElementById('valBb').textContent=B;
+  document.getElementById('valBs').textContent=skewSig.toFixed(1);
+  // Draw one original sample from log-normal
+  const samp=[];for(let i=0;i<n;i++)samp.push(Math.exp(randn()*skewSig));
+  const xbar=mean(samp),s=sdev(samp),se=s/Math.sqrt(n);
+  // t-CI (df = n-1, approximate t-quantile by 1.96 for large n, t by table for small)
+  const tcrit=n<2?12:(n<=5?2.776:(n<=10?2.262:(n<=20?2.093:(n<=30?2.045:1.96))));
+  const tLo=xbar-tcrit*se,tHi=xbar+tcrit*se;
+  // Bootstrap means
+  const bMeans=[];for(let b=0;b<B;b++){let sum=0;for(let i=0;i<n;i++){sum+=samp[Math.floor(Math.random()*n)];}bMeans.push(sum/n);}
+  const pLo=quantile(bMeans,0.025),pHi=quantile(bMeans,0.975);
+  // Plot range
+  const lo=Math.min(pLo,tLo,...bMeans),hi=Math.max(pHi,tHi,...bMeans);
+  const pad=(hi-lo)*0.05;
+  const bb=bin(bMeans,30,lo-pad,hi+pad);
+  // Color bars: percentile-CI region green, outside grey
+  const colors=bb.labels.map(lbl=>{const x=+lbl;return (x>=pLo&&x<=pHi)?'rgba(22,163,74,0.55)':'rgba(15,118,110,0.35)';});
+  bootChart.data.labels=bb.labels;bootChart.data.datasets[0].data=bb.data;bootChart.data.datasets[0].backgroundColor=colors;
+  bootChart.update('none');
+  const L=I18n.get();
+  const pWidth=pHi-pLo,tWidth=tHi-tLo;
+  const flag=Math.abs(pWidth-tWidth)/tWidth>0.2;
+  document.getElementById('bootStats').innerHTML=L==='zh'?
+    `<strong>觀察 mean</strong> = ${xbar.toFixed(3)} · <strong>s</strong> = ${s.toFixed(3)} · <strong>SE</strong> = ${se.toFixed(3)}<br><strong>t-CI (95%)</strong>: [${tLo.toFixed(3)}, ${tHi.toFixed(3)}] · 寬度 = ${tWidth.toFixed(3)}<br><strong>Bootstrap percentile CI</strong>: [${pLo.toFixed(3)}, ${pHi.toFixed(3)}] · 寬度 = ${pWidth.toFixed(3)} ${flag?'⚠️ 兩 CI 差距 &gt; 20% → 資料偏態，bootstrap 較可信':''}` :
+    `<strong>Observed mean</strong> = ${xbar.toFixed(3)} · <strong>s</strong> = ${s.toFixed(3)} · <strong>SE</strong> = ${se.toFixed(3)}<br><strong>t-CI (95%)</strong>: [${tLo.toFixed(3)}, ${tHi.toFixed(3)}] · width = ${tWidth.toFixed(3)}<br><strong>Bootstrap percentile CI</strong>: [${pLo.toFixed(3)}, ${pHi.toFixed(3)}] · width = ${pWidth.toFixed(3)} ${flag?'⚠️ CIs differ &gt; 20% → skewed data; trust bootstrap':''}`;
+}
+document.getElementById('sliderBn').addEventListener('input',upBoot);
+document.getElementById('sliderBb').addEventListener('input',upBoot);
+document.getElementById('sliderBs').addEventListener('input',upBoot);
+document.addEventListener('langchange',upBoot);
+upBoot();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'SD 描述資料離散、95% CI 描述估計精度；SEM 幾乎沒有獨立用途。',q1_n:'正確選項已標示。',q2_y:'CLT 是關於樣本平均，不是原始資料；n 大時 t 檢定仍可用，必要時用 bootstrap 驗證。',q2_n:'正確選項已標示。',q3_y:'n = 8 時 mean ± 1.96·SE（z-CI）假設 CLT 已收斂，但 n 太小且偏態，這個 CI 覆蓋率最差。',q3_n:'正確選項已標示。',q4_y:'抽樣 n/N = 20% &gt; 5%，必須加 FPC = √((N−n)/(N−1)) 校正 SE。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'SD describes data spread, a 95% CI describes precision; SEM has almost no standalone use.',q1_n:'Correct option highlighted.',q2_y:'CLT is about the sample mean, not the raw data — large n keeps t-tests valid; confirm with bootstrap if needed.',q2_n:'Correct option highlighted.',q3_y:'mean ± 1.96·SE assumes CLT has fully converged — at n = 8 with skew, that\'s the least reliable CI.',q3_n:'Correct option highlighted.',q4_y:'With n/N = 20% &gt; 5%, the finite-population correction √((N−n)/(N−1)) is required.',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>
