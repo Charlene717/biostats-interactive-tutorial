@@ -1,316 +1,564 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>線性回歸 | Biostatistics Tutorial</title>
-  <meta name="description" content="Explore simple linear regression, fit a line to your data and visualize the result.">
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-</head>
-<body>
-  <nav class="top-nav">
-    <div class="top-nav-inner">
-      <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
-      <ul class="top-nav-links">
-        <li><a href="descriptive.html">Desc.</a></li>
-        <li><a href="distributions.html">Dist.</a></li>
-        <li><a href="sampling.html">CLT</a></li>
-        <li><a href="hypothesis.html">Hypoth.</a></li>
-        <li><a href="t-tests.html">t‑tests</a></li>
-        <li><a href="chi-square.html">Chi²</a></li>
-        <li><a href="anova.html">ANOVA</a></li>
-        <li><a href="regression.html" class="active">Regress.</a></li>
-        <li><a href="logistic.html">Logistic</a></li>
-        <li><a href="survival.html">Survival</a></li>
-        <li><a href="power.html">Power</a></li>
-      </ul>
-    </div>
-  </nav>
-  <header class="page-hero">
-    <div style="position:relative;z-index:1;">
-      <div class="step-badge">Step 8</div>
-      <h1 data-zh="線性回歸" data-en="Linear Regression">線性回歸</h1>
-      <p class="subtitle" data-lang="zh">線性回歸尋求兩個變數之間的最佳直線關係，計算斜率與截距並解釋模型決定係數。</p>
-      <p class="subtitle" data-lang="en">Linear regression finds the best‑fitting linear relationship between two variables, computing the slope and intercept and interpreting the coefficient of determination.</p>
-    </div>
-  </header>
-  <main class="content-wrap">
-    <section class="section">
-      <div class="section-label" data-zh="概念" data-en="Concepts">概念</div>
-      <h2 data-zh="最小平方法" data-en="Least Squares">最小平方法</h2>
-      <p data-lang="zh">簡單線性回歸假定自變項 x 與因變項 y 之間呈線性關係 y=β₀+β₁x+ε。透過最小平方法選取斜率 β₁ 和截距 β₀，使預測值與觀察值的平方差總和最小。決定係數 R² 表示模型解釋總變異的比例。</p>
-      <p data-lang="en">The simple linear regression model assumes a linear relationship between the predictor x and response y: y=β₀+β₁x+ε. The least‑squares method chooses the slope β₁ and intercept β₀ to minimise the sum of squared deviations between predicted and observed values. The coefficient of determination R² indicates the proportion of total variation explained by the model.</p>
-    </section>
-    <section class="section">
-      <div class="section-label" data-zh="互動" data-en="Interactive">互動</div>
-      <h2 data-zh="輸入資料並擬合直線" data-en="Enter Data and Fit a Line">輸入資料並擬合直線</h2>
-      <p data-lang="zh">輸入 x,y 成對數據（每行一對，以逗號分隔），計算迴歸斜率、截距及 R²，並繪製散點圖與迴歸線。</p>
-      <p data-lang="en">Enter paired x,y data (one pair per line, separated by commas) to compute the regression slope, intercept and R², and plot the scatter with the fitted line.</p>
-      <div class="interactive-panel">
-        <!-- Separate fields for X and Y values to improve usability and avoid issues with multi-line input -->
-        <label><span data-zh="X 值 (以逗號分隔)" data-en="X values (comma separated)">X values (comma separated)</span>:
-        <!-- Provide default X values so users can immediately fit a line -->
-        <textarea id="regX" rows="2" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical">1, 2, 3, 4</textarea>
-        </label>
-        <label style="margin-top:8px; display:block"><span data-zh="Y 值 (以逗號分隔)" data-en="Y values (comma separated)">Y values (comma separated)</span>:
-        <!-- Provide default Y values corresponding to the X values above -->
-        <textarea id="regY" rows="2" style="width:100%;font-family:var(--font-mono);padding:6px;border:1px solid var(--c-border-light);border-radius:4px;resize:vertical">2, 3, 5, 8</textarea>
-        </label>
-        <button id="regBtn" onclick="fitRegression()" style="margin-top:12px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:600;cursor:pointer">Fit</button>
-        <div id="regOutput" style="margin-top:16px;font-size:0.9rem;color:var(--c-ink)"></div>
-        <div class="chart-container"><canvas id="regCanvas"></canvas></div>
-      </div>
-    </section>
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Step 8: Linear Regression — Biostatistics Tutorial</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head><body>
+<nav class="top-nav"><div class="top-nav-inner">
+  <a href="index.html" class="top-nav-brand"><span>📊</span> <span data-zh="生物統計教學" data-en="Biostatistics Tutorial">生物統計教學</span></a>
+  <ul class="top-nav-links">
+    <li><a href="descriptive.html">Desc.</a></li><li><a href="distributions.html">Dist.</a></li><li><a href="sampling.html">CLT</a></li><li><a href="hypothesis.html">Hypoth.</a></li><li><a href="t-tests.html">t-tests</a></li><li><a href="chi-square.html">Chi²</a></li><li><a href="anova.html">ANOVA</a></li><li><a href="regression.html" class="active">Regress.</a></li><li><a href="logistic.html">Logistic</a></li><li><a href="survival.html">Survival</a></li><li><a href="power.html">Power</a></li><li><a href="fdr.html">FDR</a></li><li><a href="mixed-models.html">Mixed</a></li>
+    <li><a href="references/index.html" data-zh="📚 參考資料" data-en="📚 References">📚 參考資料</a></li>
+  </ul>
+</div></nav>
+<div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+<header class="page-hero"><div class="step-badge">STEP 8 / 13</div>
+<h1 data-zh="線性迴歸 (Linear Regression)" data-en="Linear Regression">線性迴歸 (Linear Regression)</h1>
+<p class="subtitle" data-lang="zh">最小平方法、Gauss-Markov、診斷四圖、共線性、Table 2 fallacy——線性迴歸是生物統計的瑞士刀，但鋒利也意味著容易切到手。</p>
+<p class="subtitle" data-lang="en">Least squares, Gauss-Markov, four diagnostic plots, collinearity, the Table 2 fallacy — linear regression is the Swiss Army knife of biostatistics. Sharp tool, easy to cut yourself.</p>
+</header>
+<main class="content-wrap">
 
-    <!-- Pros, Cons & Limitations section -->
-    <section class="section">
-      <div class="section-label" data-zh="優缺點與限制" data-en="Pros, Cons &amp; Limitations">優缺點與限制</div>
-      <h2 data-zh="線性迴歸的優勢與侷限" data-en="Advantages &amp; Limitations of Linear Regression">線性迴歸的優勢與侷限</h2>
-      <p data-lang="zh">線性迴歸是最常見的統計模型之一，適合用來探索與預測連續變數之間的線性關係。其最大優點是易於計算與解釋，能提供斜率與截距幫助理解自變項與因變項之間的關係，也因為計算速度快而廣泛應用於各領域。</p>
-      <p data-lang="en">Linear regression is one of the most widely used statistical models for exploring and predicting relationships between continuous variables. Its main advantages are that it is simple to compute and interpret: the slope and intercept quantify how the predictor relates to the response, and the method runs quickly on both small and large datasets.</p>
-      <h3 data-zh="限制與注意事項" data-en="Limitations &amp; Considerations">限制與注意事項</h3>
-      <ul data-lang="zh">
-        <li>模型假定自變項與因變項之間呈線性關係；對於彎曲或非線性關係，可能需要轉換變數或採用非線性模型。</li>
-        <li>假設觀察值獨立且殘差具有相同變異（同質性）並呈常態分布；違反這些假設會影響斜率估計和 p 值的有效性。</li>
-        <li>對離群值敏感，極端觀察可能對斜率造成不成比例的影響，需檢查並處理離群值。</li>
-        <li>容易出現過度簡化或過度擬合；若使用多個解釋變量要注意共線性問題，並考慮正則化或交叉驗證。</li>
-        <li>不應在資料範圍之外進行推論；線性迴歸只能在原有資料的範圍內進行預測，否則可能導致誤解。</li>
-      </ul>
-      <ul data-lang="en">
-        <li>Assumes a linear relationship between predictor and response; curved or non‑linear patterns require transforming variables or using non‑linear models.</li>
-        <li>Assumes independent observations with homoscedastic and normally distributed residuals; violating these assumptions affects slope estimates and p‑values.</li>
-        <li>Sensitive to outliers, which can disproportionately influence the estimated slope; examine and handle extreme observations carefully.</li>
-        <li>Can underfit complex relationships or overfit when including many predictors; be mindful of multicollinearity and consider regularisation or cross‑validation.</li>
-        <li>Do not extrapolate beyond the observed data range; linear regression is only valid within the range of the original data.</li>
-      </ul>
-    </section>
+<!-- ===== Section 1: Why ===== -->
+<section class="section">
+<div class="section-label" data-zh="總覽" data-en="OVERVIEW">總覽</div>
+<h2 data-zh="為什麼線性迴歸是生物統計的「瑞士刀」？" data-en="Why linear regression is the Swiss Army knife of biostatistics">為什麼線性迴歸是生物統計的「瑞士刀」？</h2>
+<div data-lang="zh">
+<p>從 Galton（1886）用「<em>regression toward mediocrity</em>」描述父子身高、到今天 RNA-seq 的 DESeq2 與 limma-voom 內核仍是 GLM——<strong>線性迴歸 (linear regression) 是現代統計最重要的一個模型</strong>。t 檢定是它的 1 變數版本、ANOVA 是它的類別自變數版本、ANCOVA 是它的混合版、GLM 是它的延伸、混合模型 (mixed models) 是它加上隨機效應。學會線性迴歸的「思維方式」（建模 → 估計 → 診斷 → 推論），就等於拿到 80% 生物統計分析的鑰匙。</p>
+<p>但「容易上手」與「容易誤用」往往同義。Westreich &amp; Greenland（2013 American Journal of Epidemiology）發現：絕大多數流行病學論文把 Table 2 裡<strong>所有的迴歸係數</strong>當成因果效應來解讀——這就是著名的「<strong>Table 2 fallacy</strong>」。其他常見災難：把 R² 當「成功指標」、忽略 VIF &gt; 10 的共線性、不畫殘差圖、外推到資料範圍外⋯⋯本章把這些坑一次踩給你看。</p>
+</div>
+<div data-lang="en">
+<p>From Galton's 1886 "<em>regression toward mediocrity</em>" used to describe father-son heights, to today's DESeq2 and limma-voom in RNA-seq still running on a GLM kernel — <strong>linear regression is the single most important model in modern statistics</strong>. The t-test is its one-variable case, ANOVA is its categorical-predictor case, ANCOVA mixes them, GLMs extend the link function, mixed models add random effects. Master the regression mindset (model → estimate → diagnose → infer) and you hold the keys to roughly 80% of biostatistical analysis.</p>
+<p>But "easy to start" and "easy to misuse" are synonyms here. Westreich &amp; Greenland (2013 AJE) found that the vast majority of epidemiology papers interpret <strong>every coefficient</strong> in Table 2 as a causal effect — the now-famous <strong>"Table 2 fallacy"</strong>. Other regular disasters: R²-as-trophy, ignoring VIF &gt; 10, skipping residual plots, extrapolation beyond the data range… we walk into each pit so you don't have to.</p>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>歷史 × 一句話：</strong>Gauss（1809，《Theoria motus》）為了拼合星體軌道資料發明了最小平方法；Legendre 同年獨立發表；Fisher（1925）把它擺進現代統計推論框架；Nelder &amp; Wedderburn（1972）把它推廣為 GLM。「線性」指的是<strong>對參數線性</strong>，不是對 x 線性——所以 <code>y = β₀ + β₁·x + β₂·x²</code> 仍是線性迴歸。</span>
+<span data-lang="en"><strong>One-line history:</strong> Gauss invented least squares in 1809 (<em>Theoria motus</em>) for fitting planetary orbits; Legendre published independently the same year; Fisher (1925) embedded it in modern inferential statistics; Nelder &amp; Wedderburn (1972) generalised it into GLMs. "Linear" means <strong>linear in parameters</strong>, not linear in x — so <code>y = β₀ + β₁·x + β₂·x²</code> is still linear regression.</span>
+</div></div>
+</section>
 
-    <!-- Decision guidance and example section -->
-    <section class="section">
-      <div class="section-label" data-zh="決策指引與範例" data-en="Decision Guidance &amp; Example">決策指引與範例</div>
-      <h2 data-zh="何時使用線性迴歸？" data-en="When to Use Linear Regression?">何時使用線性迴歸？</h2>
-      <p data-lang="zh">如果你的資料呈現近似直線關係，且每次觀測皆獨立且變異數穩定，線性迴歸是適合的工具。應避免在時間序列資料或非線性關係中直接套用；在這些情況下可先檢查散點圖與殘差圖，必要時採用變數轉換或其他模型。</p>
-      <p data-lang="en">Use linear regression when your data show an approximately straight‑line relationship and observations are independent with constant variance. Avoid applying it to time‑series data or strongly non‑linear relationships without transformations; instead inspect scatterplots and residual plots, and consider using variable transformations or alternative models if needed.</p>
-      <h3 data-zh="實例說明" data-en="Practical Example">實例說明</h3>
-      <p data-lang="zh">例如我們想根據房屋面積預測房價。假設有以下數據：面積 <em>50、60、80、100</em>（平方公尺），對應的房價（百萬元）為 <em>3、4、5、6.5</em>。將這些數據套入線性迴歸，得到斜率約為 0.043，每增加一平方公尺，房價平均上升約 0.043 百萬元。決定係數 R² 約 0.98，表示面積可以解釋 98% 的價格變異。</p>
-      <p data-lang="en">For example, suppose we want to predict house price from floor area. Consider the following data: areas of <em>50, 60, 80, 100</em> square meters with corresponding prices (in millions) of <em>3, 4, 5, 6.5</em>. Fitting a linear regression yields a slope of about 0.043, meaning each additional square meter adds roughly 0.043 million to the price. The coefficient of determination R² is approximately 0.98, indicating that area explains 98% of the variation in price.</p>
-    </section>
+<!-- ===== Section 2: Core concepts ===== -->
+<section class="section">
+<div class="section-label" data-zh="核心概念" data-en="CORE CONCEPTS">核心概念</div>
+<h2 data-zh="一、OLS、β 係數、R²、殘差——四個基本詞彙" data-en="I. OLS, β coefficients, R², residuals — the four basic words">一、OLS、β 係數、R²、殘差</h2>
+<div data-lang="zh"><p>線性迴歸的<strong>整個世界</strong>由四個概念撐起：(1) 損失函數 <strong>OLS</strong> 告訴你「最好」是什麼意思；(2) <strong>β 係數</strong>告訴你 x 變化 1 單位 y 變化多少；(3) <strong>R²</strong> 告訴你模型解釋多少變異；(4) <strong>殘差</strong>是診斷的線索。</p></div>
+<div data-lang="en"><p>The whole world of linear regression rests on four ideas: (1) the loss function <strong>OLS</strong> defines what "best" means; (2) the <strong>β coefficients</strong> tell you how much y moves per unit of x; (3) <strong>R²</strong> tells you the share of variance explained; (4) the <strong>residuals</strong> are the diagnostic trail.</p></div>
+<div class="card-grid cols-2">
+<div class="card"><div class="card-icon">📐</div><h4 data-zh="OLS：最小平方準則" data-en="OLS: least squares">OLS：最小平方準則</h4>
+<div data-lang="zh"><p>最小化殘差平方和 <span class="math">Σ(yᵢ − ŷᵢ)²</span>。閉合解 <span class="math">β̂ = (X'X)⁻¹X'y</span>。幾何意義：把 y 向量正交投影到 X 的<strong>欄空間</strong>。</p>
+<p>幾何直覺：殘差 e = y − ŷ 永遠垂直於擬合值 ŷ。<strong>這就是 OLS「最佳」的幾何定義</strong>——沒有更近的點了。</p></div>
+<div data-lang="en"><p>Minimize the residual sum of squares <span class="math">Σ(yᵢ − ŷᵢ)²</span>. Closed form: <span class="math">β̂ = (X'X)⁻¹X'y</span>. Geometrically, project y orthogonally onto the <strong>column space of X</strong>.</p>
+<p>Intuition: residuals e = y − ŷ are perpendicular to fitted values ŷ. <strong>That orthogonality is what "best" means in OLS</strong> — no closer point exists.</p></div>
+</div>
+<div class="card"><div class="card-icon">📈</div><h4 data-zh="β 係數的解讀" data-en="Reading β coefficients">β 係數的解讀</h4>
+<div data-lang="zh"><p><strong>β₀ (intercept)</strong>：所有 x = 0 時的預期 y。生物資料中常無意義（年齡 0、體重 0）——<strong>中心化 (centering)</strong> 後 β₀ 變成「平均人」。</p>
+<p><strong>βⱼ</strong>：保持其他變數不變時，xⱼ 增加 1 單位，y 平均變化 βⱼ 單位（這個「保持其他不變」就是條件詮釋——也是 Table 2 fallacy 的根源）。</p>
+<p><strong>標準化 β</strong>：先 z-score 所有變數再迴歸，β 之間可比較「強度」，但失去原始單位。</p></div>
+<div data-lang="en"><p><strong>β₀ (intercept)</strong>: expected y when all x = 0. Often meaningless biologically (age 0, weight 0) — <strong>centering</strong> the predictors makes β₀ "the average person".</p>
+<p><strong>βⱼ</strong>: holding all other variables fixed, a 1-unit increase in xⱼ shifts y by βⱼ units on average (the "holding fixed" caveat is the conditional interpretation — and the seed of the Table 2 fallacy).</p>
+<p><strong>Standardized β</strong>: z-score everything before fitting; betas become comparable in "strength" but lose original units.</p></div>
+</div>
+<div class="card"><div class="card-icon">🎯</div><h4 data-zh="R² 與 adjusted R²" data-en="R² and adjusted R²">R² 與 adjusted R²</h4>
+<div data-lang="zh"><p><span class="math">R² = 1 − SS<sub>res</sub>/SS<sub>tot</sub></span>，模型解釋的變異比例 (0–1)。</p>
+<p><span class="math">R²<sub>adj</sub> = 1 − (1−R²)(n−1)/(n−p−1)</span>，懲罰多餘變數。<strong>R² 永遠隨變數數量增加而上升</strong>，所以單看 R² 比模型大小是錯的——比 adjusted R² 或 AIC/BIC。</p>
+<p>⚠️ R² = 0.9 不代表模型好，R² = 0.1 也不代表模型差——生物學中行為遺傳學常 R² ≈ 0.05 仍是重要發現。</p></div>
+<div data-lang="en"><p><span class="math">R² = 1 − SS<sub>res</sub>/SS<sub>tot</sub></span>: share of variance explained (0–1).</p>
+<p><span class="math">R²<sub>adj</sub> = 1 − (1−R²)(n−1)/(n−p−1)</span> penalises extra predictors. <strong>Plain R² rises whenever you add predictors</strong>, so comparing model sizes by R² is wrong — use adjusted R² or AIC/BIC.</p>
+<p>⚠️ R² = 0.9 isn't automatically good and R² = 0.1 isn't automatically bad — in behaviour genetics R² ≈ 0.05 can be a major finding.</p></div>
+</div>
+<div class="card"><div class="card-icon">🔍</div><h4 data-zh="殘差 e = y − ŷ" data-en="Residuals e = y − ŷ">殘差：診斷的金線</h4>
+<div data-lang="zh"><p>殘差是「資料告訴模型還沒抓到什麼」的訊號。<strong>四個診斷圖</strong>（下方第 5 節詳述）：residuals vs fitted、QQ plot、scale-location、leverage vs residuals。</p>
+<p><strong>不畫殘差圖就報告迴歸，等於不看 histogram 就算 mean ± SD</strong>。R 的 <code>plot(model)</code> 一行就有四圖。</p></div>
+<div data-lang="en"><p>Residuals are the signal of "what the model didn't catch". <strong>The four diagnostic plots</strong> (Section 5 below): residuals vs fitted, QQ plot, scale-location, leverage vs residuals.</p>
+<p><strong>Reporting a regression without residual plots is like reporting mean ± SD without a histogram.</strong> In R, <code>plot(model)</code> gives all four in one line.</p></div>
+</div>
+</div>
 
-    <!-- Interactive quiz section -->
-    <section class="section">
-      <div class="section-label" data-zh="小測驗" data-en="Quiz">小測驗</div>
-      <h2 data-zh="檢測您的了解" data-en="Check Your Understanding">檢測您的了解</h2>
-      <p data-lang="zh">下列哪一項<strong>不是</strong>線性迴歸的假設？</p>
-      <p data-lang="en">Which of the following is <strong>not</strong> an assumption of linear regression?</p>
-      <div class="interactive-panel">
-        <form id="regQuizForm">
-          <label><input type="radio" name="regQuiz" value="linearity"> <span data-zh="線性關係" data-en="Linearity">線性關係</span></label><br>
-          <label><input type="radio" name="regQuiz" value="homoscedasticity"> <span data-zh="同質性殘差" data-en="Homoscedasticity">同質性殘差</span></label><br>
-          <label><input type="radio" name="regQuiz" value="independence"> <span data-zh="觀測值獨立" data-en="Independent observations">觀測值獨立</span></label><br>
-          <label><input type="radio" name="regQuiz" value="categorical"> <span data-zh="因變項為類別資料" data-en="Categorical dependent variable">因變項為類別資料</span></label><br>
-          <button type="button" onclick="checkRegQuiz()" style="margin-top:8px;background:var(--c-accent);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-weight:600;cursor:pointer">Submit</button>
-        </form>
-        <div id="regQuizFeedback" style="margin-top:12px;font-size:0.9rem;color:var(--c-ink)"></div>
-      </div>
-    </section>
+<div class="formula">
+<span data-lang="zh">⌜ <em>ŷ</em> = X<em>β̂</em> &nbsp;·&nbsp; <em>β̂</em> = (X'X)⁻¹X'<em>y</em> &nbsp;·&nbsp; SS<sub>tot</sub> = Σ(<em>yᵢ</em>−<em>ȳ</em>)² &nbsp;·&nbsp; SS<sub>res</sub> = Σ(<em>yᵢ</em>−<em>ŷᵢ</em>)² ⌝
+<span class="fnote">Gauss-Markov 定理（1821）：在線性、獨立、同變異數的假設下，OLS 估計量是<strong>所有線性無偏估計中變異最小</strong>的（BLUE — Best Linear Unbiased Estimator）。注意「線性無偏」是個強烈限制——脫離這個族群，bias 換 variance 的 ridge / lasso 可以贏 OLS。</span></span>
+<span data-lang="en">⌜ <em>ŷ</em> = X<em>β̂</em> &nbsp;·&nbsp; <em>β̂</em> = (X'X)⁻¹X'<em>y</em> &nbsp;·&nbsp; SS<sub>tot</sub> = Σ(<em>yᵢ</em>−<em>ȳ</em>)² &nbsp;·&nbsp; SS<sub>res</sub> = Σ(<em>yᵢ</em>−<em>ŷᵢ</em>)² ⌝
+<span class="fnote">Gauss-Markov (1821): under linearity, independence, and homoscedasticity, OLS is the <strong>minimum-variance among all linear unbiased estimators</strong> (BLUE — Best Linear Unbiased Estimator). The qualifier "linear unbiased" is strong — step outside that class and bias-traded estimators like ridge/lasso can beat OLS.</span></span>
+</div>
+</section>
 
-    <!-- Code examples section -->
-    <section class="section">
-      <div class="section-label" data-zh="程式範例" data-en="Code Examples">程式範例</div>
-      <h2 data-zh="R 與 Python 範例" data-en="R and Python Examples">R 與 Python 範例</h2>
-      <p data-lang="zh">以下程式示範如何在 R 與 Python 中進行簡單線性迴歸，計算斜率、截距與 R²。您可以直接複製程式碼到 RStudio 或 Python 環境中運行。</p>
-      <p data-lang="en">The following examples show how to perform a simple linear regression in R and Python, computing the slope, intercept and R². You can copy these snippets into RStudio or a Python interpreter.</p>
-      <div class="code-tabs">
-        <div class="code-tab-btns">
-          <button class="code-tab-btn active" onclick="switchTab(this,'reg-code-r')">R</button>
-          <button class="code-tab-btn" onclick="switchTab(this,'reg-code-py')">Python</button>
-        </div>
-        <div class="code-tab-content active" id="reg-code-r">
-          <button class="copy-btn" onclick="copyCode('reg-r-content', this)">📋</button>
-          <pre id="reg-r-content"><span class="comment"># 建立資料向量</span>
-<span class="func">x</span> &lt;- <span class="func">c</span>(<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>)
-<span class="func">y</span> &lt;- <span class="func">c</span>(<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">8</span>)
+<!-- ===== Section 3: Interactive sim 1 ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ①" data-en="INTERACTIVE ①">互動模擬 ①</div>
+<h2 data-zh="迴歸遊樂場：滑動真實 β 與雜訊" data-en="Regression playground: slide true β and noise">迴歸遊樂場：滑動真實 β 與雜訊</h2>
+<div data-lang="zh"><p>下方資料由 <em>y = β₀ + β₁·x + ε, ε ~ N(0, σ²)</em> 模擬產生。你可以調整<strong>真實</strong>截距、斜率與雜訊標準差，<strong>觀察 OLS 重新估計的 β̂ 與真實值的差異</strong>。試試：(1) 雜訊極小時 R² 接近 1，β̂ 幾乎等於真值；(2) 雜訊變大 R² 下降但 β̂ 仍接近真值（OLS unbiased！）；(3) n 變小時 β̂ 的變異增大（標準誤 ∝ 1/√n）。</p></div>
+<div data-lang="en"><p>The points below are simulated from <em>y = β₀ + β₁·x + ε, ε ~ N(0, σ²)</em>. Adjust the <strong>true</strong> intercept, slope, and noise SD, and <strong>watch how the OLS-estimated β̂ tracks the truth</strong>. Try: (1) tiny noise → R² ≈ 1, β̂ ≈ truth; (2) raise noise → R² drops but β̂ still ≈ truth (OLS is unbiased!); (3) shrink n → β̂ wiggles more (SE ∝ 1/√n).</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="真實截距 β₀" data-en="True intercept β₀">真實 β₀</span> <span id="valB0">2</span></label><input type="range" id="sliderB0" min="-5" max="10" value="2" step="0.5"></div>
+<div class="slider-group"><label><span data-zh="真實斜率 β₁" data-en="True slope β₁">真實 β₁</span> <span id="valB1">1.5</span></label><input type="range" id="sliderB1" min="-3" max="3" value="1.5" step="0.1"></div>
+<div class="slider-group"><label><span data-zh="雜訊 σ" data-en="Noise σ">雜訊 σ</span> <span id="valSig">1.5</span></label><input type="range" id="sliderSig" min="0.1" max="5" value="1.5" step="0.1"></div>
+<div class="slider-group"><label><span data-zh="樣本數 n" data-en="Sample size n">樣本數 n</span> <span id="valN">40</span></label><input type="range" id="sliderN" min="10" max="200" value="40" step="5"></div>
+<div id="regStats" style="font-size:.9rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div class="chart-container" style="height:300px;"><canvas id="regChart"></canvas></div>
+<p style="font-size:.82rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">藍點 = 資料 · 紅線 = OLS 擬合 · 灰虛線 = 真實關係</span><span data-lang="en">Blue = data · Red = OLS fit · Grey dashed = ground truth</span></p>
+</div>
+</section>
 
-<span class="comment"># 擬合線性迴歸模型</span>
-<span class="func">model</span> &lt;- <span class="func">lm</span>(y ~ x)
+<!-- ===== Section 4: Assumptions ===== -->
+<section class="section">
+<div class="section-label" data-zh="OLS 假設" data-en="OLS ASSUMPTIONS">OLS 假設</div>
+<h2 data-zh="二、四個 OLS 假設與它們的診斷圖" data-en="II. Four OLS assumptions and their diagnostic plots">二、四個假設與診斷圖</h2>
+<div data-lang="zh"><p>OLS 推論（CI、p 值）的有效性建立在四個假設上，記憶口訣 <strong>LINE</strong>：<strong>L</strong>inearity、<strong>I</strong>ndependence、<strong>N</strong>ormality of residuals、<strong>E</strong>qual variance（同變異數，homoscedasticity）。<strong>違反不同假設後果不一樣</strong>：非線性 → β 整個錯；異變異數 → β 仍 unbiased 但 SE 錯（CI 與 p 不可信）；殘差非常態 → 小樣本 CI 不可信，大樣本因 CLT 影響小；觀察值不獨立 → SE 嚴重低估（最嚴重）。</p></div>
+<div data-lang="en"><p>The validity of OLS inference (CIs, p-values) rests on four assumptions, mnemonic <strong>LINE</strong>: <strong>L</strong>inearity, <strong>I</strong>ndependence, <strong>N</strong>ormality of residuals, <strong>E</strong>qual variance (homoscedasticity). <strong>Different violations bite differently</strong>: non-linearity → β estimates are wrong; heteroscedasticity → β still unbiased but SEs are wrong (CIs/p untrustworthy); non-normal residuals → small-n CIs unreliable, large-n rescued by CLT; non-independence → SEs grossly underestimated (the worst of the four).</p></div>
 
-<span class="comment"># 查看參數估計</span>
-<span class="func">summary</span>(model)
+<table class="comp-table">
+<thead><tr>
+<th data-zh="診斷圖" data-en="Diagnostic plot">診斷圖</th>
+<th data-zh="檢查的假設" data-en="Checks">檢查的假設</th>
+<th data-zh="健康的樣子" data-en="Healthy look">健康的樣子</th>
+<th data-zh="病徵" data-en="Symptom">病徵</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>Residuals vs Fitted</strong></td><td data-lang="zh">Linearity, homoscedasticity</td><td data-lang="zh">隨機散布、無弧形、無漏斗</td><td data-lang="zh">U 形 → 非線性；漏斗 → 異變異數</td><td data-lang="en">Linearity, homoscedasticity</td><td data-lang="en">Random scatter, no curve, no funnel</td><td data-lang="en">U-shape → non-linearity; funnel → heteroscedasticity</td></tr>
+<tr><td><strong>QQ Plot</strong></td><td data-lang="zh">Normality of residuals</td><td data-lang="zh">點落在 y=x 對角線</td><td data-lang="zh">S 形 → 重尾；翹尾 → outlier</td><td data-lang="en">Normality of residuals</td><td data-lang="en">Points along y=x line</td><td data-lang="en">S-shape → heavy tails; bent tail → outliers</td></tr>
+<tr><td><strong>Scale-Location</strong></td><td data-lang="zh">Homoscedasticity (專用)</td><td data-lang="zh">√|residuals| 水平</td><td data-lang="zh">上升 → 變異隨 fitted 增大</td><td data-lang="en">Homoscedasticity (focused)</td><td data-lang="en">√|residuals| flat</td><td data-lang="en">Rising trend → variance grows with fit</td></tr>
+<tr><td><strong>Residuals vs Leverage</strong></td><td data-lang="zh">Influence (Cook's distance)</td><td data-lang="zh">無點落在 Cook 等高線外</td><td data-lang="zh">右上角點 + 高 Cook's D → 單點主導擬合</td><td data-lang="en">Influence (Cook's distance)</td><td data-lang="en">No points outside Cook contours</td><td data-lang="en">Top-right + high Cook's D → one point drives the fit</td></tr>
+</tbody></table>
 
-<span class="comment"># 取得斜率、截距與 R²</span>
-<span class="func">coef</span>(model)[<span class="num">2</span>]  <span class="comment"># 斜率</span>
-<span class="func">coef</span>(model)[<span class="num">1</span>]  <span class="comment"># 截距</span>
-<span class="func">summary</span>(model)$r.squared  <span class="comment"># R²</span></pre>
-        </div>
-        <div class="code-tab-content" id="reg-code-py">
-          <button class="copy-btn" onclick="copyCode('reg-py-content', this)">📋</button>
-          <pre id="reg-py-content"><span class="comment"># -*- coding: utf-8 -*-</span>
-<span class="kw">import</span> <span class="func">numpy</span> <span class="kw">as</span> <span class="func">np</span>
-<span class="kw">from</span> <span class="func">scipy</span> <span class="kw">import</span> <span class="func">stats</span>
+<div class="callout warn"><span class="callout-icon">⚠️</span><div>
+<span data-lang="zh"><strong>影響力 (influence) ≠ 離群值 (outlier) ≠ 高槓桿 (leverage)：</strong>離群值 = 殘差大；高槓桿 = x 偏離資料中心；影響力 = 兩者結合（Cook's D 同時看殘差與槓桿）。判定門檻：<strong>Cook's D &gt; 4/n</strong> 提示審查，<strong>leverage h<sub>ii</sub> &gt; 2(p+1)/n</strong> 視為高槓桿。實務上：先看圖，再用 Cook's D，最後用敏感度分析（保留/移除該點看 β 變化）。</span>
+<span data-lang="en"><strong>Influence ≠ outlier ≠ leverage:</strong> an outlier has a big residual; high leverage means x is far from the centre of x; influence combines both (Cook's D mixes residual with leverage). Common thresholds: <strong>Cook's D &gt; 4/n</strong> flags for review, <strong>leverage h<sub>ii</sub> &gt; 2(p+1)/n</strong> is "high leverage". Practical recipe: plot first, then Cook's D, then sensitivity analysis (compare β with vs without the point).</span>
+</div></div>
+</section>
 
-<span class="comment"># 定義自變項與因變項</span>
-x = <span class="func">np.array</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>])
-y = <span class="func">np.array</span>([<span class="num">2</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="num">8</span>])
+<!-- ===== Section 5: Interactive sim 2 — diagnostics ===== -->
+<section class="section">
+<div class="section-label" data-zh="互動模擬 ②" data-en="INTERACTIVE ②">互動模擬 ②</div>
+<h2 data-zh="診斷圖實驗室：四種違反假設，四個圖告訴你" data-en="Diagnostics lab: four violations, four plots that tell you">診斷圖實驗室</h2>
+<div data-lang="zh"><p>選擇下方 <strong>情境</strong>：none（健康）、heteroscedastic（漏斗）、non-linear（彎曲）、outlier（一個極端值）。觀察每個情境下，<strong>四個診斷圖如何分別反應</strong>——尤其注意「Residuals vs Fitted」看曲線、「Scale-Location」看漏斗、「QQ」看尾巴、「Leverage」看單點主導。</p></div>
+<div data-lang="en"><p>Pick a <strong>scenario</strong>: none (healthy), heteroscedastic (funnel), non-linear (curve), outlier (one extreme). Watch how each of the <strong>four diagnostic plots</strong> responds — Residuals vs Fitted catches curves, Scale-Location catches funnels, QQ catches tail issues, Leverage catches single-point dominance.</p></div>
+<div class="interactive-panel">
+<div class="slider-group"><label><span data-zh="情境" data-en="Scenario">情境</span></label>
+<select id="scenario" style="padding:6px 10px;border-radius:6px;border:1px solid var(--c-border);background:var(--c-bg);">
+<option value="none">none (healthy)</option>
+<option value="hetero">heteroscedastic (funnel)</option>
+<option value="nonlin">non-linear (curve)</option>
+<option value="outlier">outlier (one extreme point)</option>
+</select></div>
+<div id="diagStats" style="font-size:.88rem;color:var(--c-ink-light);margin:10px 0;padding:10px;background:var(--c-bg-alt);border-radius:6px;line-height:1.7;"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+<div class="chart-container" style="height:200px;"><canvas id="diagRF"></canvas></div>
+<div class="chart-container" style="height:200px;"><canvas id="diagQQ"></canvas></div>
+<div class="chart-container" style="height:200px;"><canvas id="diagSL"></canvas></div>
+<div class="chart-container" style="height:200px;"><canvas id="diagLV"></canvas></div>
+</div>
+<p style="font-size:.78rem;color:var(--c-ink-muted);text-align:center;margin-top:8px;"><span data-lang="zh">左上：Residuals vs Fitted · 右上：QQ Plot · 左下：Scale-Location · 右下：Residuals vs Leverage</span><span data-lang="en">Top-left: Residuals vs Fitted · Top-right: QQ Plot · Bottom-left: Scale-Location · Bottom-right: Residuals vs Leverage</span></p>
+</div>
+</section>
 
-<span class="comment"># 使用 linregress 擬合迴歸線</span>
-slope, intercept, r, p, std_err = <span class="func">stats.linregress</span>(x, y)
+<!-- ===== Section 6: Multicollinearity & interaction ===== -->
+<section class="section">
+<div class="section-label" data-zh="進階主題" data-en="ADVANCED">進階主題</div>
+<h2 data-zh="三、共線性、交互作用、虛擬變數、多項式" data-en="III. Collinearity, interactions, dummies, polynomials">三、共線性、交互作用、虛擬變數、多項式</h2>
 
-<span class="comment"># 輸出斜率、截距與 R²</span>
-<span class="func">print</span>(slope, intercept, r**<span class="num">2</span>)</pre>
-        </div>
-      </div>
-    </section>
-    <div class="page-nav">
-      <a href="anova.html">
-        <span class="nav-dir" data-zh="上一頁" data-en="Prev">上一頁</span>
-        <span class="nav-title" data-zh="變異數分析" data-en="ANOVA">變異數分析</span>
-      </a>
-      <a href="logistic.html">
-        <span class="nav-dir" data-zh="下一步" data-en="Next">下一步</span>
-        <span class="nav-title" data-zh="邏輯斯迴歸" data-en="Logistic Regression">邏輯斯迴歸</span>
-      </a>
-    </div>
-  </main>
-  <footer class="site-footer">© 2026 Biostatistics Interactive Tutorial</footer>
-  <script src="i18n.js"></script>
-  <script>
-    let regChart;
-    // Called when Fit button is clicked
-    function fitRegression() {
-      // Parse X and Y values separately.  Users should provide the same number of
-      // comma-, space- or newline‑separated values in each field.  If counts
-      // differ or fewer than two pairs are given, alert and abort.
-      const xs = document.getElementById('regX').value.trim().split(/[ ,;\n]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
-      const ys = document.getElementById('regY').value.trim().split(/[ ,;\n]+/).map(s => parseFloat(s)).filter(x => !isNaN(x));
-      const n = xs.length;
-      if (n < 2 || ys.length !== n) {
-        alert('Please enter the same number of X and Y values (at least two).');
-        return;
-      }
-      const meanX = xs.reduce((a,b) => a+b, 0) / n;
-      const meanY = ys.reduce((a,b) => a+b, 0) / n;
-      let num = 0;
-      let den = 0;
-      let ssTot = 0;
-      for (let i = 0; i < n; i++) {
-        num += (xs[i] - meanX) * (ys[i] - meanY);
-        den += Math.pow(xs[i] - meanX, 2);
-        ssTot += Math.pow(ys[i] - meanY, 2);
-      }
-      const slope = num / den;
-      const intercept = meanY - slope * meanX;
-      let ssRes = 0;
-      const preds = xs.map(x => intercept + slope * x);
-      for (let i = 0; i < n; i++) {
-        ssRes += Math.pow(ys[i] - preds[i], 2);
-      }
-      const r2 = 1 - ssRes / ssTot;
-      const out = document.getElementById('regOutput');
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      out.innerHTML = `<p><strong>${lang === 'zh' ? '斜率' : 'Slope'}:</strong> ${slope.toFixed(3)}, <strong>${lang === 'zh' ? '截距' : 'Intercept'}:</strong> ${intercept.toFixed(3)}, <strong>R²:</strong> ${r2.toFixed(3)}</p>`;
-      const ctx = document.getElementById('regCanvas').getContext('2d');
-      if (regChart) regChart.destroy();
-      const minX = Math.min(...xs);
-      const maxX = Math.max(...xs);
-      const lineXs = [minX, maxX];
-      const lineYs = lineXs.map(x => intercept + slope * x);
-      regChart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-          datasets: [
-            {
-              label: 'Data',
-              data: xs.map((x,i) => ({ x, y: ys[i] })),
-              backgroundColor: 'rgba(26,107,90,0.6)',
-              pointRadius: 4
-            },
-            {
-              type: 'line',
-              label: 'Fit',
-              data: lineXs.map((x,i) => ({ x, y: lineYs[i] })),
-              borderColor: 'rgba(212,160,60,1)',
-              borderWidth: 2,
-              fill: false,
-              pointRadius: 0
-            }
-          ]
-        },
-        options: {
-          scales: {
-            x: { title: { display: true, text: 'x' } },
-            y: { title: { display: true, text: 'y' } }
-          },
-          responsive: true,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-    window.fitRegression = fitRegression;
+<div class="card-grid cols-2">
+<div class="card"><h4 data-zh="🔗 多重共線性 (Multicollinearity)" data-en="🔗 Multicollinearity">🔗 多重共線性</h4>
+<div data-lang="zh"><p>當預測變數彼此高度相關，β 個別不可信、SE 爆炸、p 飄。診斷：<strong>VIF (Variance Inflation Factor)</strong> = <span class="math">1/(1−R²ⱼ)</span>，其中 R²ⱼ 是用其他 x 預測 xⱼ 的判定係數。</p>
+<p><strong>門檻：</strong>VIF &gt; 5 輕度警告、VIF &gt; 10 嚴重共線性（O'Brien 2007 Quality &amp; Quantity）。對策：(1) 移除高度相關的某一變數；(2) PCA / PLS 把變數合成；(3) 用 ridge regression（L2 規則化，正是設計來救共線性）。<strong>請勿</strong>單靠成對相關係數判斷——三個變數兩兩 r = 0.4 仍可能 VIF = 8。</p></div>
+<div data-lang="en"><p>When predictors are mutually correlated, individual βs become unreliable, SEs explode, p-values drift. Diagnose with the <strong>Variance Inflation Factor (VIF)</strong> = <span class="math">1/(1−R²ⱼ)</span>, where R²ⱼ is the R² of regressing xⱼ on the rest.</p>
+<p><strong>Thresholds:</strong> VIF &gt; 5 mild concern, VIF &gt; 10 severe (O'Brien 2007 Quality &amp; Quantity). Remedies: (1) drop a redundant variable; (2) combine via PCA / PLS; (3) <strong>ridge regression</strong> (L2 penalty — literally invented for this). <strong>Do not</strong> rely on pairwise correlations alone — three predictors all with r ≈ 0.4 can still have VIF ≈ 8.</p></div>
+</div>
 
-    // Evaluate the regression quiz answer and provide feedback based on the current language.
-    function checkRegQuiz() {
-      const form = document.getElementById('regQuizForm');
-      let ans = '';
-      if (form && form.regQuiz) {
-        const opts = form.regQuiz;
-        if (opts.length) {
-          for (let i = 0; i < opts.length; i++) {
-            if (opts[i].checked) {
-              ans = opts[i].value;
-              break;
-            }
-          }
-        } else if (opts.checked) {
-          ans = opts.value;
-        }
-      }
-      const lang = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
-      let feedback;
-      if (!ans) {
-        feedback = lang === 'zh' ? '請先選擇一個答案。' : 'Please select an answer.';
-      } else if (ans === 'categorical') {
-        feedback = lang === 'zh'
-          ? '答對了！線性迴歸假設因變項為連續變量，而非類別。'
-          : 'Correct! Linear regression assumes a continuous dependent variable, not categorical.';
-      } else {
-        feedback = lang === 'zh'
-          ? '不正確，再試一次。'
-          : 'Incorrect, please try again.';
-      }
-      const fb = document.getElementById('regQuizFeedback');
-      if (fb) fb.textContent = feedback;
-    }
-    window.checkRegQuiz = checkRegQuiz;
+<div class="card"><h4 data-zh="✖️ 交互作用 (Interaction)" data-en="✖️ Interaction">✖️ 交互作用</h4>
+<div data-lang="zh"><p>當 x₁ 對 y 的效應「取決於」x₂ 的水準，就需要交互項：<code>y ~ x1 * x2</code> = <code>y ~ x1 + x2 + x1:x2</code>。例：藥物效果 (treatment) 取決於性別 (sex)，模型 <code>y ~ dose * sex</code>。</p>
+<p><strong>解讀陷阱：</strong>有交互項時，<strong>不要單獨解讀 main effect</strong>——dose 的係數現在是「sex = reference 時的 dose 效應」。請報告兩個亞群下各自的效應或畫 interaction plot。建議：中心化連續變數，讓 main effect 變成「平均人的條件效應」。</p></div>
+<div data-lang="en"><p>When the effect of x₁ on y depends on the level of x₂, add an interaction: <code>y ~ x1 * x2</code> = <code>y ~ x1 + x2 + x1:x2</code>. Example: drug effect varies with sex → <code>y ~ dose * sex</code>.</p>
+<p><strong>Reading pitfall:</strong> with an interaction, <strong>do not interpret main effects in isolation</strong> — the dose coefficient is now "dose effect when sex = reference". Report subgroup effects or draw an interaction plot. Tip: centre continuous predictors first so the main effect becomes the conditional effect "at the average".</p></div>
+</div>
 
-    // Tab switching for R/Python code examples.  Activates the selected tab
-    // button and shows the corresponding code block within the same parent.
-    function switchTab(btn, id) {
-      const tabs = btn.closest('.code-tabs');
-      if (!tabs) return;
-      tabs.querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
-      tabs.querySelectorAll('.code-tab-content').forEach(div => div.classList.remove('active'));
-      btn.classList.add('active');
-      const panel = document.getElementById(id);
-      if (panel) panel.classList.add('active');
-    }
-    // Copy the contents of a code block to the clipboard.  Shows a temporary
-    // feedback message by changing the button text to "Copied!".
-    function copyCode(codeId, btn) {
-      const el = document.getElementById(codeId);
-      if (!el) return;
-      const text = el.innerText;
-      const original = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      navigator.clipboard.writeText(text).catch(() => {});
-      setTimeout(() => {
-        btn.textContent = '📋';
-        btn.classList.remove('copied');
-      }, 1200);
-    }
-    window.switchTab = switchTab;
-    window.copyCode = copyCode;
-  </script>
-</body>
-</html>
+<div class="card"><h4 data-zh="🏷️ 類別變數編碼" data-en="🏷️ Categorical encoding">🏷️ 類別變數編碼</h4>
+<div data-lang="zh"><p>k 類的類別變數變成 k − 1 個虛擬變數（dummy variable，又稱 one-hot），剩下一類當<strong>參考組</strong>。R 的 <code>factor()</code> + <code>lm</code> 自動處理；Python <code>pd.get_dummies(drop_first=True)</code>。</p>
+<p>另一種：<strong>effect coding (sum-to-zero)</strong>，類別效應對「總平均」而非「參考組」。在 ANOVA 報告 type-III SS 時尤其有用。R: <code>options(contrasts=c("contr.sum","contr.poly"))</code>。</p></div>
+<div data-lang="en"><p>A k-level categorical becomes k − 1 dummies (one-hot), with one level held out as the <strong>reference</strong>. R's <code>factor()</code> + <code>lm</code> handles this automatically; Python <code>pd.get_dummies(drop_first=True)</code>.</p>
+<p>Alternative: <strong>effect coding (sum-to-zero)</strong> — category effects are relative to the grand mean rather than a reference level. Especially handy for type-III SS in ANOVA. R: <code>options(contrasts=c("contr.sum","contr.poly"))</code>.</p></div>
+</div>
+
+<div class="card"><h4 data-zh="📈 多項式與樣條" data-en="📈 Polynomial &amp; splines">📈 多項式與樣條</h4>
+<div data-lang="zh"><p>對 x 非線性、對 β 仍線性：<code>y ~ x + I(x²)</code> 或更穩定的 <code>poly(x, 2)</code>（正交多項式避免共線性）。對劑量-反應曲線更推薦 <strong>natural splines</strong> <code>ns(x, df=3)</code>（Harrell 2015 RMS）。</p>
+<p><strong>陷阱：</strong>x²、x³ 之間共線性極高；高次多項式在資料邊緣震盪嚴重——超過 3 次幾乎都應改用 spline。</p></div>
+<div data-lang="en"><p>Non-linear in x but still linear in β: <code>y ~ x + I(x²)</code>, or the more stable <code>poly(x, 2)</code> (orthogonal polynomials avoid collinearity). For dose-response curves, prefer <strong>natural splines</strong> <code>ns(x, df=3)</code> (Harrell 2015 RMS).</p>
+<p><strong>Pitfall:</strong> x², x³ are highly collinear; high-degree polynomials swing wildly at the data edges — anything past degree 3 should usually be a spline.</p></div>
+</div>
+</div>
+
+<div class="idea">
+<span data-lang="zh"><strong>思路 (Harrell 2015 Regression Modeling Strategies)：</strong>建模前決定<strong>每個連續變數允許多少自由度</strong>（總自由度 ≤ n / 15），把那個自由度用在 spline 上而非「先看線性、p 不顯著再加二次項」。後者就是 p-hacking 的迴歸版。</span>
+<span data-lang="en"><strong>Harrell's framing (RMS 2015):</strong> decide <strong>before fitting</strong> how many degrees of freedom each continuous variable gets (total df ≤ n / 15), and spend them on a spline — not on "try linear, then add quadratic if p &gt; 0.05". The latter is regression-flavoured p-hacking.</span>
+</div>
+</section>
+
+<!-- ===== Section 7: Decision tree ===== -->
+<section class="section">
+<div class="section-label" data-zh="決策引導" data-en="DECISION GUIDE">決策引導</div>
+<h2 data-zh="四、什麼時候用 OLS？什麼時候用別的？" data-en="IV. When OLS vs robust vs GLM vs mixed?">四、選 OLS / robust / GLM / mixed 的決策樹</h2>
+<div class="decision-tree">
+<h4>🌳 <span data-zh="迴歸方法決策樹" data-en="Regression method decision tree">迴歸方法決策樹</span></h4>
+<div data-lang="zh">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>y 是連續且近常態？<span class="dt-arrow">→ 是 →</span> <strong>OLS lm()</strong>。下一步檢查診斷圖。</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>y 是計數、二元、比例？<span class="dt-arrow">→ 是 →</span> 用 <strong>GLM</strong>（二元 logistic、計數 Poisson / NB、比例 logit-binomial），見 Step 9。</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>觀察值有<strong>分層或重複</strong>（同一隻老鼠多個切片、同一病人多個時間點）？<span class="dt-arrow">→ 是 →</span> 用 <strong>mixed-effects model</strong> (lme4::lmer)，見 Step 13。</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>診斷圖出現嚴重 outlier / 重尾？<span class="dt-arrow">→ 是 →</span> <strong>Robust regression</strong>（MASS::rlm，Huber 或 MM）或先 log/Box-Cox 轉換。</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>異變異數但其他假設 OK？<span class="dt-arrow">→ 是 →</span> 用 <strong>robust sandwich SE</strong>（White 1980, R: <code>sandwich::vcovHC</code>）或 weighted least squares。β 不變，SE 更可信。</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>變數 p &gt; n 或共線性嚴重？<span class="dt-arrow">→ 是 →</span> <strong>Ridge</strong>（L2，全部係數縮）或 <strong>Lasso</strong>（L1，變數選擇）或 <strong>Elastic Net</strong>。</div></div>
+<div class="dt-node"><span class="dt-q">Q7:</span><div>關心條件分位數而非平均？（例如：「最差 10% 的人」）<span class="dt-arrow">→ 是 →</span> <strong>Quantile regression</strong>（Koenker 2005）。</div></div>
+</div>
+<div data-lang="en">
+<div class="dt-node"><span class="dt-q">Q1:</span><div>y is continuous and roughly normal? <span class="dt-arrow">→ Yes →</span> <strong>OLS lm()</strong>. Next, inspect diagnostics.</div></div>
+<div class="dt-node"><span class="dt-q">Q2:</span><div>y is a count, binary, or proportion? <span class="dt-arrow">→ Yes →</span> use a <strong>GLM</strong> (logistic, Poisson / NB, logit-binomial) — see Step 9.</div></div>
+<div class="dt-node"><span class="dt-q">Q3:</span><div>Observations are <strong>nested or repeated</strong> (same mouse, multiple slices; same patient, multiple visits)? <span class="dt-arrow">→ Yes →</span> use a <strong>mixed-effects model</strong> (lme4::lmer) — see Step 13.</div></div>
+<div class="dt-node"><span class="dt-q">Q4:</span><div>Diagnostics show severe outliers or heavy tails? <span class="dt-arrow">→ Yes →</span> <strong>robust regression</strong> (MASS::rlm with Huber or MM) or log/Box-Cox first.</div></div>
+<div class="dt-node"><span class="dt-q">Q5:</span><div>Heteroscedastic but the rest is OK? <span class="dt-arrow">→ Yes →</span> use <strong>robust sandwich SEs</strong> (White 1980, R: <code>sandwich::vcovHC</code>) or weighted least squares. β unchanged, SEs more reliable.</div></div>
+<div class="dt-node"><span class="dt-q">Q6:</span><div>p &gt; n or severe collinearity? <span class="dt-arrow">→ Yes →</span> <strong>Ridge</strong> (L2, shrinks all coefficients) or <strong>Lasso</strong> (L1, variable selection) or <strong>Elastic Net</strong>.</div></div>
+<div class="dt-node"><span class="dt-q">Q7:</span><div>Care about a conditional quantile, not the mean (e.g. "the worst 10%")? <span class="dt-arrow">→ Yes →</span> <strong>quantile regression</strong> (Koenker 2005).</div></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 8: Comparison table ===== -->
+<section class="section">
+<div class="section-label" data-zh="方法比較表" data-en="COMPARISON">方法比較表</div>
+<h2 data-zh="五、OLS / Robust / Ridge / Lasso / Quantile 比較" data-en="V. OLS / Robust / Ridge / Lasso / Quantile">五、五種迴歸快速對照</h2>
+
+<table class="comp-table">
+<thead><tr>
+<th data-zh="方法" data-en="Method">方法</th>
+<th data-zh="損失 / 目標" data-en="Loss / objective">損失 / 目標</th>
+<th data-zh="最佳情境" data-en="Best when">最佳情境</th>
+<th data-zh="代價" data-en="Trade-off">代價</th>
+<th data-zh="工具" data-en="Tools">工具</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>OLS</strong></td><td>min Σ(y−ŷ)²</td><td data-lang="zh">假設成立、推論為主</td><td data-lang="zh">對 outlier 敏感、共線性下變異大</td><td><code>lm</code>, <code>statsmodels.OLS</code></td><td data-lang="en">Assumptions hold, inference-focused</td><td data-lang="en">Sensitive to outliers; high variance under collinearity</td><td></td></tr>
+<tr><td><strong>Huber / MM (Robust)</strong></td><td data-lang="zh">小殘差用平方、大殘差用線性 (Huber 1964)</td><td data-lang="zh">outlier 多或重尾</td><td data-lang="zh">統計效率比 OLS 略低</td><td><code>MASS::rlm</code>, <code>statsmodels.RLM</code></td><td data-lang="en">Quadratic on small residuals, linear on large (Huber 1964)</td><td data-lang="en">Outliers or heavy tails</td><td data-lang="en">Slightly less efficient than OLS</td><td></td></tr>
+<tr><td><strong>Ridge (L2)</strong></td><td>min Σ(y−ŷ)² + λΣβⱼ²</td><td data-lang="zh">共線性嚴重、p 大、要預測</td><td data-lang="zh">係數有偏（縮向 0）、不做變數選擇</td><td><code>glmnet</code>, <code>sklearn.Ridge</code></td><td data-lang="en">Severe collinearity, large p, prediction</td><td data-lang="en">Coefficients biased (shrunk to 0); no variable selection</td><td></td></tr>
+<tr><td><strong>Lasso (L1)</strong></td><td data-lang="zh">min Σ(y−ŷ)² + λΣ|βⱼ| (Tibshirani 1996)</td><td data-lang="zh">高維、想做變數選擇</td><td data-lang="zh">相關變數中只挑一個、係數估計仍有偏</td><td><code>glmnet</code>, <code>sklearn.Lasso</code></td><td data-lang="en">min Σ(y−ŷ)² + λΣ|βⱼ| (Tibshirani 1996)</td><td data-lang="en">High-dimensional, automatic variable selection</td><td data-lang="en">Picks one from a correlated group; biased estimates</td><td></td></tr>
+<tr><td><strong>Elastic Net</strong></td><td>α·L1 + (1−α)·L2 (Zou-Hastie 2005)</td><td data-lang="zh">同時要群體選擇與穩定性</td><td data-lang="zh">兩個超參數需 CV</td><td><code>glmnet(alpha=0.5)</code></td><td data-lang="en">α·L1 + (1−α)·L2 (Zou-Hastie 2005)</td><td data-lang="en">Want group selection + stability</td><td data-lang="en">Two hyperparameters; needs CV</td><td></td></tr>
+<tr><td><strong>Quantile</strong></td><td data-lang="zh">min Σρ<sub>τ</sub>(y−ŷ) (Koenker-Bassett 1978)</td><td data-lang="zh">關心中位數或極端分位數</td><td data-lang="zh">SE 由 bootstrap，較不直接</td><td><code>quantreg::rq</code>, <code>statsmodels.QuantReg</code></td><td data-lang="en">min Σρ<sub>τ</sub>(y−ŷ) (Koenker-Bassett 1978)</td><td data-lang="en">Median or tail of the conditional distribution</td><td data-lang="en">SEs typically need bootstrap</td><td></td></tr>
+</tbody></table>
+
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>記憶卡：</strong>「<strong>L1 選變數，L2 救共線</strong>」。Lasso 把不重要的 β 壓成 0（變數選擇）；Ridge 把所有 β 都壓小一點（穩定變異）。L1 + L2 同時用就是 Elastic Net。生物資訊高維 (p ≫ n) 場景（基因表達 → 表型）常用 Lasso / Elastic Net 配 10-fold CV 選 λ。</span>
+<span data-lang="en"><strong>Mnemonic:</strong> "<strong>L1 selects, L2 stabilises.</strong>" Lasso shrinks unimportant βs exactly to 0 (variable selection); Ridge shrinks every β a bit (variance reduction). Combine both → Elastic Net. The high-dimensional p ≫ n setting in bioinformatics (gene expression → phenotype) typically uses Lasso / Elastic Net with 10-fold CV to pick λ.</span>
+</div></div>
+</section>
+
+<!-- ===== Section 9: Code ===== -->
+<section class="section">
+<div class="section-label" data-zh="程式碼" data-en="CODE">程式碼</div>
+<h2 data-zh="六、實作範例：lm、diagnostics、VIF、robust、ridge/lasso" data-en="VI. Code: lm, diagnostics, VIF, robust, ridge/lasso">六、實作範例</h2>
+<div class="code-tabs"><div class="code-tab-btns">
+<button class="code-tab-btn active" onclick="switchTab(this,'r1')">R / tidyverse</button>
+<button class="code-tab-btn" onclick="switchTab(this,'py1')">Python / statsmodels + sklearn</button>
+</div>
+<div class="code-tab-content active" id="r1"><pre><span class="comment"># R: linear regression workflow</span>
+<span class="func">library</span>(tidyverse); <span class="func">library</span>(car); <span class="func">library</span>(MASS); <span class="func">library</span>(sandwich); <span class="func">library</span>(lmtest); <span class="func">library</span>(glmnet)
+
+<span class="comment"># Example: systolic BP ~ age + BMI + sex (sex factor)</span>
+df &lt;- tibble(age=rnorm(<span class="num">200</span>,<span class="num">50</span>,<span class="num">12</span>), bmi=rnorm(<span class="num">200</span>,<span class="num">25</span>,<span class="num">4</span>),
+             sex=<span class="func">factor</span>(<span class="func">sample</span>(<span class="func">c</span>(<span class="str">"F"</span>,<span class="str">"M"</span>),<span class="num">200</span>,replace=<span class="kw">TRUE</span>)),
+             sbp=<span class="num">100</span> + <span class="num">0.5</span>*age + <span class="num">1.2</span>*bmi + <span class="func">rnorm</span>(<span class="num">200</span>,<span class="num">0</span>,<span class="num">8</span>))
+
+<span class="comment"># --- Fit &amp; summary ---</span>
+m &lt;- <span class="func">lm</span>(sbp ~ age + bmi + sex, data=df)
+<span class="func">summary</span>(m)              <span class="comment"># β̂, SE, t, p, R², adj R²</span>
+<span class="func">confint</span>(m)              <span class="comment"># 95% CI for each β</span>
+
+<span class="comment"># --- Four diagnostic plots in one line ---</span>
+<span class="func">par</span>(mfrow=<span class="func">c</span>(<span class="num">2</span>,<span class="num">2</span>)); <span class="func">plot</span>(m); <span class="func">par</span>(mfrow=<span class="func">c</span>(<span class="num">1</span>,<span class="num">1</span>))
+
+<span class="comment"># --- VIF for multicollinearity ---</span>
+car::<span class="func">vif</span>(m)               <span class="comment"># &gt; 5 mild, &gt; 10 severe</span>
+
+<span class="comment"># --- Heteroscedasticity test &amp; sandwich SE ---</span>
+lmtest::<span class="func">bptest</span>(m)               <span class="comment"># Breusch-Pagan test</span>
+lmtest::<span class="func">coeftest</span>(m, vcov.=sandwich::<span class="func">vcovHC</span>(m, type=<span class="str">"HC3"</span>))
+
+<span class="comment"># --- Robust regression (Huber / MM) ---</span>
+m_rob &lt;- MASS::<span class="func">rlm</span>(sbp ~ age + bmi + sex, data=df, psi=MASS::psi.huber)
+
+<span class="comment"># --- Influence: Cook's distance ---</span>
+cd &lt;- cooks.distance(m); <span class="func">which</span>(cd &gt; <span class="num">4</span>/<span class="func">nrow</span>(df))
+
+<span class="comment"># --- Ridge / Lasso via glmnet (alpha=0 ridge, 1 lasso) ---</span>
+X &lt;- model.matrix(sbp ~ age + bmi + sex, df)[,-<span class="num">1</span>]
+cv &lt;- glmnet::<span class="func">cv.glmnet</span>(X, df$sbp, alpha=<span class="num">1</span>)   <span class="comment"># lasso</span>
+<span class="func">coef</span>(cv, s=<span class="str">"lambda.min"</span>)</pre></div>
+<div class="code-tab-content" id="py1"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np, pandas <span class="kw">as</span> pd
+<span class="kw">import</span> statsmodels.api <span class="kw">as</span> sm
+<span class="kw">import</span> statsmodels.formula.api <span class="kw">as</span> smf
+<span class="kw">from</span> statsmodels.stats.outliers_influence <span class="kw">import</span> variance_inflation_factor
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> RidgeCV, LassoCV
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="comment"># --- Same example dataset ---</span>
+rng = np.random.default_rng(<span class="num">0</span>)
+df = pd.<span class="func">DataFrame</span>({
+  <span class="str">"age"</span>: rng.<span class="func">normal</span>(<span class="num">50</span>,<span class="num">12</span>,<span class="num">200</span>),
+  <span class="str">"bmi"</span>: rng.<span class="func">normal</span>(<span class="num">25</span>,<span class="num">4</span>,<span class="num">200</span>),
+  <span class="str">"sex"</span>: rng.<span class="func">choice</span>([<span class="str">"F"</span>,<span class="str">"M"</span>],<span class="num">200</span>)})
+df[<span class="str">"sbp"</span>] = <span class="num">100</span> + <span class="num">0.5</span>*df.age + <span class="num">1.2</span>*df.bmi + rng.<span class="func">normal</span>(<span class="num">0</span>,<span class="num">8</span>,<span class="num">200</span>)
+
+<span class="comment"># --- Fit &amp; summary ---</span>
+m = smf.<span class="func">ols</span>(<span class="str">"sbp ~ age + bmi + C(sex)"</span>, data=df).<span class="func">fit</span>()
+<span class="func">print</span>(m.<span class="func">summary</span>())                  <span class="comment"># β̂, SE, t, p, R², adj R²</span>
+<span class="func">print</span>(m.<span class="func">conf_int</span>())                 <span class="comment"># 95% CI</span>
+
+<span class="comment"># --- Four diagnostic plots manually ---</span>
+fitted, resid = m.fittedvalues, m.resid
+fig, ax = plt.<span class="func">subplots</span>(<span class="num">2</span>,<span class="num">2</span>, figsize=(<span class="num">9</span>,<span class="num">7</span>))
+ax[<span class="num">0</span>,<span class="num">0</span>].<span class="func">scatter</span>(fitted, resid); ax[<span class="num">0</span>,<span class="num">0</span>].<span class="func">set_title</span>(<span class="str">"Residuals vs Fitted"</span>)
+sm.<span class="func">qqplot</span>(resid, line=<span class="str">"s"</span>, ax=ax[<span class="num">0</span>,<span class="num">1</span>]); ax[<span class="num">0</span>,<span class="num">1</span>].<span class="func">set_title</span>(<span class="str">"QQ Plot"</span>)
+ax[<span class="num">1</span>,<span class="num">0</span>].<span class="func">scatter</span>(fitted, np.<span class="func">sqrt</span>(<span class="func">abs</span>(resid))); ax[<span class="num">1</span>,<span class="num">0</span>].<span class="func">set_title</span>(<span class="str">"Scale-Location"</span>)
+inf = m.<span class="func">get_influence</span>()
+ax[<span class="num">1</span>,<span class="num">1</span>].<span class="func">scatter</span>(inf.hat_matrix_diag, resid); ax[<span class="num">1</span>,<span class="num">1</span>].<span class="func">set_title</span>(<span class="str">"Residuals vs Leverage"</span>)
+
+<span class="comment"># --- VIF ---</span>
+X = sm.<span class="func">add_constant</span>(pd.<span class="func">get_dummies</span>(df[[<span class="str">"age"</span>,<span class="str">"bmi"</span>,<span class="str">"sex"</span>]], drop_first=<span class="kw">True</span>))
+[<span class="func">variance_inflation_factor</span>(X.values, i) <span class="kw">for</span> i <span class="kw">in</span> <span class="func">range</span>(X.shape[<span class="num">1</span>])]
+
+<span class="comment"># --- Robust regression (Huber) ---</span>
+m_rob = sm.<span class="func">RLM</span>(df.sbp, X, M=sm.robust.norms.<span class="func">HuberT</span>()).<span class="func">fit</span>()
+
+<span class="comment"># --- Heteroscedasticity-robust SE (HC3) ---</span>
+m_hc3 = smf.<span class="func">ols</span>(<span class="str">"sbp ~ age + bmi + C(sex)"</span>, data=df).<span class="func">fit</span>(cov_type=<span class="str">"HC3"</span>)
+
+<span class="comment"># --- Ridge / Lasso with CV ---</span>
+RidgeCV(alphas=np.<span class="func">logspace</span>(-<span class="num">2</span>,<span class="num">2</span>,<span class="num">50</span>)).<span class="func">fit</span>(X, df.sbp)
+LassoCV(cv=<span class="num">10</span>).<span class="func">fit</span>(X, df.sbp)</pre></div>
+</div>
+<div class="callout tip"><span class="callout-icon">💡</span><div>
+<span data-lang="zh"><strong>實務 SOP：</strong>(1) 先 <code>summary(model)</code>；(2) <code>plot(model)</code> 看四圖；(3) <code>vif()</code> 看共線性；(4) <code>bptest()</code> 看異變異數，必要時改 sandwich SE；(5) 用 <code>cooks.distance()</code> 看影響點，做敏感度分析；(6) 報告時附 95% CI（不是 SE）。</span>
+<span data-lang="en"><strong>Standard workflow:</strong> (1) <code>summary(model)</code>; (2) <code>plot(model)</code> for four diagnostics; (3) <code>vif()</code> for collinearity; (4) <code>bptest()</code> for heteroscedasticity, swap to sandwich SEs if needed; (5) <code>cooks.distance()</code> for influence + sensitivity check; (6) report 95% CIs (not SEs).</span>
+</div></div>
+</section>
+
+<!-- ===== Section 10: Pitfalls ===== -->
+<section class="section">
+<div class="section-label" data-zh="常見陷阱" data-en="COMMON PITFALLS">常見陷阱</div>
+<h2 data-zh="七、五個迴歸論文最常見的災難" data-en="VII. Five disasters seen in regression papers">七、五個論文常見災難</h2>
+<div class="card-grid cols-2">
+<div class="card"><h4>❌ <span data-zh="Table 2 fallacy" data-en="Table 2 fallacy">Table 2 fallacy</span></h4>
+<div data-lang="zh"><p><strong>Westreich &amp; Greenland 2013 AJE</strong>：流行病學論文 Table 2 通常把模型裡<strong>所有變數的 β</strong>都當成「該變數對 y 的因果效應」報告。但只有<strong>主要 estimand</strong>（target exposure → outcome）的 β 在因果上有意義；其他變數（混淆變數 confounders、中介變數 mediators）的 β 在<strong>條件解讀</strong>上與想像的不同。</p>
+<p><strong>對策：</strong>畫 DAG（Pearl 2009; Hernán-Robins 2020）、明確指定 estimand、只報告主要 exposure 的因果係數，其他變數標為「adjusted for」。</p></div>
+<div data-lang="en"><p><strong>Westreich &amp; Greenland (2013 AJE)</strong>: most epidemiology Table 2s present <strong>every β</strong> as if it were the causal effect of that variable on y. But only the <strong>target estimand</strong> (exposure → outcome) carries causal meaning; coefficients for confounders/mediators have a <strong>conditional</strong> interpretation that almost never matches the implied causal story.</p>
+<p><strong>Fix:</strong> draw a DAG (Pearl 2009; Hernán-Robins 2020), declare the estimand, report only the target exposure's coefficient causally — list other variables as "adjusted for".</p></div>
+</div>
+
+<div class="card"><h4>❌ <span data-zh="忽略 VIF &gt; 10" data-en="Ignoring VIF &gt; 10">忽略共線性</span></h4>
+<div data-lang="zh"><p>在 BMI 同時放 weight 與 height（VIF 爆炸），結果 weight 的 β 不顯著卻方向反——共線性常造成「<strong>顯著翻轉</strong>」。每次跑迴歸都該 <code>vif()</code>。</p></div>
+<div data-lang="en"><p>Putting weight and height alongside BMI (VIF explodes), the weight β flips sign and is non-significant — collinearity often causes "<strong>sign flips</strong>". Always run <code>vif()</code>.</p></div>
+</div>
+
+<div class="card"><h4>❌ <span data-zh="忽略遺漏變數偏誤" data-en="Omitted variable bias">遺漏變數偏誤</span></h4>
+<div data-lang="zh"><p>真實 y 受 z 影響，z 又與 x 相關，但模型沒放 z——<strong>x 的 β 會吸收 z 的效應</strong>。生物資料中 age、sex 常是被遺忘的共同混淆。判斷依靠 DAG，而不是 R²。</p></div>
+<div data-lang="en"><p>If z drives y and z correlates with x, but z isn't in the model — <strong>x's β absorbs z's effect</strong>. In biological data, age and sex are the usual forgotten common causes. Decide what to include from a DAG, not from R².</p></div>
+</div>
+
+<div class="card"><h4>❌ <span data-zh="外推 (extrapolation)" data-en="Extrapolation">外推</span></h4>
+<div data-lang="zh"><p>資料 x 範圍 10–60，預測 x = 100 的 y——數學可以給你一個數字，但<strong>沒有任何證據</strong>那裡是線性。外推是 Challenger 太空梭 O-ring 災難（1986）的統計教訓：發射溫度 31°F 遠在歷史資料下限 (53°F) 之外。</p></div>
+<div data-lang="en"><p>Your x ranges over 10–60 and you predict at x = 100 — the math returns a number but you have <strong>no evidence</strong> the line continues. Extrapolation is the statistical lesson of the Challenger O-ring disaster (1986): launch temperature 31°F was well below the historical minimum (53°F).</p></div>
+</div>
+
+<div class="card"><h4>❌ <span data-zh="R²-chasing" data-en="R² chasing">R² 至上主義</span></h4>
+<div data-lang="zh"><p>「我把 R² 從 0.6 衝到 0.9 了！」——多半是加了過多變數導致<strong>過度擬合 (overfitting)</strong>。判斷模型好壞應看：(1) <strong>adjusted R²</strong>；(2) <strong>cross-validated R²</strong>；(3) <strong>out-of-sample MSE</strong>。論文上請報告 adjusted R² 或交叉驗證表現，不是 raw R²。</p></div>
+<div data-lang="en"><p>"I pushed R² from 0.6 to 0.9!" — usually by adding so many predictors that you <strong>overfit</strong>. Judge models by: (1) <strong>adjusted R²</strong>; (2) <strong>cross-validated R²</strong>; (3) <strong>out-of-sample MSE</strong>. Papers should report adjusted R² or CV performance, not raw R².</p></div>
+</div>
+
+<div class="card"><h4>❌ <span data-zh="不畫殘差圖就發表" data-en="Publishing without residual plots">不畫殘差圖</span></h4>
+<div data-lang="zh"><p>論文中迴歸結果只給「β, SE, p」表，卻沒有 residual vs fitted 與 QQ plot——這是 reviewer 應立即退件的紅旗。Fox（2016 Applied Regression）：「沒有診斷的迴歸是迷信。」</p></div>
+<div data-lang="en"><p>Papers reporting regressions as a β / SE / p table without residuals-vs-fitted or QQ plots — a red flag any reviewer should catch. Fox (2016 Applied Regression): "Regression without diagnostics is superstition."</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 11: Real biomedical examples ===== -->
+<section class="section">
+<div class="section-label" data-zh="生物醫學案例" data-en="BIOMEDICAL CASES">生物醫學案例</div>
+<h2 data-zh="八、兩個案例：血壓與基因表達" data-en="VIII. Two cases: blood pressure & gene expression">八、兩個案例</h2>
+<div class="split">
+<div>
+<h5 data-zh="案例 A：血壓 ~ 年齡 + BMI + 性別" data-en="Case A: BP ~ age + BMI + sex">案例 A：BP ~ age + BMI + sex</h5>
+<div data-lang="zh"><p>目標 estimand：BMI 對 SBP 的<strong>條件效應</strong>（控制 age、sex）。建模：<code>lm(sbp ~ age + bmi + sex)</code>。預期 β<sub>BMI</sub> ≈ 1–1.5 mmHg per kg/m² (Linderman 2018)。診斷：殘差通常輕微右偏；考慮 log(SBP) 或 robust SE。報告：「BMI was associated with SBP (β = 1.2, 95% CI 0.9–1.5, p &lt; 0.001), adjusting for age and sex.」<strong>不要</strong>把 age 的 β 也當成「年齡的因果效應」報告——Table 2 fallacy！</p></div>
+<div data-lang="en"><p>Target estimand: the <strong>conditional</strong> effect of BMI on SBP (adjusting for age, sex). Fit: <code>lm(sbp ~ age + bmi + sex)</code>. Expect β<sub>BMI</sub> ≈ 1–1.5 mmHg per kg/m² (Linderman 2018). Diagnostics: residuals are usually mildly right-skewed → consider log(SBP) or robust SEs. Report: "BMI was associated with SBP (β = 1.2, 95% CI 0.9–1.5, p &lt; 0.001), adjusting for age and sex." <strong>Don't</strong> simultaneously report the age β as its causal effect — Table 2 fallacy!</p></div>
+</div>
+<div>
+<h5 data-zh="案例 B：基因表達 ~ 時間 + 處理" data-en="Case B: Gene expression ~ time + treatment">案例 B：expr ~ time + treatment</h5>
+<div data-lang="zh"><p>RNA-seq 中對單一基因擬合 <code>lm(log2_expr ~ time * treatment)</code>——交互項代表「處理改變了時間趨勢」。<strong>陷阱：</strong>(1) RNA-seq 計數應該用 NB-GLM (DESeq2 / edgeR) 而非 OLS，OLS 對小 count 變異估計錯；(2) 同一隻動物多時間點 → 需要 mixed model（random intercept per animal）；(3) 跨基因檢定要 BH-FDR 校正（Step 12）。</p></div>
+<div data-lang="en"><p>For a single gene in RNA-seq, fit <code>lm(log2_expr ~ time * treatment)</code> — the interaction says "treatment alters the time trend". <strong>Caveats:</strong> (1) raw counts should use NB-GLMs (DESeq2 / edgeR), not OLS — OLS mis-estimates variance for small counts; (2) repeated measures on the same animal → mixed model with random intercept per animal; (3) testing across many genes requires BH-FDR (Step 12).</p></div>
+</div>
+</div>
+</section>
+
+<!-- ===== Section 12: References highlights ===== -->
+<section class="section">
+<div class="section-label" data-zh="重要文獻" data-en="KEY REFERENCES">重要文獻</div>
+<h2 data-zh="九、必讀清單" data-en="IX. Essential reading">九、必讀清單</h2>
+<div data-lang="zh"><ul>
+<li><strong>Galton 1886</strong>「Regression towards mediocrity in hereditary stature」J Anthropol Inst — 迴歸這個詞的起源。</li>
+<li><strong>Gauss 1809</strong>《Theoria motus》— OLS 的數學奠基。</li>
+<li><strong>Westreich &amp; Greenland 2013 AJE</strong>「The Table 2 fallacy」— 必讀，避免最常見的因果誤解。</li>
+<li><strong>White 1980 Econometrica</strong>「A heteroskedasticity-consistent covariance matrix estimator」— sandwich SE 的原典。</li>
+<li><strong>Tibshirani 1996 JRSS-B</strong>「Regression shrinkage and selection via the lasso」— Lasso 原典。</li>
+<li><strong>Hoerl &amp; Kennard 1970 Technometrics</strong> — Ridge regression 原典。</li>
+<li><strong>Zou &amp; Hastie 2005 JRSS-B</strong> — Elastic Net。</li>
+<li><strong>James, Witten, Hastie, Tibshirani 2021 <em>ISLR</em> 2nd ed</strong> — 線性模型與規則化的最佳教科書（免費 PDF）。</li>
+<li><strong>Fox 2016 <em>Applied Regression Analysis</em> 3rd ed</strong> — 診斷的聖經。</li>
+<li><strong>Harrell 2015 <em>Regression Modeling Strategies</em> 2nd ed</strong> — 臨床建模實務、spline、shrinkage、validation。</li>
+<li><strong>Hernán &amp; Robins 2020 <em>Causal Inference: What If</em></strong> — DAG 與條件解讀的因果框架（免費 PDF）。</li>
+</ul></div>
+<div data-lang="en"><ul>
+<li><strong>Galton 1886</strong> "Regression towards mediocrity in hereditary stature", J Anthropol Inst — origin of the word.</li>
+<li><strong>Gauss 1809</strong> <em>Theoria motus</em> — mathematical foundation of OLS.</li>
+<li><strong>Westreich &amp; Greenland 2013 AJE</strong> "The Table 2 fallacy" — essential, prevents the most common causal misreading.</li>
+<li><strong>White 1980 Econometrica</strong> — origin of sandwich (HC) standard errors.</li>
+<li><strong>Tibshirani 1996 JRSS-B</strong> — the Lasso paper.</li>
+<li><strong>Hoerl &amp; Kennard 1970 Technometrics</strong> — Ridge regression.</li>
+<li><strong>Zou &amp; Hastie 2005 JRSS-B</strong> — Elastic Net.</li>
+<li><strong>James, Witten, Hastie, Tibshirani 2021 <em>ISLR</em> 2nd ed</strong> — best textbook for linear models &amp; regularisation (free PDF).</li>
+<li><strong>Fox 2016 <em>Applied Regression Analysis</em> 3rd ed</strong> — the diagnostics bible.</li>
+<li><strong>Harrell 2015 <em>Regression Modeling Strategies</em> 2nd ed</strong> — clinical modelling, splines, shrinkage, validation.</li>
+<li><strong>Hernán &amp; Robins 2020 <em>Causal Inference: What If</em></strong> — DAGs and the conditional-interpretation framework (free PDF).</li>
+</ul></div>
+</section>
+
+<!-- ===== Section 13: Quiz ===== -->
+<section class="quiz-section">
+<h3>📝 <span data-zh="自我檢測" data-en="Self-Check">自我檢測</span></h3>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">1. Residuals vs Fitted 圖呈現「漏斗形」（殘差變異隨 fitted 值增加），這意味著違反了哪個 OLS 假設？</p>
+<p data-lang="en">1. A Residuals vs Fitted plot shows a funnel (variance grows with fitted value). Which OLS assumption is violated?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 線性 (Linearity)</span><span data-lang="en">A. Linearity</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 殘差常態性 (Normality)</span><span data-lang="en">B. Normality of residuals</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 同變異數 (Homoscedasticity)</span><span data-lang="en">C. Homoscedasticity (equal variance)</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 獨立性 (Independence)</span><span data-lang="en">D. Independence</span></div>
+</div><div class="quiz-feedback" id="fb1"></div></div>
+
+<div class="quiz-q" data-answer="3">
+<p data-lang="zh">2. 你跑迴歸後發現 VIF = 12，下列最合理的處置是？</p>
+<p data-lang="en">2. After fitting your regression you find VIF = 12. The most reasonable response?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 不管它，p 值還是顯著的</span><span data-lang="en">A. Ignore it — the p-values are still significant</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 增加更多變數來「稀釋」共線性</span><span data-lang="en">B. Add more variables to "dilute" collinearity</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 刪除所有 p &gt; 0.05 的變數</span><span data-lang="en">C. Drop any variable with p &gt; 0.05</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 移除一個冗餘變數，或改用 ridge / PCA</span><span data-lang="en">D. Drop a redundant variable, or switch to ridge / PCA</span></div>
+</div><div class="quiz-feedback" id="fb2"></div></div>
+
+<div class="quiz-q" data-answer="1">
+<p data-lang="zh">3. Westreich &amp; Greenland 2013「Table 2 fallacy」警告的是什麼？</p>
+<p data-lang="en">3. What does Westreich &amp; Greenland's "Table 2 fallacy" (2013) warn against?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 不應該用迴歸做因果推論</span><span data-lang="en">A. Never use regression for causal inference</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 將模型中所有變數的 β 都當作各自的因果效應來解讀</span><span data-lang="en">B. Interpreting every β in the model as that variable's causal effect</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. 報告 R² 而不報告 adjusted R²</span><span data-lang="en">C. Reporting R² rather than adjusted R²</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 同時把連續變數與類別變數放在一個模型</span><span data-lang="en">D. Mixing continuous and categorical predictors</span></div>
+</div><div class="quiz-feedback" id="fb3"></div></div>
+
+<div class="quiz-q" data-answer="2">
+<p data-lang="zh">4. p &gt; n 的高維基因表達資料（20,000 genes、200 samples）預測表型，下列哪個方法最合適？</p>
+<p data-lang="en">4. For high-dimensional gene-expression data (20,000 genes, 200 samples) predicting phenotype, which is best?</p>
+<div class="quiz-options">
+<div class="quiz-opt" data-idx="0"><span data-lang="zh">A. 普通 OLS — 解越多越好</span><span data-lang="en">A. Plain OLS — more variables, better fit</span></div>
+<div class="quiz-opt" data-idx="1"><span data-lang="zh">B. 用 stepwise selection 挑變數</span><span data-lang="en">B. Stepwise variable selection</span></div>
+<div class="quiz-opt" data-idx="2"><span data-lang="zh">C. Lasso 或 Elastic Net 配 10-fold CV</span><span data-lang="en">C. Lasso or Elastic Net with 10-fold CV</span></div>
+<div class="quiz-opt" data-idx="3"><span data-lang="zh">D. 只用 p 值前 100 名的基因再跑 OLS</span><span data-lang="en">D. Pre-filter top 100 genes by p, then run OLS</span></div>
+</div><div class="quiz-feedback" id="fb4"></div></div>
+
+</section>
+
+<nav class="page-nav"><a href="anova.html"><span class="nav-dir" data-zh="← 上一章" data-en="← Previous">← 上一章</span><span class="nav-title" data-zh="Step 7：ANOVA" data-en="Step 7: ANOVA">Step 7：ANOVA</span></a><a href="logistic.html"><span class="nav-dir" data-zh="下一章 →" data-en="Next →">下一章 →</span><span class="nav-title" data-zh="Step 9：邏輯迴歸" data-en="Step 9: Logistic">Step 9：邏輯迴歸</span></a></nav>
+</main>
+<footer class="site-footer">© Charlene — Biostatistics Interactive Tutorial</footer>
+<script src="i18n.js"></script>
+<script>
+window.addEventListener("scroll",()=>{const h=document.documentElement;const pb=document.getElementById("progressBar");if(pb)pb.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100+"%";});
+function switchTab(b,id){const p=b.closest(".code-tabs");p.querySelectorAll(".code-tab-btn").forEach(x=>x.classList.remove("active"));p.querySelectorAll(".code-tab-content").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(id).classList.add("active");}
+
+// ===== Helpers =====
+function randn(){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function olsFit(xs,ys){const n=xs.length;const mx=xs.reduce((a,b)=>a+b,0)/n;const my=ys.reduce((a,b)=>a+b,0)/n;let sxy=0,sxx=0,syy=0;for(let i=0;i<n;i++){sxy+=(xs[i]-mx)*(ys[i]-my);sxx+=(xs[i]-mx)*(xs[i]-mx);syy+=(ys[i]-my)*(ys[i]-my);}const b1=sxy/sxx;const b0=my-b1*mx;const res=xs.map((x,i)=>ys[i]-(b0+b1*x));const sse=res.reduce((s,r)=>s+r*r,0);const r2=1-sse/syy;const sigma=Math.sqrt(sse/(n-2));const seB1=sigma/Math.sqrt(sxx);return {b0,b1,r2,sigma,res,seB1,fitted:xs.map(x=>b0+b1*x)};}
+
+// ===== Sim 1: regression playground =====
+const regChart=new Chart(document.getElementById('regChart'),{type:'scatter',data:{datasets:[
+  {label:'data',data:[],backgroundColor:'rgba(15,118,110,0.55)',pointRadius:4},
+  {label:'OLS fit',type:'line',data:[],borderColor:'rgba(192,57,43,1)',borderWidth:2,pointRadius:0,fill:false},
+  {label:'true line',type:'line',data:[],borderColor:'rgba(120,120,120,0.85)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{labels:{boxWidth:10}}},scales:{x:{title:{display:true,text:'x'}},y:{title:{display:true,text:'y'}}}}});
+function upReg(){const b0=+document.getElementById('sliderB0').value,b1=+document.getElementById('sliderB1').value,sig=+document.getElementById('sliderSig').value,n=+document.getElementById('sliderN').value;
+  document.getElementById('valB0').textContent=b0;document.getElementById('valB1').textContent=b1;document.getElementById('valSig').textContent=sig;document.getElementById('valN').textContent=n;
+  const xs=[],ys=[];for(let i=0;i<n;i++){const x=Math.random()*10;xs.push(x);ys.push(b0+b1*x+sig*randn());}
+  const f=olsFit(xs,ys);
+  regChart.data.datasets[0].data=xs.map((x,i)=>({x,y:ys[i]}));
+  const xR=[0,10];regChart.data.datasets[1].data=xR.map(x=>({x,y:f.b0+f.b1*x}));
+  regChart.data.datasets[2].data=xR.map(x=>({x,y:b0+b1*x}));
+  regChart.update('none');
+  const L=I18n.get();
+  document.getElementById('regStats').innerHTML=L==='zh'?
+    `<strong>OLS β̂₀</strong> = ${f.b0.toFixed(2)} (真實 ${b0}) · <strong>OLS β̂₁</strong> = ${f.b1.toFixed(2)} (真實 ${b1}) · <strong>SE(β̂₁)</strong> = ${f.seB1.toFixed(3)}<br><strong>R²</strong> = ${f.r2.toFixed(3)} · <strong>殘差 SD σ̂</strong> = ${f.sigma.toFixed(2)} (真實 σ = ${sig}) · n = ${n}<br>${Math.abs(f.b1-b1)<2*f.seB1?'✅ β̂₁ 落在真實值的 2 SE 內':'⚠️ β̂₁ 距離真實值 &gt; 2 SE — 重抽看看'}`:
+    `<strong>OLS β̂₀</strong> = ${f.b0.toFixed(2)} (true ${b0}) · <strong>OLS β̂₁</strong> = ${f.b1.toFixed(2)} (true ${b1}) · <strong>SE(β̂₁)</strong> = ${f.seB1.toFixed(3)}<br><strong>R²</strong> = ${f.r2.toFixed(3)} · <strong>Residual SD σ̂</strong> = ${f.sigma.toFixed(2)} (true σ = ${sig}) · n = ${n}<br>${Math.abs(f.b1-b1)<2*f.seB1?'✅ β̂₁ within 2 SE of truth':'⚠️ β̂₁ &gt; 2 SE from truth — resample'}`;
+}
+['sliderB0','sliderB1','sliderSig','sliderN'].forEach(id=>document.getElementById(id).addEventListener('input',upReg));
+document.addEventListener('langchange',upReg);
+upReg();
+
+// ===== Sim 2: diagnostic plots =====
+function genDiag(scn){const n=80;const xs=[],ys=[];for(let i=0;i<n;i++){const x=Math.random()*10;let y;
+  if(scn==='none'){y=2+1.5*x+randn()*1.5;}
+  else if(scn==='hetero'){y=2+1.5*x+randn()*0.3*(x+1);}
+  else if(scn==='nonlin'){y=2+1.5*x-0.2*x*x+randn()*1.0;}
+  else if(scn==='outlier'){y=2+1.5*x+randn()*1.2;if(i===0)y=y+25;}
+  xs.push(x);ys.push(y);}return {xs,ys};}
+function makeChart(id,title,xt,yt){return new Chart(document.getElementById(id),{type:'scatter',data:{datasets:[
+  {label:title,data:[],backgroundColor:'rgba(15,118,110,0.55)',pointRadius:3},
+  {label:'ref',type:'line',data:[],borderColor:'rgba(160,160,160,0.8)',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false},title:{display:true,text:title,font:{size:11}}},scales:{x:{title:{display:true,text:xt,font:{size:10}}},y:{title:{display:true,text:yt,font:{size:10}}}}}});}
+const cRF=makeChart('diagRF','Residuals vs Fitted','fitted','residual');
+const cQQ=makeChart('diagQQ','QQ Plot','theoretical','sample');
+const cSL=makeChart('diagSL','Scale-Location','fitted','√|std resid|');
+const cLV=makeChart('diagLV','Residuals vs Leverage','leverage','std residual');
+function erf(x){const s=Math.sign(x);x=Math.abs(x);const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;const t=1.0/(1.0+p*x);const y=1.0-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return s*y;}
+function probit(p){let lo=-6,hi=6;for(let i=0;i<60;i++){const m=(lo+hi)/2;if(0.5*(1+erf(m/Math.SQRT2))<p)lo=m;else hi=m;}return (lo+hi)/2;}
+function upDiag(){const scn=document.getElementById('scenario').value;const d=genDiag(scn);const f=olsFit(d.xs,d.ys);
+  const stdRes=f.res.map(r=>r/f.sigma);
+  const n=d.xs.length;const mx=d.xs.reduce((a,b)=>a+b,0)/n;let sxx=0;for(let i=0;i<n;i++)sxx+=(d.xs[i]-mx)*(d.xs[i]-mx);const lev=d.xs.map(x=>1/n+(x-mx)*(x-mx)/sxx);
+  cRF.data.datasets[0].data=f.fitted.map((x,i)=>({x,y:f.res[i]}));
+  cRF.data.datasets[1].data=[{x:Math.min(...f.fitted),y:0},{x:Math.max(...f.fitted),y:0}];
+  const sorted=[...stdRes].sort((a,b)=>a-b);
+  const qq=sorted.map((r,i)=>({x:probit((i+0.5)/n),y:r}));
+  cQQ.data.datasets[0].data=qq;cQQ.data.datasets[1].data=[{x:-3,y:-3},{x:3,y:3}];
+  cSL.data.datasets[0].data=f.fitted.map((x,i)=>({x,y:Math.sqrt(Math.abs(stdRes[i]))}));
+  cSL.data.datasets[1].data=[];
+  cLV.data.datasets[0].data=lev.map((h,i)=>({x:h,y:stdRes[i]}));
+  cLV.data.datasets[1].data=[{x:Math.min(...lev),y:0},{x:Math.max(...lev),y:0}];
+  [cRF,cQQ,cSL,cLV].forEach(c=>c.update('none'));
+  const L=I18n.get();
+  const msg={
+    none:{zh:'✅ 健康：四圖無明顯型態。β̂ 與真實值非常接近。',en:'✅ Healthy: no pattern in any of the four plots. β̂ tracks truth well.'},
+    hetero:{zh:'⚠️ 異變異數：Residuals vs Fitted 與 Scale-Location 都呈漏斗形——β unbiased 但 SE 錯。改用 sandwich SE 或 weighted LS。',en:'⚠️ Heteroscedasticity: funnel in Residuals vs Fitted and Scale-Location — β unbiased but SEs wrong. Use sandwich SEs or WLS.'},
+    nonlin:{zh:'⚠️ 非線性：Residuals vs Fitted 出現曲線——β 整個錯。加二次項或 spline。',en:'⚠️ Non-linearity: curved pattern in Residuals vs Fitted — β estimates are wrong. Add a quadratic term or spline.'},
+    outlier:{zh:'⚠️ 離群點：QQ 翹尾、Leverage 圖出現一個極端點。檢查資料正確性，或用 robust regression。',en:'⚠️ Outlier: bent QQ tail + one extreme leverage point. Check data, or switch to robust regression.'}
+  };
+  document.getElementById('diagStats').innerHTML=`<strong>R²</strong> = ${f.r2.toFixed(3)} · <strong>β̂₀</strong> = ${f.b0.toFixed(2)} · <strong>β̂₁</strong> = ${f.b1.toFixed(2)} · σ̂ = ${f.sigma.toFixed(2)}<br>${msg[scn][L]}`;
+}
+document.getElementById('scenario').addEventListener('change',upDiag);
+document.addEventListener('langchange',upDiag);
+upDiag();
+
+// ===== Quiz =====
+const QF={
+  zh:{q1_y:'漏斗形是同變異數 (homoscedasticity) 違反的招牌——可用 robust sandwich SE (White 1980) 或 WLS。',q1_n:'正確選項已標示。',
+      q2_y:'VIF &gt; 10 為嚴重共線性——移除冗餘、合併、或改 ridge / PCA。增加變數只會更糟。',q2_n:'正確選項已標示。',
+      q3_y:'Table 2 fallacy = 把模型中每個變數的 β 當作該變數的因果效應。只有 target estimand 的 β 在因果上有意義。',q3_n:'正確選項已標示。',
+      q4_y:'p ≫ n 是 Lasso / Elastic Net 的主場景，搭配 CV 選 λ；stepwise 在高維極不穩定。',q4_n:'正確選項已標示。'},
+  en:{q1_y:'A funnel is the hallmark of heteroscedasticity — use robust sandwich SEs (White 1980) or WLS.',q1_n:'Correct option highlighted.',
+      q2_y:'VIF &gt; 10 means severe collinearity — drop a redundant variable, combine, or switch to ridge / PCA. Adding more variables makes it worse.',q2_n:'Correct option highlighted.',
+      q3_y:'Table 2 fallacy = treating every β in the model as that variable\'s causal effect. Only the target estimand has a causal interpretation.',q3_n:'Correct option highlighted.',
+      q4_y:'p ≫ n is the home turf of Lasso / Elastic Net with CV-tuned λ; stepwise is extremely unstable in high dimensions.',q4_n:'Correct option highlighted.'}
+};
+document.querySelectorAll('.quiz-q').forEach((q,qi)=>{const ans=+q.dataset.answer;q.querySelectorAll('.quiz-opt').forEach(o=>{o.addEventListener('click',()=>{if(q.classList.contains('answered'))return;q.classList.add('answered');const fb=document.getElementById('fb'+(qi+1));const ok=+o.dataset.idx===ans;o.classList.add(ok?'correct':'wrong');if(!ok)q.querySelectorAll('.quiz-opt')[ans].classList.add('correct');const L=I18n.get();fb.className='quiz-feedback show '+(ok?'correct-fb':'wrong-fb');fb.textContent=(ok?'✅ ':'❌ ')+(QF[L]['q'+(qi+1)+'_'+(ok?'y':'n')]||'');});});});
+</script></body></html>
